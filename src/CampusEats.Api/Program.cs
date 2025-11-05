@@ -3,25 +3,26 @@ using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
-// Configure DbContext: use InMemory during development or when UseInMemory=true is set in config
-var useInMemory = builder.Configuration.GetValue<bool?>("UseInMemory") ?? false;
-if (useInMemory || builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDbContext<CampusDbContext>(options =>
-        options.UseInMemoryDatabase("CampusEatsInMemory"));
-}
-else
-{
-    builder.Services.AddDbContext<CampusDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
+var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? builder.Configuration["POSTGRES_HOST"];
+var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? builder.Configuration["POSTGRES_PORT"];
+var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? builder.Configuration["POSTGRES_DB"];
+var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? builder.Configuration["POSTGRES_USER"];
+var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? builder.Configuration["POSTGRES_PASSWORD"];
+
+var connectionString = string.IsNullOrEmpty(postgresHost)
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : $"Host={postgresHost};Port={postgresPort};Database={postgresDb};Username={postgresUser};Password={postgresPassword}";
+
+builder.Services.AddDbContext<CampusDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
@@ -40,26 +41,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// If using in-memory DB, seed some sample data to make Swagger/test interactions simpler
-if (useInMemory || app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    // Ensure database is created (for InMemory this is a no-op but keeps parity)
-    db.Database.EnsureCreated();
-
-    if (!db.MenuItems.Any())
-    {
-        db.MenuItems.AddRange(new[]
-        {
-            new MenuItem { Id = Guid.NewGuid(), Name = "Cheeseburger", Description = "Beef patty with cheese", Price = 6.99M, IsAvailable = true, CreatedAt = DateTimeOffset.UtcNow },
-            new MenuItem { Id = Guid.NewGuid(), Name = "Veggie Wrap", Description = "Fresh veggies and hummus", Price = 5.49M, IsAvailable = true, CreatedAt = DateTimeOffset.UtcNow }
-        });
-        db.SaveChanges();
-    }
-}
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -70,7 +51,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowClientApp");
 app.UseHttpsRedirection();
 
-// --- MenuItems endpoints (GET, GET by id, PUT, DELETE) ---
 app.MapGet("/api/menuitems", async (CampusDbContext db) =>
     await db.MenuItems.ToListAsync())
     .WithName("GetMenuItems")
@@ -86,7 +66,6 @@ app.MapPut("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id, MenuI
     var item = await db.MenuItems.FindAsync(id);
     if (item == null) return Results.NotFound();
 
-    // update allowed fields
     item.Name = update.Name;
     item.Description = update.Description;
     item.Price = update.Price;
