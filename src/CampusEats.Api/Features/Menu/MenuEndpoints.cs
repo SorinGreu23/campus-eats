@@ -51,8 +51,7 @@ public static class MenuEndpoints
 
         group.MapDelete("/{id:guid}", async (Guid id, [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new DeleteItemRequest(id));
-            return result ? Results.NoContent() : Results.NotFound();
+            return await mediator.Send(new DeleteItemRequest(id));
         })
         .WithName("DeleteMenuItem")
         .Produces(StatusCodes.Status204NoContent)

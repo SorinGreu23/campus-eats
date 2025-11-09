@@ -1,10 +1,11 @@
 using CampusEats.Api.Data;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Menu;
 
-public class DeleteItemHandler : IRequestHandler<DeleteItemRequest, bool>
+public class DeleteItemHandler : IRequestHandler<DeleteItemRequest, IResult>
 {
     private readonly CampusDbContext _context;
 
@@ -13,17 +14,20 @@ public class DeleteItemHandler : IRequestHandler<DeleteItemRequest, bool>
         _context = context;
     }
 
-    public async Task<bool> Handle(DeleteItemRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(DeleteItemRequest request, CancellationToken cancellationToken)
     {
         var menuItem = await _context.MenuItems
             .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
         if (menuItem == null)
-            return false;
+        {
+            return Results.NotFound(new { message = $"Menu item with ID '{request.Id}' was not found." });
+        }
 
         _context.MenuItems.Remove(menuItem);
         await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        
+        return Results.NoContent();
     }
 }
 
