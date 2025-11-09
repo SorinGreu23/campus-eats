@@ -5,7 +5,6 @@ public record GetItemsResponse(
     string Name,
     string? Description,
     decimal Price,
-    Guid? CategoryId,
     string? CategoryName,
     string? ImageUrl,
     int? PreparationTimeMinutes,

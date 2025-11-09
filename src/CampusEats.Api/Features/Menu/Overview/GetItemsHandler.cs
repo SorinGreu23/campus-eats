@@ -23,7 +23,6 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
                 m.Name,
                 m.Description,
                 m.Price,
-                m.CategoryId,
                 m.Category != null ? m.Category.Name : null,
                 m.ImageUrl,
                 m.PreparationTimeMinutes,
