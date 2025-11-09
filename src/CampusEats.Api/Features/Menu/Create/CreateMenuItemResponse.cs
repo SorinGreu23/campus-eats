@@ -1,3 +1,5 @@
+namespace CampusEats.Api.Features.Menu;
+
 public record CreateItemResponse(
         Guid Id,
         string Name,

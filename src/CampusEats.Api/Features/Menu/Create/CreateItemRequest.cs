@@ -1,5 +1,7 @@
 using MediatR;
 
+namespace CampusEats.Api.Features.Menu;
+
 public record CreateItemRequest(
         string Name,
         string? Description,

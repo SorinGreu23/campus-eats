@@ -12,31 +12,31 @@ public static class MenuEndpoints
 
         group.MapGet("/", async ([FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetMenuItems.Query());
+            var result = await mediator.Send(new GetItemsRequest());
             return Results.Ok(result);
         })
         .WithName("GetMenuItems")
-        .Produces<List<GetMenuItems.Response>>();
+        .Produces<List<GetItemsResponse>>();
 
         group.MapGet("/{id:guid}", async (Guid id, [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetMenuItemById.Query(id));
+            var result = await mediator.Send(new GetItemRequest(id));
             return result is not null ? Results.Ok(result) : Results.NotFound();
         })
         .WithName("GetMenuItemById")
-        .Produces<GetMenuItemById.Response>()
+        .Produces<GetItemResponse>()
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapPost("/", async ([FromBody] CreateItemHandler.Command command, [FromServices] IMediator mediator) =>
+        group.MapPost("/", async ([FromBody] CreateItemRequest command, [FromServices] IMediator mediator) =>
         {
             var result = await mediator.Send(command);
             return Results.Created($"/api/menuitems/{result.Id}", result);
         })
         .WithName("CreateMenuItem")
-        .Produces<CreateItemHandler.Response>(StatusCodes.Status201Created)
+        .Produces<CreateItemResponse>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest);
 
-        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateMenuItem.Command command,
+        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateItemRequest command,
                 [FromServices] IMediator mediator) =>
         {
             if (id != command.Id)
@@ -52,7 +52,7 @@ public static class MenuEndpoints
 
         group.MapDelete("/{id:guid}", async (Guid id, [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new DeleteMenuItem.Command(id));
+            var result = await mediator.Send(new DeleteItemRequest(id));
             return result ? Results.NoContent() : Results.NotFound();
         })
         .WithName("DeleteMenuItem")
