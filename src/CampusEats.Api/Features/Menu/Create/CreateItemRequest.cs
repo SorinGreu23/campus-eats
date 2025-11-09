@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace CampusEats.Api.Features.Menu;
 
@@ -11,4 +12,4 @@ public record CreateItemRequest(
         int? PreparationTimeMinutes,
         bool IsAvailable,
         int? Calories
-    ) : IRequest<CreateItemResponse>;
+    ) : IRequest<IResult>;

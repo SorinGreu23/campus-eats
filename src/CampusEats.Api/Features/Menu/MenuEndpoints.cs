@@ -29,8 +29,7 @@ public static class MenuEndpoints
 
         group.MapPost("/", async ([FromBody] CreateItemRequest command, [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(command);
-            return Results.Created($"/api/menuitems/{result.Id}", result);
+            return await mediator.Send(command);
         })
         .WithName("CreateMenuItem")
         .Produces<CreateItemResponse>(StatusCodes.Status201Created)

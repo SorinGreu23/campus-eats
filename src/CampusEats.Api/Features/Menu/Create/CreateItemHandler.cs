@@ -2,10 +2,11 @@ using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace CampusEats.Api.Features.Menu;
 
-public class CreateItemHandler : IRequestHandler<CreateItemRequest, CreateItemResponse>
+public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
 {
     private readonly CampusDbContext _context;
     private readonly IValidator<CreateItemRequest> _validator;
@@ -16,12 +17,19 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, CreateItemRe
         _validator = validator;
     }
 
-    public async Task<CreateItemResponse> Handle(CreateItemRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(CreateItemRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors);
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+            
+            return Results.BadRequest(new { errors });
         }
 
         var menuItem = new MenuItem
@@ -42,7 +50,7 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, CreateItemRe
         _context.MenuItems.Add(menuItem);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new CreateItemResponse(
+        var response = new CreateItemResponse(
             menuItem.Id,
             menuItem.Name,
             menuItem.Description,
@@ -55,6 +63,8 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, CreateItemRe
             menuItem.CreatedAt,
             menuItem.UpdatedAt
         );
+
+        return Results.Created($"/api/menuitems/{response.Id}", response);
     }
 }
 
