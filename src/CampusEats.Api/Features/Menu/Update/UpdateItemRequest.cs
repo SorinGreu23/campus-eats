@@ -1,9 +1,9 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace CampusEats.Api.Features.Menu;
 
 public record UpdateItemRequest(
-    Guid Id,
     string Name,
     string? Description,
     decimal Price,
@@ -12,5 +12,10 @@ public record UpdateItemRequest(
     int? PreparationTimeMinutes,
     bool IsAvailable,
     int? Calories
-) : IRequest<bool>;
+);
+
+public record UpdateItemCommand(
+    Guid Id,
+    UpdateItemRequest Request
+) : IRequest<IResult>;
 

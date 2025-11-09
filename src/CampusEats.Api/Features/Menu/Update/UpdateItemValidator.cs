@@ -6,8 +6,6 @@ public class UpdateItemValidator : AbstractValidator<UpdateItemRequest>
 {
     public UpdateItemValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Id is required");
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required")

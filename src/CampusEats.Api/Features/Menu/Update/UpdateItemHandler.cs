@@ -1,11 +1,12 @@
 using CampusEats.Api.Data;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Menu;
 
-public class UpdateItemHandler : IRequestHandler<UpdateItemRequest, bool>
+public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
 {
     private readonly CampusDbContext _context;
     private readonly IValidator<UpdateItemRequest> _validator;
@@ -16,32 +17,42 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemRequest, bool>
         _validator = validator;
     }
 
-    public async Task<bool> Handle(UpdateItemRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(UpdateItemCommand command, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(command.Request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ValidationException(validationResult.Errors);
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+            
+            return Results.BadRequest(new { errors });
         }
 
         var menuItem = await _context.MenuItems
-            .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
 
         if (menuItem == null)
-            return false;
+        {
+            return Results.NotFound(new { message = $"Menu item with ID '{command.Id}' was not found." });
+        }
 
-        menuItem.Name = request.Name;
-        menuItem.Description = request.Description;
-        menuItem.Price = request.Price;
-        menuItem.CategoryId = request.CategoryId;
-        menuItem.ImageUrl = request.ImageUrl;
-        menuItem.PreparationTimeMinutes = request.PreparationTimeMinutes;
-        menuItem.IsAvailable = request.IsAvailable;
-        menuItem.Calories = request.Calories;
+        menuItem.Name = command.Request.Name;
+        menuItem.Description = command.Request.Description;
+        menuItem.Price = command.Request.Price;
+        menuItem.CategoryId = command.Request.CategoryId;
+        menuItem.ImageUrl = command.Request.ImageUrl;
+        menuItem.PreparationTimeMinutes = command.Request.PreparationTimeMinutes;
+        menuItem.IsAvailable = command.Request.IsAvailable;
+        menuItem.Calories = command.Request.Calories;
         menuItem.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
-        return true;
+        
+        return Results.NoContent();
     }
 }
 

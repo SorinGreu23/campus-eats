@@ -34,14 +34,10 @@ public static class MenuEndpoints
         .Produces<CreateItemResponse>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest);
 
-        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateItemRequest command,
+        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateItemRequest request,
                 [FromServices] IMediator mediator) =>
         {
-            if (id != command.Id)
-                return Results.BadRequest("Id in URL does not match Id in body");
-
-            var result = await mediator.Send(command);
-            return result ? Results.NoContent() : Results.NotFound();
+            return await mediator.Send(new UpdateItemCommand(id, request));
         })
         .WithName("UpdateMenuItem")
         .Produces(StatusCodes.Status204NoContent)
