@@ -50,17 +50,14 @@ body {
   --surface-ground: #fef3c7;
 }
 
-// Smooth scrolling
 html {
   scroll-behavior: smooth;
 }
 
-// PrimeNG overrides for better appearance
 .p-component {
   font-family: inherit;
 }
 
-// Custom scrollbar
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

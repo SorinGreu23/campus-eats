@@ -5,7 +5,6 @@ import { MenuItem, Category } from '../models/menu-item.model';
   providedIn: 'root'
 })
 export class MenuService {
-  // Mock categories data
   private mockCategories: Category[] = [
     {
       id: '1',
@@ -39,7 +38,6 @@ export class MenuService {
     }
   ];
 
-  // Mock menu items data
   private mockMenuItems: MenuItem[] = [
     {
       id: '1',
@@ -208,7 +206,6 @@ export class MenuService {
     }
   ];
 
-  // Signals for reactive state
   categories = signal<Category[]>(this.mockCategories);
   menuItems = signal<MenuItem[]>(this.mockMenuItems);
   selectedCategory = signal<string | null>(null);
@@ -235,15 +232,4 @@ export class MenuService {
   }
 
   // TODO: Replace with actual API calls when backend is ready
-  // async fetchCategories() {
-  //   const response = await fetch('/api/categories');
-  //   const data = await response.json();
-  //   this.categories.set(data);
-  // }
-
-  // async fetchMenuItems() {
-  //   const response = await fetch('/api/menu-items');
-  //   const data = await response.json();
-  //   this.menuItems.set(data);
-  // }
 }

@@ -218,7 +218,6 @@
   }
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   .card-image-container {
     height: 220px;
@@ -250,7 +249,6 @@
   }
 }
 
-// Stagger animation for cards
 @for $i from 1 through 20 {
   .menu-item-card:nth-child(#{$i}) {
     animation: popIn 0.5s ease-out #{$i * 0.05}s backwards;

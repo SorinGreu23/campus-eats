@@ -28,12 +28,10 @@ export class MenuListComponent {
     const search = this.searchTerm().toLowerCase();
     let items = this.menuService.menuItems();
 
-    // Filter by category
     if (categoryId) {
       items = items.filter(item => item.categoryId === categoryId);
     }
 
-    // Filter by search term
     if (search) {
       items = items.filter(item =>
         item.name.toLowerCase().includes(search) ||
