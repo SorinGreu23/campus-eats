@@ -1,0 +1,231 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border-bottom: 4px solid #dc2626;
+  box-shadow: 0 4px 0px #16a34a, 0 8px 25px rgba(0, 0, 0, 0.2);
+  font-family: 'Fredoka', sans-serif;
+}
+
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.navbar-brand {
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      animation: spin 10s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .brand-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #dc2626;
+      font-family: 'Pacifico', cursive;
+      text-shadow: 2px 2px 0px #fbbf24;
+    }
+  }
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: #451a03;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 15px;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    &:hover {
+      background: #dcfce7;
+      border-color: #16a34a;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: #16a34a;
+      color: white;
+      border-color: #15803d;
+      box-shadow: 0 3px 0px #15803d;
+    }
+  }
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  ::ng-deep {
+    .cart-button.p-button {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      border: 3px solid white;
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 0px #991b1b;
+      text-transform: uppercase;
+      font-family: 'Fredoka', sans-serif;
+
+      &:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0px #7f1d1d;
+      }
+
+      &:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 0px #7f1d1d;
+      }
+
+      .p-button-label {
+        font-weight: 700;
+      }
+    }
+
+    .login-button.p-button {
+      background: white;
+      color: #16a34a;
+      border: 3px solid #16a34a;
+      padding: 0.75rem 1.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 0px #15803d;
+      text-transform: uppercase;
+      font-family: 'Fredoka', sans-serif;
+
+      &:hover {
+        background: #dcfce7;
+        border-color: #16a34a;
+        color: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0px #15803d;
+      }
+
+      &:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 0px #15803d;
+      }
+
+      .p-button-label {
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 968px) {
+  .navbar-container {
+    padding: 1rem;
+  }
+
+  .navbar-menu {
+    .nav-link span {
+      display: none;
+    }
+
+    .nav-link {
+      padding: 0.75rem;
+    }
+  }
+
+  .navbar-actions {
+    ::ng-deep {
+      .cart-button.p-button,
+      .login-button.p-button {
+        .p-button-label {
+          display: none;
+        }
+        
+        padding: 0.75rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    .brand-logo {
+      .brand-text {
+        font-size: 1.4rem;
+      }
+
+      .logo-icon {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  .navbar-menu {
+    gap: 0.25rem;
+  }
+
+  .navbar-actions {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    gap: 0.5rem;
+  }
+
+  .navbar-menu {
+    flex: unset;
+
+    .nav-link {
+      padding: 0.5rem;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
