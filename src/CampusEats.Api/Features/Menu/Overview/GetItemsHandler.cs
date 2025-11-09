@@ -1,10 +1,11 @@
 using CampusEats.Api.Data;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Menu;
 
-public class GetItemsHandler : IRequestHandler<GetItemsRequest, List<GetItemsResponse>>
+public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
 {
     private readonly CampusDbContext _context;
 
@@ -13,9 +14,9 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, List<GetItemsRes
         _context = context;
     }
 
-    public async Task<List<GetItemsResponse>> Handle(GetItemsRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(GetItemsRequest request, CancellationToken cancellationToken)
     {
-        return await _context.MenuItems
+        var items = await _context.MenuItems
             .Include(m => m.Category)
             .Select(m => new GetItemsResponse(
                 m.Id,
@@ -32,6 +33,8 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, List<GetItemsRes
                 m.UpdatedAt
             ))
             .ToListAsync(cancellationToken);
+
+        return Results.Ok(items);
     }
 }
 

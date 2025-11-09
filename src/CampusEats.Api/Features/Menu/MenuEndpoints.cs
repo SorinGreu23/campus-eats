@@ -12,8 +12,7 @@ public static class MenuEndpoints
 
         group.MapGet("/", async ([FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetItemsRequest());
-            return Results.Ok(result);
+            return await mediator.Send(new GetItemsRequest());
         })
         .WithName("GetMenuItems")
         .Produces<List<GetItemsResponse>>();
