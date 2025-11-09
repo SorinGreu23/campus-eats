@@ -30,7 +30,6 @@ public class GetItemHandler : IRequestHandler<GetItemRequest, IResult>
             menuItem.Name,
             menuItem.Description,
             menuItem.Price,
-            menuItem.CategoryId,
             menuItem.Category?.Name,
             menuItem.ImageUrl,
             menuItem.PreparationTimeMinutes,
