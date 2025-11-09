@@ -61,8 +61,11 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    await db.Database.MigrateAsync();
+    var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
+    await campusDb.Database.MigrateAsync();
+    
+    var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+    await identityDb.Database.MigrateAsync();
 }
 
 if (app.Environment.IsDevelopment())
@@ -81,25 +84,8 @@ app.UseAuthorization();
 // --- User endpoints ---
 app.MapPost("/api/users/register", async (CreateUserRequest request, IMediator mediator) =>
 {
-    try
-    {
-        var response = await mediator.Send(request);
-        return Results.Created($"/api/users/{response.Id}", response);
-    }
-    catch (ValidationException ex)
-    {
-        return Results.ValidationProblem(ex.Errors.ToDictionary(
-            e => e.PropertyName,
-            e => new[] { e.ErrorMessage }));
-    }
-    catch (InvalidOperationException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    var response = await mediator.Send(request);
+    return Results.Created($"/api/users/{response.Id}", response);
 })
     .WithName("RegisterUser")
     .WithTags("Users")
@@ -107,25 +93,10 @@ app.MapPost("/api/users/register", async (CreateUserRequest request, IMediator m
 
 app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
 {
-    try
-    {
-        var response = await mediator.Send(request);
-        return Results.Ok(response);
-    }
-    catch (ValidationException ex)
-    {
-        return Results.ValidationProblem(ex.Errors.ToDictionary(
-            e => e.PropertyName,
-            e => new[] { e.ErrorMessage }));
-    }
-    catch (UnauthorizedAccessException)
-    {
-        return Results.Unauthorized();
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    var response = await mediator.Send(request);
+    return response.IsSuccess 
+        ? Results.Ok(response.Value) 
+        : Results.Unauthorized();
 })
     .WithName("LoginUser")
     .WithTags("Users")
@@ -133,14 +104,8 @@ app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator)
 
 app.MapGet("/api/users", async (IMediator mediator) =>
 {
-    try
-    {
-        return Results.Ok(await mediator.Send(new GetUsersRequest()));
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    var response = await mediator.Send(new GetUsersRequest());
+    return Results.Ok(response);
 })
     .WithName("GetUsers")
     .WithTags("Users")
@@ -148,15 +113,8 @@ app.MapGet("/api/users", async (IMediator mediator) =>
 
 app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
 {
-    try
-    {
-        var result = await mediator.Send(new GetUserRequest(id));
-        return result != null ? Results.Ok(result) : Results.NotFound();
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    var response = await mediator.Send(new GetUserRequest(id));
+    return Results.Ok(response);
 })
     .WithName("GetUser")
     .WithTags("Users")
@@ -164,24 +122,8 @@ app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
 
 app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IMediator mediator) =>
 {
-    try
-    {
-        if (id != request.Id)
-            return Results.BadRequest(new { error = "ID mismatch" });
-
-        var result = await mediator.Send(request);
-        return Results.Ok(result);
-    }
-    catch (ValidationException ex)
-    {
-        return Results.ValidationProblem(ex.Errors.ToDictionary(
-            e => e.PropertyName,
-            e => new[] { e.ErrorMessage }));
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    var response = await mediator.Send(request with { Id = id });
+    return Results.Ok(response);
 })
     .WithName("UpdateUser")
     .WithTags("Users")
@@ -189,15 +131,8 @@ app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IM
 
 app.MapDelete("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
 {
-    try
-    {
-        await mediator.Send(new DeleteUserRequest(id));
-        return Results.NoContent();
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
+    await mediator.Send(new DeleteUserRequest(id));
+    return Results.NoContent();
 })
     .WithName("DeleteUser")
     .WithTags("Users")

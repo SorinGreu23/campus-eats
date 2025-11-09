@@ -11,19 +11,11 @@ public class IdentityDbContext : IdentityDbContext<ApplicationUser, IdentityRole
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
-        
-        builder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-        builder.Entity<IdentityRole<Guid>>().ToTable("AspNetRoles");
-        builder.Entity<IdentityUserRole<Guid>>().ToTable("AspNetUserRoles");
-        builder.Entity<IdentityUserClaim<Guid>>().ToTable("AspNetUserClaims");
-        builder.Entity<IdentityUserLogin<Guid>>().ToTable("AspNetUserLogins");
-        builder.Entity<IdentityUserToken<Guid>>().ToTable("AspNetUserTokens");
-        builder.Entity<IdentityRoleClaim<Guid>>().ToTable("AspNetRoleClaims");
+        base.OnModelCreating(modelBuilder);
 
-        builder.Entity<ApplicationUser>()
+        modelBuilder.Entity<ApplicationUser>()
             .HasIndex(au => au.UserId)
             .IsUnique();
     }
