@@ -1,3 +1,4 @@
+// C#
 namespace CampusEats.Api.Features.Users.Login;
 
 public record LoginResponse(
@@ -5,6 +6,6 @@ public record LoginResponse(
     string Email,
     string FirstName,
     string LastName,
-    string? Role,
+    string Role,
     string Token
 );

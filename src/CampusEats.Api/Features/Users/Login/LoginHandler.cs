@@ -1,3 +1,4 @@
+using CampusEats.Api.Common;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Login;
 
-public class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
+public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
 {
     private readonly CampusDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -26,15 +27,19 @@ public class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
         _validator = validator;
     }
 
-    public async Task<LoginResponse> Handle(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
-        await _validator.ValidateAndThrowAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<LoginResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+        }
 
         var appUser = await _userManager.FindByEmailAsync(request.Email);
 
         if (appUser == null)
         {
-            throw new UnauthorizedAccessException("Invalid email or password");
+            return Result<LoginResponse>.Failure("Invalid email or password");
         }
 
         var user = await _context.Users
@@ -42,19 +47,19 @@ public class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
 
         if (user == null || !user.IsActive)
         {
-            throw new UnauthorizedAccessException("Account is inactive or not found");
+            return Result<LoginResponse>.Failure("Account is inactive or not found");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, lockoutOnFailure: false);
 
         if (!result.Succeeded)
         {
-            throw new UnauthorizedAccessException("Invalid email or password");
+            return Result<LoginResponse>.Failure("Invalid email or password");
         }
 
         var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
-        return new LoginResponse(
+        var response = new LoginResponse(
             user.Id,
             user.Email,
             user.FirstName ?? string.Empty,
@@ -62,5 +67,7 @@ public class LoginHandler : IRequestHandler<LoginRequest, LoginResponse>
             user.Role,
             token
         );
+
+        return Result<LoginResponse>.Success(response);
     }
 }
