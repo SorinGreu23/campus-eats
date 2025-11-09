@@ -11,5 +11,10 @@ public record CreateItemResponse(
         bool IsAvailable,
         int? Calories,
         DateTimeOffset? CreatedAt,
-        DateTimeOffset? UpdatedAt
+        DateTimeOffset? UpdatedAt,
+        List<AllergenDto>? Allergens,
+        List<DietaryRestrictionDto>? DietaryRestrictions
     );
+
+public record AllergenDto(Guid Id, string Name, string? Description);
+public record DietaryRestrictionDto(Guid Id, string Name, string? Description);

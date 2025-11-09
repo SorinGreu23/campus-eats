@@ -21,6 +21,10 @@ public class CampusDbContext : DbContext
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; } = null!;
     public DbSet<LoyaltyReward> LoyaltyRewards { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<Allergen> Allergens { get; set; } = null!;
+    public DbSet<DietaryRestriction> DietaryRestrictions { get; set; } = null!;
+    public DbSet<MenuItemAllergen> MenuItemAllergens { get; set; } = null!;
+    public DbSet<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

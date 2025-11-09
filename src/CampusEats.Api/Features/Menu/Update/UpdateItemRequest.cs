@@ -11,6 +11,8 @@ public record UpdateItemRequest(
     string? ImageUrl,
     int? PreparationTimeMinutes,
     bool IsAvailable,
-    int? Calories
+    int? Calories,
+    List<Guid>? AllergenIds,
+    List<Guid>? DietaryRestrictionIds
 ) : IRequest<bool>;
 

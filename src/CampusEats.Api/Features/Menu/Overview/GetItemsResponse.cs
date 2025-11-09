@@ -12,6 +12,8 @@ public record GetItemsResponse(
     bool IsAvailable,
     int? Calories,
     DateTimeOffset? CreatedAt,
-    DateTimeOffset? UpdatedAt
+    DateTimeOffset? UpdatedAt,
+    List<AllergenDto>? Allergens,
+    List<DietaryRestrictionDto>? DietaryRestrictions
 );
 

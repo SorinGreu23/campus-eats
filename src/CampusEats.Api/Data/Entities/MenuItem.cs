@@ -14,4 +14,6 @@ public class MenuItem : BaseEntity
     public int? Calories { get; set; }
 
     public Category? Category { get; set; }
+    public ICollection<MenuItemAllergen> MenuItemAllergens { get; set; } = new List<MenuItemAllergen>();
+    public ICollection<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; } = new List<MenuItemDietaryRestriction>();
 }
