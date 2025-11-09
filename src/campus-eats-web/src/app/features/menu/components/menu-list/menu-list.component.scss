@@ -95,6 +95,8 @@
   .search-wrapper {
     width: 100%;
     max-width: 600px;
+    position: relative; /* allow absolute-positioned icon */
+    display: block; /* make width apply on span wrapper */
 
     .search-input {
       width: 100%;
@@ -127,9 +129,15 @@
     }
 
     i {
-      left: 1.5rem;
+      position: absolute;
+      top: 50%;
+      left: 1.25rem;
+      transform: translateY(-50%);
       color: #dc2626;
       font-size: 1.3rem;
+      pointer-events: none; /* keep input focusable when clicking icon */
+      z-index: 2; /* ensure it sits above input background */
+      margin-right: 0; /* no extra gap for the positioned icon */
     }
   }
 }

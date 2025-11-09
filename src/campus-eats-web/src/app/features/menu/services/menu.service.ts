@@ -157,7 +157,7 @@ export class MenuService {
       description: 'Homemade lemonade with fresh lemons and mint',
       price: 3.99,
       categoryId: '4',
-      imageUrl: 'https://images.unsplash.com/photo-1523677011781-c91d1bbe2f9d?w=400&h=300&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1574689685526-a9281777ee89?fit=crop&w=400&w=300',
       preparationTimeMinutes: 5,
       isAvailable: true,
       calories: 120
@@ -190,7 +190,7 @@ export class MenuService {
       description: 'New York style cheesecake with berry compote',
       price: 6.99,
       categoryId: '5',
-      imageUrl: 'https://images.unsplash.com/photo-1533134486753-c833f0ed4866?w=400&h=300&fit=crop',
+      imageUrl: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?fit=crop&h=300&w=400',
       preparationTimeMinutes: 5,
       isAvailable: true,
       calories: 420

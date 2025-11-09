@@ -1,23 +1,20 @@
-::ng-deep .menu-item-card {
+/* Component-scoped, no ::ng-deep, no PrimeNG internals */
+.menu-item-card {
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 25px;
   overflow: hidden;
   border: 5px solid #ffffff;
-  background: white;
-  box-shadow: 
-    0 6px 0px #16a34a,
-    0 10px 25px rgba(0, 0, 0, 0.3);
+  background: #ffffff;
+  box-shadow: 0 6px 0px #16a34a, 0 10px 25px rgba(0, 0, 0, 0.3);
   transform: rotate(-0.5deg);
-  margin: 0.5rem;
+  padding: 0.75rem; /* inner gap before the outer border */
 
   &:hover {
     transform: rotate(0deg) translateY(-10px);
-    box-shadow: 
-      0 12px 0px #16a34a,
-      0 16px 35px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 0px #16a34a, 0 16px 35px rgba(0, 0, 0, 0.4);
 
     .card-image {
       transform: scale(1.08) rotate(1deg);
@@ -26,25 +23,7 @@
 
   &:active {
     transform: rotate(0deg) translateY(-2px);
-    box-shadow: 
-      0 4px 0px #16a34a,
-      0 8px 20px rgba(0, 0, 0, 0.3);
-  }
-
-  .p-card-header {
-    padding: 0;
-  }
-
-  .p-card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-  }
-
-  .p-card-content {
-    flex: 1;
-    padding: 1.5rem;
+    box-shadow: 0 4px 0px #16a34a, 0 8px 20px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -55,6 +34,8 @@
   overflow: hidden;
   background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   border-bottom: 5px solid #ffffff;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
 
   .card-image {
     width: 100%;
@@ -75,7 +56,7 @@
     justify-content: center;
     backdrop-filter: blur(3px);
 
-    ::ng-deep .p-tag {
+    .status-tag {
       font-size: 1.2rem;
       padding: 1rem 2.5rem;
       font-weight: 700;
@@ -85,6 +66,7 @@
       font-family: 'Fredoka', sans-serif;
       text-transform: uppercase;
       box-shadow: 0 4px 0px #991b1b;
+      color: #ffffff;
     }
   }
 
@@ -93,8 +75,8 @@
     top: 1rem;
     right: 1rem;
 
-    ::ng-deep .p-tag {
-      background: white;
+    .calories-tag {
+      background: #ffffff;
       color: #16a34a;
       font-weight: 700;
       font-size: 0.95rem;
@@ -103,6 +85,7 @@
       padding: 0.5rem 1rem;
       font-family: 'Fredoka', sans-serif;
       box-shadow: 0 3px 0px #15803d;
+      display: inline-block;
     }
   }
 }
@@ -112,6 +95,7 @@
   flex-direction: column;
   flex: 1;
   background: white;
+  padding: 0.5rem;
 }
 
 .item-header {
@@ -187,56 +171,49 @@
       i {
         font-size: 1rem;
         color: #16a34a;
+        margin-right: 0.35rem; /* consistent spacing before text */
       }
     }
   }
 
-  ::ng-deep .add-to-cart-btn {
-    .p-button {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      border: none;
-      padding: 0.875rem 1.75rem;
+  .add-to-cart-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border: none;
+    padding: 0.875rem 1.75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    border-radius: 20px;
+    box-shadow: 0 4px 0px #991b1b, 0 6px 15px rgba(220, 38, 38, 0.4);
+    font-family: 'Fredoka', sans-serif;
+    text-transform: uppercase;
+    border: 3px solid white;
+
+    &:not(:disabled):hover {
+      background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0px #7f1d1d, 0 10px 20px rgba(220, 38, 38, 0.5);
+    }
+
+    &:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 0px #7f1d1d, 0 4px 10px rgba(220, 38, 38, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #9ca3af;
+      border-color: white;
+      box-shadow: 0 4px 0px #6b7280;
+    }
+
+    .p-button-icon {
+      font-size: 1.1rem;
+    }
+
+    .p-button-label {
       font-weight: 700;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-      border-radius: 20px;
-      box-shadow: 
-        0 4px 0px #991b1b,
-        0 6px 15px rgba(220, 38, 38, 0.4);
-      font-family: 'Fredoka', sans-serif;
-      text-transform: uppercase;
-      border: 3px solid white;
-
-      &:not(:disabled):hover {
-        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
-        transform: translateY(-3px);
-        box-shadow: 
-          0 7px 0px #7f1d1d,
-          0 10px 20px rgba(220, 38, 38, 0.5);
-      }
-
-      &:not(:disabled):active {
-        transform: translateY(1px);
-        box-shadow: 
-          0 2px 0px #7f1d1d,
-          0 4px 10px rgba(220, 38, 38, 0.4);
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #9ca3af;
-        border-color: white;
-        box-shadow: 0 4px 0px #6b7280;
-      }
-
-      .p-button-icon {
-        font-size: 1.1rem;
-      }
-
-      .p-button-label {
-        font-weight: 700;
-      }
     }
   }
 }
@@ -275,7 +252,7 @@
 
 // Stagger animation for cards
 @for $i from 1 through 20 {
-  ::ng-deep .menu-item-card:nth-child(#{$i}) {
+  .menu-item-card:nth-child(#{$i}) {
     animation: popIn 0.5s ease-out #{$i * 0.05}s backwards;
   }
 }

@@ -1,33 +1,32 @@
-<p-card class="menu-item-card">
-  <ng-template pTemplate="header">
-    <div class="card-image-container">
-      <img 
-        [src]="menuItem.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'" 
-        [alt]="menuItem.name"
-        class="card-image"
-      />
-      @if (!menuItem.isAvailable) {
-        <div class="unavailable-overlay">
-          <p-tag severity="danger" value="Unavailable" />
-        </div>
-      }
-      @if (menuItem.calories) {
-        <div class="calories-badge">
-          <p-tag [value]="menuItem.calories + ' cal'" severity="secondary" />
-        </div>
-      }
-    </div>
-  </ng-template>
+<article class="menu-item-card" [class.unavailable]="!menuItem.isAvailable">
+  <div class="card-image-container">
+    <img
+      [src]="menuItem.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'"
+      [alt]="menuItem.name"
+      class="card-image"
+      loading="lazy"
+    />
+    @if (!menuItem.isAvailable) {
+      <div class="unavailable-overlay">
+        <p-tag severity="danger" value="Unavailable" styleClass="status-tag" />
+      </div>
+    }
+    @if (menuItem.calories) {
+      <div class="calories-badge">
+        <p-tag [value]="menuItem.calories + ' cal'" severity="secondary" styleClass="calories-tag" />
+      </div>
+    }
+  </div>
 
   <div class="card-content">
-    <div class="item-header">
+    <header class="item-header">
       <h3 class="item-name">{{ menuItem.name }}</h3>
       <span class="item-price">${{ menuItem.price.toFixed(2) }}</span>
-    </div>
+    </header>
 
     <p class="item-description">{{ menuItem.description }}</p>
 
-    <div class="item-footer">
+    <footer class="item-footer">
       <div class="item-meta">
         @if (menuItem.preparationTimeMinutes) {
           <span class="prep-time">
@@ -37,13 +36,13 @@
         }
       </div>
 
-      <p-button 
-        label="Add to Cart" 
+      <p-button
+        label="Add to Cart"
         icon="pi pi-shopping-cart"
         [disabled]="!menuItem.isAvailable"
         (onClick)="addToCart()"
         styleClass="add-to-cart-btn"
       />
-    </div>
+    </footer>
   </div>
-</p-card>
+</article>
