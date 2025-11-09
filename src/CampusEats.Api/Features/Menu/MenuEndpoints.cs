@@ -20,8 +20,7 @@ public static class MenuEndpoints
 
         group.MapGet("/{id:guid}", async (Guid id, [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetItemRequest(id));
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            return await mediator.Send(new GetItemRequest(id));
         })
         .WithName("GetMenuItemById")
         .Produces<GetItemResponse>()
