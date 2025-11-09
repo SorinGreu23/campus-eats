@@ -1,5 +1,5 @@
 using CampusEats.Api.Data;
-using CampusEats.Api.Data.Entities;
+using CampusEats.Api.Features.Menu;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,47 +51,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowClientApp");
 app.UseHttpsRedirection();
 
-app.MapGet("/api/menuitems", async (CampusDbContext db) =>
-    await db.MenuItems.ToListAsync())
-    .WithName("GetMenuItems")
-    .WithTags("MenuItems");
-
-app.MapGet("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
-    await db.MenuItems.FindAsync(id) is MenuItem item ? Results.Ok(item) : Results.NotFound())
-    .WithName("GetMenuItemById")
-    .WithTags("MenuItems");
-
-app.MapPut("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id, MenuItem update) =>
-{
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
-
-    item.Name = update.Name;
-    item.Description = update.Description;
-    item.Price = update.Price;
-    item.CategoryId = update.CategoryId;
-    item.ImageUrl = update.ImageUrl;
-    item.PreparationTimeMinutes = update.PreparationTimeMinutes;
-    item.IsAvailable = update.IsAvailable;
-    item.Calories = update.Calories;
-    item.UpdatedAt = DateTimeOffset.UtcNow;
-
-    await db.SaveChangesAsync();
-    return Results.NoContent();
-})
-    .WithName("UpdateMenuItem")
-    .WithTags("MenuItems");
-
-app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
-{
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
-    db.MenuItems.Remove(item);
-    await db.SaveChangesAsync();
-    return Results.NoContent();
-})
-    .WithName("DeleteMenuItem")
-    .WithTags("MenuItems");
+// Map feature endpoints
+app.MapMenuEndpoints();
 
 app.Run();
 
