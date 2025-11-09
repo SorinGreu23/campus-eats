@@ -27,13 +27,13 @@ public static class MenuEndpoints
         .Produces<GetMenuItemById.Response>()
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapPost("/", async ([FromBody] CreateMenuItem.Command command, [FromServices] IMediator mediator) =>
+        group.MapPost("/", async ([FromBody] CreateItemHandler.Command command, [FromServices] IMediator mediator) =>
         {
             var result = await mediator.Send(command);
             return Results.Created($"/api/menuitems/{result.Id}", result);
         })
         .WithName("CreateMenuItem")
-        .Produces<CreateMenuItem.Response>(StatusCodes.Status201Created)
+        .Produces<CreateItemHandler.Response>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest);
 
         group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateMenuItem.Command command,
