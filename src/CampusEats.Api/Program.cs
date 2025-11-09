@@ -142,8 +142,9 @@ app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IM
 {
     if (id != request.Id)
         return Results.BadRequest(new { error = "ID mismatch" });
-
-    return await mediator.Send(request);
+    
+        var result = await mediator.Send(request);
+        return Results.Ok(result);
 })
     .WithName("UpdateUser")
     .WithTags("Users")
