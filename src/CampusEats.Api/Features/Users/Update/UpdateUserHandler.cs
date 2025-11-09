@@ -2,6 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Features.Users.Update;
 
@@ -25,7 +26,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, UpdateUserRe
 
         if (user == null)
         {
-            throw new KeyNotFoundException($"User with ID {request.Id} not found");
+            return Result<UpdateUserResponse>.Failure("User not found").Value;
         }
 
         if (!string.IsNullOrEmpty(request.FirstName))
