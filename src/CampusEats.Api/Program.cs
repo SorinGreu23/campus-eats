@@ -32,20 +32,16 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-// Register CampusDbContext for business data
 builder.Services.AddDbContext<CampusDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Register IdentityDbContext for authentication data
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Configure Identity to use IdentityDbContext
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<IdentityDbContext>()
     .AddDefaultTokenProviders();
 
-// Add Authorization services
 builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg =>
@@ -65,7 +61,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply migrations automatically
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
@@ -132,67 +127,30 @@ app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator)
     .WithOpenApi();
 
 app.MapGet("/api/users", async (IMediator mediator) =>
-{
-    var response = await mediator.Send(new GetUsersRequest());
-    return Results.Ok(response);
-})
+    await mediator.Send(new GetUsersRequest()))
     .WithName("GetUsers")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    try
-    {
-        var response = await mediator.Send(new GetUserRequest(id));
-        return Results.Ok(response);
-    }
-    catch (KeyNotFoundException ex)
-    {
-        return Results.NotFound(new { error = ex.Message });
-    }
-})
+    await mediator.Send(new GetUserRequest(id)))
     .WithName("GetUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IMediator mediator) =>
 {
-    try
-    {
-        if (id != request.Id)
-            return Results.BadRequest(new { error = "ID mismatch" });
+    if (id != request.Id)
+        return Results.BadRequest(new { error = "ID mismatch" });
 
-        var response = await mediator.Send(request);
-        return Results.Ok(response);
-    }
-    catch (ValidationException ex)
-    {
-        return Results.ValidationProblem(ex.Errors.ToDictionary(
-            e => e.PropertyName,
-            e => new[] { e.ErrorMessage }));
-    }
-    catch (KeyNotFoundException ex)
-    {
-        return Results.NotFound(new { error = ex.Message });
-    }
+    return await mediator.Send(request);
 })
     .WithName("UpdateUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapDelete("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    try
-    {
-        await mediator.Send(new DeleteUserRequest(id));
-        return Results.NoContent();
-    }
-    catch (KeyNotFoundException ex)
-    {
-        return Results.NotFound(new { error = ex.Message });
-    }
-})
+    await mediator.Send(new DeleteUserRequest(id)))
     .WithName("DeleteUser")
     .WithTags("Users")
     .WithOpenApi();
