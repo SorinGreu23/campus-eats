@@ -32,24 +32,18 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
+// Register CampusDbContext for business data
 builder.Services.AddDbContext<CampusDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Configure Identity with ApplicationUser wrapper
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
-{
-    // Password settings
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
+// Register IdentityDbContext for authentication data
+builder.Services.AddDbContext<IdentityDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
-    // User settings
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<CampusDbContext>()
-.AddDefaultTokenProviders();
+// Configure Identity to use IdentityDbContext
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<IdentityDbContext>()
+    .AddDefaultTokenProviders();
 
 // Add Authorization services
 builder.Services.AddAuthorization();

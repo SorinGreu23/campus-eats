@@ -11,17 +11,20 @@ namespace CampusEats.Api.Features.Users.Login;
 public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
 {
     private readonly CampusDbContext _context;
+    private readonly IdentityDbContext _identityContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IValidator<LoginRequest> _validator;
 
     public LoginHandler(
         CampusDbContext context,
+        IdentityDbContext identityContext,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IValidator<LoginRequest> validator)
     {
         _context = context;
+        _identityContext = identityContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _validator = validator;

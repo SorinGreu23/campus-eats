@@ -1,11 +1,9 @@
 using CampusEats.Api.Data.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Data;
 
-public class CampusDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class CampusDbContext : DbContext
 {
     public CampusDbContext(DbContextOptions<CampusDbContext> options) : base(options)
     {
@@ -28,19 +26,5 @@ public class CampusDbContext : IdentityDbContext<ApplicationUser, IdentityRole<G
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
-
-        modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-        modelBuilder.Entity<IdentityRole<Guid>>().ToTable("AspNetRoles");
-        modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AspNetUserRoles");
-        modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AspNetUserClaims");
-        modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AspNetUserLogins");
-        modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AspNetUserTokens");
-        modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AspNetRoleClaims");
-
-        modelBuilder.Entity<ApplicationUser>()
-            .HasOne(au => au.User)
-            .WithOne()
-            .HasForeignKey<ApplicationUser>(au => au.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
