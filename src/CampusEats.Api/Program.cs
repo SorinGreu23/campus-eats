@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 
-// Load environment variables from .env file
 Env.Load();
 
 DotNetEnv.Env.Load();
@@ -23,7 +22,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
-// Configure DbContext with PostgreSQL
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
 var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "campuseats";
@@ -67,7 +65,6 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -99,6 +96,10 @@ app.MapPost("/api/users/register", async (CreateUserRequest request, IMediator m
     {
         return Results.BadRequest(new { error = ex.Message });
     }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 })
     .WithName("RegisterUser")
     .WithTags("Users")
@@ -121,71 +122,143 @@ app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator)
     {
         return Results.Unauthorized();
     }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 })
     .WithName("LoginUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapGet("/api/users", async (IMediator mediator) =>
-    await mediator.Send(new GetUsersRequest()))
+{
+    try
+    {
+        return Results.Ok(await mediator.Send(new GetUsersRequest()));
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
     .WithName("GetUsers")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-    await mediator.Send(new GetUserRequest(id)))
+{
+    try
+    {
+        var result = await mediator.Send(new GetUserRequest(id));
+        return result != null ? Results.Ok(result) : Results.NotFound();
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
     .WithName("GetUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IMediator mediator) =>
 {
-    if (id != request.Id)
-        return Results.BadRequest(new { error = "ID mismatch" });
-    
+    try
+    {
+        if (id != request.Id)
+            return Results.BadRequest(new { error = "ID mismatch" });
+
         var result = await mediator.Send(request);
         return Results.Ok(result);
+    }
+    catch (ValidationException ex)
+    {
+        return Results.ValidationProblem(ex.Errors.ToDictionary(
+            e => e.PropertyName,
+            e => new[] { e.ErrorMessage }));
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 })
     .WithName("UpdateUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapDelete("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-    await mediator.Send(new DeleteUserRequest(id)))
+{
+    try
+    {
+        await mediator.Send(new DeleteUserRequest(id));
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
     .WithName("DeleteUser")
     .WithTags("Users")
     .WithOpenApi();
 
 // --- MenuItems endpoints ---
 app.MapGet("/api/menuitems", async (CampusDbContext db) =>
-    await db.MenuItems.ToListAsync())
+{
+    try
+    {
+        return Results.Ok(await db.MenuItems.ToListAsync());
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
     .WithName("GetMenuItems")
     .WithTags("MenuItems")
     .WithOpenApi();
 
 app.MapGet("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
-    await db.MenuItems.FindAsync(id) is MenuItem item ? Results.Ok(item) : Results.NotFound())
+{
+    try
+    {
+        var item = await db.MenuItems.FindAsync(id);
+        return item != null ? Results.Ok(item) : Results.NotFound();
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+})
     .WithName("GetMenuItemById")
     .WithTags("MenuItems")
     .WithOpenApi();
 
 app.MapPut("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id, MenuItem update) =>
 {
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
+    try
+    {
+        var item = await db.MenuItems.FindAsync(id);
+        if (item == null) return Results.NotFound();
 
-    item.Name = update.Name;
-    item.Description = update.Description;
-    item.Price = update.Price;
-    item.CategoryId = update.CategoryId;
-    item.ImageUrl = update.ImageUrl;
-    item.PreparationTimeMinutes = update.PreparationTimeMinutes;
-    item.IsAvailable = update.IsAvailable;
-    item.Calories = update.Calories;
-    item.UpdatedAt = DateTimeOffset.UtcNow;
+        item.Name = update.Name;
+        item.Description = update.Description;
+        item.Price = update.Price;
+        item.CategoryId = update.CategoryId;
+        item.ImageUrl = update.ImageUrl;
+        item.PreparationTimeMinutes = update.PreparationTimeMinutes;
+        item.IsAvailable = update.IsAvailable;
+        item.Calories = update.Calories;
+        item.UpdatedAt = DateTimeOffset.UtcNow;
 
-    await db.SaveChangesAsync();
-    return Results.NoContent();
+        await db.SaveChangesAsync();
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 })
     .WithName("UpdateMenuItem")
     .WithTags("MenuItems")
@@ -193,11 +266,18 @@ app.MapPut("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id, MenuI
 
 app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
 {
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
-    db.MenuItems.Remove(item);
-    await db.SaveChangesAsync();
-    return Results.NoContent();
+    try
+    {
+        var item = await db.MenuItems.FindAsync(id);
+        if (item == null) return Results.NotFound();
+        db.MenuItems.Remove(item);
+        await db.SaveChangesAsync();
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 })
     .WithName("DeleteMenuItem")
     .WithTags("MenuItems")
