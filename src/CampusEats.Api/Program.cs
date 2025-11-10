@@ -14,27 +14,25 @@ using DotNetEnv;
 
 Env.Load();
 
-DotNetEnv.Env.Load();
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "campuseats";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-builder.Services.AddDbContext<CampusDbContext>(options =>
-    options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<CampusDbContext>(opt =>
+    opt.UseNpgsql(connectionString));
 
-builder.Services.AddDbContext<IdentityDbContext>(options =>
-    options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<IdentityDbContext>(opt =>
+    opt.UseNpgsql(connectionString));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<IdentityDbContext>()
@@ -95,23 +93,15 @@ app.MapPost("/api/users/register", async (CreateUserRequest request, IMediator m
 
 app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
 {
-    return await mediator.Send(request) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.Unauthorized();
-})
-    .WithName("LoginUser")
-    .WithTags("Users")
-    .WithOpenApi();
+    var result = await mediator.Send(request);
+    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+}); // NO .RequireAuthorization() here!
 
 app.MapGet("/api/users", async (IMediator mediator) =>
 {
-    return await mediator.Send(new GetUsersRequest()) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.BadRequest(result.Error);
-})
-    .WithName("GetUsers")
-    .WithTags("Users")
-    .WithOpenApi();
+    var result = await mediator.Send(new GetUsersRequest());
+    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+}).RequireAuthorization(); // This one should have authorization
 
 app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
 {

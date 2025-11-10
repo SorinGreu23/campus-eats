@@ -3,4 +3,4 @@ using MediatR;
 
 namespace CampusEats.Api.Features.Users.Delete;
 
-public record DeleteUserRequest(Guid Id) : IRequest<Result<bool>>;
+public record DeleteUserRequest(Guid Id) : IRequest<Result<DeleteUserResponse>>;

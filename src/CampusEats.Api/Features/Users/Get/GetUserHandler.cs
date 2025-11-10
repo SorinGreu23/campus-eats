@@ -7,21 +7,21 @@ namespace CampusEats.Api.Features.Users.Get;
 
 public class GetUserHandler : IRequestHandler<GetUserRequest, Result<GetUserResponse>>
 {
-    private readonly CampusDbContext _context;
+    private readonly IdentityDbContext _identityContext;
 
-    public GetUserHandler(CampusDbContext context)
+    public GetUserHandler(IdentityDbContext identityContext)
     {
-        _context = context;
+        _identityContext = identityContext;
     }
 
     public async Task<Result<GetUserResponse>> Handle(GetUserRequest request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users
+        var user = await _identityContext.Users
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user == null)
         {
-            return Result<GetUserResponse>.Failure($"User with ID {request.Id} not found");
+            return Result<GetUserResponse>.Failure("User not found");
         }
 
         var response = new GetUserResponse(
@@ -31,7 +31,7 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, Result<GetUserResp
             user.LastName ?? string.Empty,
             user.Role,
             user.IsActive,
-            user.CreatedAt!.Value,
+            user.CreatedAt ?? DateTimeOffset.UtcNow,
             user.UpdatedAt
         );
 

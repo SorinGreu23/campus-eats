@@ -7,25 +7,24 @@ namespace CampusEats.Api.Features.Users.Overview;
 
 public class GetUsersHandler : IRequestHandler<GetUsersRequest, Result<GetUsersResponse>>
 {
-    private readonly CampusDbContext _context;
+    private readonly IdentityDbContext _identityContext;
 
-    public GetUsersHandler(CampusDbContext context)
+    public GetUsersHandler(IdentityDbContext identityContext)
     {
-        _context = context;
+        _identityContext = identityContext;
     }
 
     public async Task<Result<GetUsersResponse>> Handle(GetUsersRequest request, CancellationToken cancellationToken)
     {
-        var users = await _context.Users
-            .OrderByDescending(u => u.CreatedAt)
+        var users = await _identityContext.Users
             .Select(u => new UserDto(
                 u.Id,
                 u.Email,
                 u.FirstName ?? string.Empty,
                 u.LastName ?? string.Empty,
-                u.Role ?? "Customer",
+                u.Role,
                 u.IsActive,
-                u.CreatedAt!.Value
+                u.CreatedAt ?? DateTimeOffset.UtcNow
             ))
             .ToListAsync(cancellationToken);
 

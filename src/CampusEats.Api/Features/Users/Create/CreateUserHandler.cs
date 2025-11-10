@@ -1,11 +1,16 @@
-﻿using CampusEats.Api.Common;
+﻿using System;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using CampusEats.Api.Common;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 
 namespace CampusEats.Api.Features.Users.Create;
 
@@ -32,75 +37,73 @@ public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<Creat
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
-        {
             return Result<CreateUserResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
-        }
 
-        var existingUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+        var userId = Guid.NewGuid();
 
-        if (existingUser != null)
-        {
-            return Result<CreateUserResponse>.Failure("User with this email already exists");
-        }
+        var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+        var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+        var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+        var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-        // Start a single transaction on the campus context
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        
+        var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
+
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+
         try
         {
-            // Step 1: Create the User entity first
+            // Set the connection for both contexts
+            _context.Database.SetDbConnection(connection);
+            _identityContext.Database.SetDbConnection(connection);
+
+            // Use the shared transaction
+            await _context.Database.UseTransactionAsync(transaction, cancellationToken);
+            await _identityContext.Database.UseTransactionAsync(transaction, cancellationToken);
+
             var user = new User
             {
-                Id = Guid.NewGuid(),
+                Id = userId,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Role = "Student",
                 IsActive = true,
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            _context.Users.Add(user);
+            await _identityContext.Users.AddAsync(user, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            // Step 2: Make the identity context use the same transaction
-            var dbTransaction = transaction.GetDbTransaction();
-            await _identityContext.Database.UseTransactionAsync(dbTransaction, cancellationToken);
-
-            // Step 3: Create the ApplicationUser with the User's ID
-            var appUser = new ApplicationUser
+            var applicationUser = new ApplicationUser
             {
                 UserName = request.Email,
                 Email = request.Email,
-                UserId = user.Id
+                UserId = userId
             };
 
-            var result = await _userManager.CreateAsync(appUser, request.Password);
-
-            if (!result.Succeeded)
+            var identityResult = await _userManager.CreateAsync(applicationUser, request.Password);
+            if (!identityResult.Succeeded)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                return Result<CreateUserResponse>.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+                return Result<CreateUserResponse>.Failure(string.Join(", ", identityResult.Errors.Select(e => e.Description)));
             }
 
-            // Commit the transaction (both contexts)
             await transaction.CommitAsync(cancellationToken);
 
-            var response = new CreateUserResponse(
-                user.Id,
-                user.Email,
-                user.FirstName,
-                user.LastName,
-                user.CreatedAt!.Value
-            );
-
+            var response = new CreateUserResponse(user.Id, user.Email, user.FirstName, user.LastName, user.CreatedAt!.Value);
             return Result<CreateUserResponse>.Success(response);
         }
         catch (Exception ex)
         {
-            // Transaction will auto-rollback on dispose if not committed
-            return Result<CreateUserResponse>.Failure($"An error occurred while creating the user: {ex.Message}");
+            await transaction.RollbackAsync(cancellationToken);
+
+            var errorMessage = ex.Message;
+            for (var inner = ex.InnerException; inner != null; inner = inner.InnerException)
+                errorMessage += $" | Inner: {inner.Message}";
+
+            return Result<CreateUserResponse>.Failure($"An error occurred while creating the user: {errorMessage}");
         }
     }
 }

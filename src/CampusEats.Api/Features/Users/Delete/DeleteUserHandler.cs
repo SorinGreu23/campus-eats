@@ -1,44 +1,37 @@
 ﻿using CampusEats.Api.Common;
 using CampusEats.Api.Data;
-using CampusEats.Api.Data.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Delete;
 
-public class DeleteUserHandler : IRequestHandler<DeleteUserRequest, Result<bool>>
-{
-    private readonly CampusDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
+public record DeleteUserResponse(Guid Id, string Message);
 
-    public DeleteUserHandler(CampusDbContext context, UserManager<ApplicationUser> userManager)
+public class DeleteUserHandler : IRequestHandler<DeleteUserRequest, Result<DeleteUserResponse>>
+{
+    private readonly IdentityDbContext _identityContext;
+
+    public DeleteUserHandler(IdentityDbContext identityContext)
     {
-        _context = context;
-        _userManager = userManager;
+        _identityContext = identityContext;
     }
 
-    public async Task<Result<bool>> Handle(DeleteUserRequest request, CancellationToken cancellationToken)
+    public async Task<Result<DeleteUserResponse>> Handle(DeleteUserRequest request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users
+        var user = await _identityContext.Users
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user == null)
         {
-            return Result<bool>.Failure($"User with ID {request.Id} not found");
+            return Result<DeleteUserResponse>.Failure("User not found");
         }
 
-        var appUser = await _userManager.Users
-            .FirstOrDefaultAsync(au => au.UserId == user.Id, cancellationToken);
+        _identityContext.Users.Remove(user);
+        await _identityContext.SaveChangesAsync(cancellationToken);
 
-        if (appUser != null)
-        {
-            await _userManager.DeleteAsync(appUser);
-        }
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Result<bool>.Success(true);
+        return Result<DeleteUserResponse>.Success(new DeleteUserResponse(
+            user.Id,
+            $"User {user.Email} has been deleted successfully"
+        ));
     }
 }

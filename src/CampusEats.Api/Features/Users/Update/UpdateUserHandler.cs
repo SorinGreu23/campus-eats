@@ -8,12 +8,12 @@ namespace CampusEats.Api.Features.Users.Update;
 
 public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<UpdateUserResponse>>
 {
-    private readonly CampusDbContext _context;
+    private readonly IdentityDbContext _identityContext;
     private readonly IValidator<UpdateUserRequest> _validator;
 
-    public UpdateUserHandler(CampusDbContext context, IValidator<UpdateUserRequest> validator)
+    public UpdateUserHandler(IdentityDbContext identityContext, IValidator<UpdateUserRequest> validator)
     {
-        _context = context;
+        _identityContext = identityContext;
         _validator = validator;
     }
 
@@ -25,7 +25,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
             return Result<UpdateUserResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
-        var user = await _context.Users
+        var user = await _identityContext.Users
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user == null)
@@ -47,7 +47,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
 
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _identityContext.SaveChangesAsync(cancellationToken);
 
         var response = new UpdateUserResponse(
             user.Id,

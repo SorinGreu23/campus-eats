@@ -45,7 +45,7 @@ public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
             return Result<LoginResponse>.Failure("Invalid email or password");
         }
 
-        var user = await _context.Users
+        var user = await _identityContext.Users
             .FirstOrDefaultAsync(u => u.Id == appUser.UserId, cancellationToken);
 
         if (user == null || !user.IsActive)
