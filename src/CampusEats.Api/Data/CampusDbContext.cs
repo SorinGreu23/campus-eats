@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using CampusEats.Api.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Data;
 
@@ -9,60 +9,103 @@ public class CampusDbContext : DbContext
     {
     }
 
-    // DbSets for core entities. Add more as you implement them.
-    public DbSet<User> Users { get; set; } = null!;
-    public DbSet<Category> Categories { get; set; } = null!;
-    public DbSet<MenuItem> MenuItems { get; set; } = null!;
-    public DbSet<Order> Orders { get; set; } = null!;
-    public DbSet<OrderItem> OrderItems { get; set; } = null!;
-    public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
-    public DbSet<InventoryTransaction> InventoryTransactions { get; set; } = null!;
-    public DbSet<Payment> Payments { get; set; } = null!;
-    public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; } = null!;
-    public DbSet<LoyaltyReward> LoyaltyRewards { get; set; } = null!;
-    public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<MenuItem> MenuItems { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<InventoryItem> InventoryItems { get; set; }
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+    public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
+    public DbSet<LoyaltyReward> LoyaltyRewards { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
-        
-        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        base.OnModelCreating(builder);
+
+        builder.Entity<MenuItem>(b =>
         {
-            entity.SetTableName(ToSnakeCase(entity.GetTableName()));
-            
-            foreach (var property in entity.GetProperties())
-            {
-                property.SetColumnName(ToSnakeCase(property.GetColumnName()));
-            }
-            
-            foreach (var key in entity.GetKeys())
-            {
-                key.SetName(ToSnakeCase(key.GetName()));
-            }
-            
-            foreach (var fk in entity.GetForeignKeys())
-            {
-                fk.SetConstraintName(ToSnakeCase(fk.GetConstraintName()));
-            }
-            
-            foreach (var index in entity.GetIndexes())
-            {
-                index.SetDatabaseName(ToSnakeCase(index.GetDatabaseName()));
-            }
-        }
-        
-        modelBuilder.ApplyConfigurationsFromAssembly((typeof(CampusDbContext).Assembly));
-    }
-    
-    private static string? ToSnakeCase(string? name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return name;
-            
-        return string.Concat(
-            name.Select((c, i) => i > 0 && char.IsUpper(c) 
-                ? "_" + c.ToString() 
-                : c.ToString())
-        ).ToLower();
+            b.ToTable("MenuItem");
+            b.Property(m => m.Id).ValueGeneratedNever();
+            b.Property(m => m.Name).IsRequired();
+            b.Property(m => m.Description).IsRequired();
+            b.Property(m => m.Price).IsRequired();
+            b.Property(m => m.CategoryId).IsRequired();
+        });
+
+        builder.Entity<Category>(b =>
+        {
+            b.ToTable("Category");
+            b.Property(c => c.Id).ValueGeneratedNever();
+            b.Property(c => c.Name).IsRequired();
+        });
+
+        builder.Entity<Order>(b =>
+        {
+            b.ToTable("Order");
+            b.Property(o => o.Id).ValueGeneratedNever();
+            b.Property(o => o.UserId).IsRequired();
+
+            b.Property(o => o.Status).IsRequired();
+        });
+
+        builder.Entity<OrderItem>(b =>
+        {
+            b.ToTable("OrderItem");
+            b.Property(o => o.Id).ValueGeneratedNever();
+            b.Property(o => o.OrderId).IsRequired();
+            b.Property(o => o.MenuItemId).IsRequired();
+            b.Property(o => o.Quantity).IsRequired();
+        });
+
+        builder.Entity<Payment>(b =>
+        {
+            b.ToTable("Payment");
+            b.Property(p => p.Id).ValueGeneratedNever();
+            b.Property(p => p.OrderId).IsRequired();
+            b.Property(p => p.Amount).IsRequired();
+            b.Property(p => p.PaymentMethod).IsRequired();
+        });
+
+        builder.Entity<InventoryItem>(b =>
+        {
+            b.ToTable("InventoryItem");
+            b.Property(i => i.Id).ValueGeneratedNever();
+            b.Property(i => i.Name).IsRequired();
+        });
+
+        builder.Entity<InventoryTransaction>(b =>
+        {
+            b.ToTable("InventoryTransaction");
+            b.Property(i => i.Id).ValueGeneratedNever();
+            b.Property(i => i.InventoryItemId).IsRequired();
+            b.Property(i => i.Quantity).IsRequired();
+            b.Property(i => i.TransactionType).IsRequired();
+        });
+
+        builder.Entity<LoyaltyAccount>(b =>
+        {
+            b.ToTable("LoyaltyAccount");
+            b.Property(l => l.Id).ValueGeneratedNever();
+            b.Property(l => l.UserId).IsRequired();
+
+        });
+
+        builder.Entity<LoyaltyReward>(b =>
+        {
+            b.ToTable("LoyaltyReward");
+            b.Property(l => l.Id).ValueGeneratedNever();
+        });
+
+        builder.Entity<Notification>(b =>
+        {
+            b.ToTable("Notification");
+            b.Property(n => n.Id).ValueGeneratedNever();
+            b.Property(n => n.UserId).IsRequired();
+            b.Property(n => n.Message).IsRequired();
+        });
+
+        builder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
     }
 }
