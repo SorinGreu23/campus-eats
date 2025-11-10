@@ -1,6 +1,8 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
+using CampusEats.Api.Features.Kitchen;
 using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
@@ -93,5 +95,50 @@ app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
     .WithName("DeleteMenuItem")
     .WithTags("MenuItems");
 
+// Kitchen endpoints
+app.MapGet("/api/kitchen/pending-orders", async (IMediator mediator) =>
+{
+    var query = new GetPendingOrdersQuery();
+    var result = await mediator.Send(query);
+    
+    return result.IsSuccess 
+        ? Results.Ok(result.Value) 
+        : Results.BadRequest(result.Error);
+})
+    .WithName("GetPendingOrders")
+    .WithTags("Kitchen")
+    .WithDescription("Returns all orders that are in Pending or Preparing status")
+    .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status400BadRequest);
+
+app.MapPut("/api/kitchen/orders/{id:guid}/status", async (Guid id, UpdateOrderStatusRequest request, IMediator mediator, IValidator<UpdateOrderStatusCommand> validator) =>
+{
+    var status = Enum.TryParse<OrderStatus>(request.Status, out var orderStatus) 
+        ? orderStatus 
+        : OrderStatus.Pending;
+        
+    var command = new UpdateOrderStatusCommand(id, status);
+    
+    var validationResult = await validator.ValidateAsync(command);
+    if (!validationResult.IsValid)
+    {
+        return Results.BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+    }
+    
+    var result = await mediator.Send(command);
+    
+    return result.IsSuccess 
+        ? Results.NoContent() 
+        : Results.BadRequest(result.Error);
+})
+    .WithName("UpdateOrderStatus")
+    .WithTags("Kitchen")
+    .WithDescription("Updates the status of an order. Valid transitions: Pending → Preparing → Ready → Completed")
+    .Produces(StatusCodes.Status204NoContent)
+    .ProducesProblem(StatusCodes.Status400BadRequest)
+    .ProducesProblem(StatusCodes.Status404NotFound);
+
 app.Run();
+
+public record UpdateOrderStatusRequest(string Status);
 
