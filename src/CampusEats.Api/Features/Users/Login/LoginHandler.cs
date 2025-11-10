@@ -67,7 +67,7 @@ public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
             user.Email,
             user.FirstName ?? string.Empty,
             user.LastName ?? string.Empty,
-            user.Role,
+            user.Role ?? "Student",
             token
         );
 

@@ -1,10 +1,11 @@
-﻿using CampusEats.Api.Data;
+﻿using CampusEats.Api.Common;
+using CampusEats.Api.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Get;
 
-public class GetUserHandler : IRequestHandler<GetUserRequest, GetUserResponse>
+public class GetUserHandler : IRequestHandler<GetUserRequest, Result<GetUserResponse>>
 {
     private readonly CampusDbContext _context;
 
@@ -13,17 +14,17 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, GetUserResponse>
         _context = context;
     }
 
-    public async Task<GetUserResponse> Handle(GetUserRequest request, CancellationToken cancellationToken)
+    public async Task<Result<GetUserResponse>> Handle(GetUserRequest request, CancellationToken cancellationToken)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user == null)
         {
-            throw new KeyNotFoundException($"User with ID {request.Id} not found");
+            return Result<GetUserResponse>.Failure($"User with ID {request.Id} not found");
         }
 
-        return new GetUserResponse(
+        var response = new GetUserResponse(
             user.Id,
             user.Email,
             user.FirstName ?? string.Empty,
@@ -33,5 +34,7 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, GetUserResponse>
             user.CreatedAt!.Value,
             user.UpdatedAt
         );
+
+        return Result<GetUserResponse>.Success(response);
     }
 }

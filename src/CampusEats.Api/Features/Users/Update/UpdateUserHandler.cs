@@ -6,7 +6,7 @@ using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Features.Users.Update;
 
-public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, UpdateUserResponse>
+public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<UpdateUserResponse>>
 {
     private readonly CampusDbContext _context;
     private readonly IValidator<UpdateUserRequest> _validator;
@@ -17,16 +17,20 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, UpdateUserRe
         _validator = validator;
     }
 
-    public async Task<UpdateUserResponse> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
+    public async Task<Result<UpdateUserResponse>> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
     {
-        await _validator.ValidateAndThrowAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result<UpdateUserResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+        }
 
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user == null)
         {
-            return Result<UpdateUserResponse>.Failure("User not found").Value;
+            return Result<UpdateUserResponse>.Failure("User not found");
         }
 
         if (!string.IsNullOrEmpty(request.FirstName))
@@ -45,14 +49,16 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, UpdateUserRe
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new UpdateUserResponse(
+        var response = new UpdateUserResponse(
             user.Id,
             user.Email,
-            user.FirstName!,
-            user.LastName!,
-            user.Role,
+            user.FirstName ?? string.Empty,
+            user.LastName ?? string.Empty,
+            user.Role ?? string.Empty,
             user.IsActive,
             user.UpdatedAt.Value
         );
+
+        return Result<UpdateUserResponse>.Success(response);
     }
 }
