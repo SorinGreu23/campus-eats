@@ -1,0 +1,53 @@
+<div class="menu-container">
+  <div class="menu-header">
+    <h1 class="menu-title">Our Menu</h1>
+    <p class="menu-subtitle">Discover delicious food made fresh daily on campus</p>
+  </div>
+
+  <div class="search-section">
+    <span class="p-input-icon-left search-wrapper">
+      <i class="pi pi-search"></i>
+      <input 
+        type="text" 
+        pInputText 
+        placeholder="Search for dishes..." 
+        class="search-input"
+        (input)="onSearchChange($event)"
+      />
+    </span>
+  </div>
+
+  <!-- Category Filters -->
+  <div class="category-section">
+    <div class="category-chips">
+      <p-chip 
+        label="All" 
+        [styleClass]="selectedCategoryId() === null ? 'category-chip active' : 'category-chip'"
+        (click)="selectCategory(null)"
+      />
+      @for (category of categories(); track category.id) {
+        <p-chip 
+          [label]="category.name" 
+          [styleClass]="selectedCategoryId() === category.id ? 'category-chip active' : 'category-chip'"
+          (click)="selectCategory(category.id)"
+        />
+      }
+    </div>
+  </div>
+
+  <!-- Menu Items Grid -->
+  <div class="menu-items-section">
+    @if (filteredMenuItems().length === 0) {
+      <div class="no-results">
+        <i class="pi pi-search" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+        <p>No items found matching your search</p>
+      </div>
+    } @else {
+      <div class="menu-grid">
+        @for (item of filteredMenuItems(); track item.id) {
+          <app-menu-item-card [menuItem]="item" />
+        }
+      </div>
+    }
+  </div>
+</div>
