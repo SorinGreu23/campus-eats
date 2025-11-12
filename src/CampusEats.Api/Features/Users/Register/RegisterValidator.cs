@@ -2,9 +2,9 @@
 
 namespace CampusEats.Api.Features.Users.Create;
 
-public class CreateUserValidator : AbstractValidator<CreateUserRequest>
+public class RegisterValidator : AbstractValidator<RegisterRequest>
 {
-    public CreateUserValidator()
+    public RegisterValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required")

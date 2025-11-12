@@ -14,7 +14,5 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(x => x.Unit).HasMaxLength(64);
         builder.Property(x => x.CurrentQuantity).HasColumnType("decimal(18,2)");
         builder.Property(x => x.MinimumQuantity).HasColumnType("decimal(18,2)");
-        builder.Property(x => x.CreatedAt);
-        builder.Property(x => x.UpdatedAt);
     }
 }

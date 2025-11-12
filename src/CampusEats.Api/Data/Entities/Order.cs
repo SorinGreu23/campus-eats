@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace CampusEats.Api.Data.Entities;
 
-public class Order : BaseEntity
+public class Order
 {
+    public Guid Id { get; set; }
     public string? OrderNumber { get; set; }
     public Guid? UserId { get; set; }
     public string? Status { get; set; }

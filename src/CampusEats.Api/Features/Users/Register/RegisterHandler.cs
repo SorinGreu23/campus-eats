@@ -14,18 +14,18 @@ using Npgsql;
 
 namespace CampusEats.Api.Features.Users.Create;
 
-public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<CreateUserResponse>>
+public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
 {
     private readonly CampusDbContext _context;
     private readonly IdentityDbContext _identityContext;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IValidator<CreateUserRequest> _validator;
+    private readonly IValidator<RegisterRequest> _validator;
 
-    public CreateUserHandler(
+    public RegisterHandler(
         CampusDbContext context,
         IdentityDbContext identityContext,
         UserManager<ApplicationUser> userManager,
-        IValidator<CreateUserRequest> validator)
+        IValidator<RegisterRequest> validator)
     {
         _context = context;
         _identityContext = identityContext;
@@ -33,11 +33,11 @@ public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<Creat
         _validator = validator;
     }
 
-    public async Task<Result<CreateUserResponse>> Handle(CreateUserRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(RegisterRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
-            return Result<CreateUserResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
         var userId = Guid.NewGuid();
 
@@ -65,7 +65,6 @@ public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<Creat
 
             var user = new User
             {
-                Id = userId,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -87,13 +86,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<Creat
             if (!identityResult.Succeeded)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                return Result<CreateUserResponse>.Failure(string.Join(", ", identityResult.Errors.Select(e => e.Description)));
+                return Results.BadRequest(string.Join(", ", identityResult.Errors.Select(e => e.Description)));
             }
 
             await transaction.CommitAsync(cancellationToken);
 
-            var response = new CreateUserResponse(user.Id, user.Email, user.FirstName, user.LastName, user.CreatedAt!.Value);
-            return Result<CreateUserResponse>.Success(response);
+            var response = new RegisterResponse(user.Id, user.Email, user.FirstName, user.LastName, user.CreatedAt);
+            return Results.Ok(response);
         }
         catch (Exception ex)
         {
@@ -103,7 +102,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserRequest, Result<Creat
             for (var inner = ex.InnerException; inner != null; inner = inner.InnerException)
                 errorMessage += $" | Inner: {inner.Message}";
 
-            return Result<CreateUserResponse>.Failure($"An error occurred while creating the user: {errorMessage}");
+            return Results.InternalServerError($"An error occurred while creating the user: {errorMessage}");
         }
     }
 }

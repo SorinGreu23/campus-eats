@@ -30,19 +30,19 @@ public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
         _validator = validator;
     }
 
-    public async Task<Result<LoginResponse>> Handle(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Result<LoginResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
         var appUser = await _userManager.FindByEmailAsync(request.Email);
 
         if (appUser == null)
         {
-            return Result<LoginResponse>.Failure("Invalid email or password");
+            return Results.BadRequest("Invalid email or password");
         }
 
         var user = await _identityContext.Users

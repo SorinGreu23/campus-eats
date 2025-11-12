@@ -2,8 +2,9 @@ using System;
 
 namespace CampusEats.Api.Data.Entities;
 
-public class LoyaltyReward : BaseEntity
+public class LoyaltyReward
 {
+    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public int PointsCost { get; set; }

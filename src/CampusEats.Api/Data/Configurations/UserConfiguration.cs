@@ -22,9 +22,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LastName)
             .HasMaxLength(128);
 
-        builder.Property(u => u.Role)
-            .HasMaxLength(64);
-
         builder.HasIndex(u => u.Email).IsUnique();
     }
 }

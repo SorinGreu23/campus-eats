@@ -13,7 +13,5 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
         builder.Property(x => x.DisplayOrder);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
-        builder.Property(x => x.CreatedAt);
-        builder.Property(x => x.UpdatedAt);
     }
 }
