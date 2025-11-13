@@ -7,5 +7,7 @@ public record RegisterResponse(
     string Email,
     string FirstName,
     string LastName,
+    string UserName,
+    string Role,
     DateTimeOffset CreateAt
 );

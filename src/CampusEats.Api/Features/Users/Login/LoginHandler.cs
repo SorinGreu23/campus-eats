@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Login;
 
-public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
+public class LoginHandler : IRequestHandler<LoginRequest, IResult>
 {
     private readonly CampusDbContext _context;
     private readonly IdentityDbContext _identityContext;
@@ -50,14 +50,22 @@ public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
 
         if (user == null || !user.IsActive)
         {
-            return Result<LoginResponse>.Failure("Account is inactive or not found");
+            return Results.BadRequest("Account is inactive or not found");
+        }
+        
+        var roles = await _userManager.GetRolesAsync(appUser);
+        var userRole = roles.FirstOrDefault();
+        
+        if (userRole == null)
+        {
+            return Results.BadRequest("User has no role assigned.");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, lockoutOnFailure: false);
 
         if (!result.Succeeded)
         {
-            return Result<LoginResponse>.Failure("Invalid email or password");
+            return Results.BadRequest("Invalid email or password");
         }
 
         var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
@@ -67,10 +75,10 @@ public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
             user.Email,
             user.FirstName ?? string.Empty,
             user.LastName ?? string.Empty,
-            user.Role ?? "Student",
+            userRole,
             token
         );
 
-        return Result<LoginResponse>.Success(response);
+        return Results.Ok(response);
     }
 }

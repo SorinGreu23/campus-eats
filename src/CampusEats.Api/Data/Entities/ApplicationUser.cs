@@ -4,7 +4,7 @@ namespace CampusEats.Api.Data.Entities;
 
 public class ApplicationUser : IdentityUser<Guid>
 {
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
 
     public User? User { get; set; }
 }

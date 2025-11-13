@@ -36,7 +36,6 @@ builder.Services.AddDbContext<IdentityDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityServices(builder.Configuration);
-
 builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg =>
@@ -80,54 +79,38 @@ app.UseAuthorization();
 
 // --- User endpoints ---
 app.MapPost("/api/users/register", async (RegisterRequest request, IMediator mediator) =>
-{
-    var result = await mediator.Send(request);
-    return result.IsSuccess
-        ? Results.Created($"/api/users/{result.Value!.Id}", result.Value)
-        : Results.BadRequest(result.Error);
-})
+        await mediator.Send(request))
     .WithName("RegisterUser")
     .WithTags("Users")
     .WithOpenApi();
 
 app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
-{
-    var result = await mediator.Send(request);
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-}); // NO .RequireAuthorization() here!
+        await mediator.Send(request))
+    .WithName("LoginUser")
+    .WithTags("Users")
+    .WithOpenApi();
 
 app.MapGet("/api/users", async (IMediator mediator) =>
-{
-    var result = await mediator.Send(new GetUsersRequest());
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-}).RequireAuthorization(); // This one should have authorization
+        await mediator.Send(new GetUsersRequest()))
+    .RequireAuthorization()
+    .WithName("GetUsers")
+    .WithTags("Users")
+    .WithOpenApi();
 
-app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    return await mediator.Send(new GetUserRequest(id)) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.NotFound(result.Error);
-})
+app.MapGet("/api/users/{id:string}", async (string id, IMediator mediator) =>
+        await mediator.Send(new GetUserRequest(id)))
     .WithName("GetUser")
     .WithTags("Users")
     .WithOpenApi();
 
-app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IMediator mediator) =>
-{
-    return await mediator.Send(request with { Id = id }) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.BadRequest(result.Error);
-})
+app.MapPut("/api/users/{id:string}", async (string id, UpdateUserRequest request, IMediator mediator) =>
+        await mediator.Send(request with { Id = id }))
     .WithName("UpdateUser")
     .WithTags("Users")
     .WithOpenApi();
 
-app.MapDelete("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    return await mediator.Send(new DeleteUserRequest(id)) is var result && result.IsSuccess
-        ? Results.NoContent()
-        : Results.BadRequest(result.Error);
-})
+app.MapDelete("/api/users/{id:string}", async (string id, IMediator mediator) =>
+        await mediator.Send(new DeleteUserRequest(id)))
     .WithName("DeleteUser")
     .WithTags("Users")
     .WithOpenApi();

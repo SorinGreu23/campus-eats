@@ -8,5 +8,6 @@ public record RegisterRequest(
     string Password,
     string FirstName,
     string LastName,
+    string Role,
     string UserName
 ) : IRequest<IResult>;

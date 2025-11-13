@@ -6,7 +6,7 @@ using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Features.Users.Update;
 
-public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<UpdateUserResponse>>
+public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
 {
     private readonly IdentityDbContext _identityContext;
     private readonly IValidator<UpdateUserRequest> _validator;
@@ -17,12 +17,12 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
         _validator = validator;
     }
 
-    public async Task<Result<UpdateUserResponse>> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Result<UpdateUserResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
         var user = await _identityContext.Users
@@ -30,7 +30,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
 
         if (user == null)
         {
-            return Result<UpdateUserResponse>.Failure("User not found");
+            return Results.BadRequest("User not found");
         }
 
         if (!string.IsNullOrEmpty(request.FirstName))
@@ -38,9 +38,6 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
 
         if (!string.IsNullOrEmpty(request.LastName))
             user.LastName = request.LastName;
-
-        if (!string.IsNullOrEmpty(request.Role))
-            user.Role = request.Role;
 
         if (request.IsActive.HasValue)
             user.IsActive = request.IsActive.Value;
@@ -50,15 +47,14 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, Result<Updat
         await _identityContext.SaveChangesAsync(cancellationToken);
 
         var response = new UpdateUserResponse(
-            user.Id,
+            user.Id.ToString(),
             user.Email,
             user.FirstName ?? string.Empty,
             user.LastName ?? string.Empty,
-            user.Role ?? string.Empty,
             user.IsActive,
-            user.UpdatedAt.Value
+            user.UpdatedAt
         );
 
-        return Result<UpdateUserResponse>.Success(response);
+        return Results.Ok(response);
     }
 }

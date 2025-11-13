@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Overview;
 
-public class GetUsersHandler : IRequestHandler<GetUsersRequest, Result<GetUsersResponse>>
+public class GetUsersHandler : IRequestHandler<GetUsersRequest, IResult>
 {
     private readonly IdentityDbContext _identityContext;
 
@@ -14,20 +14,26 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, Result<GetUsersR
         _identityContext = identityContext;
     }
 
-    public async Task<Result<GetUsersResponse>> Handle(GetUsersRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(GetUsersRequest request, CancellationToken cancellationToken)
     {
         var users = await _identityContext.Users
             .Select(u => new UserDto(
                 u.Id,
-                u.Email,
+                u.Email ?? string.Empty,
                 u.FirstName ?? string.Empty,
                 u.LastName ?? string.Empty,
-                u.Role,
+                _identityContext.UserRoles
+                    .Where(ur => ur.UserId == u.Id)
+                    .Join(_identityContext.Roles,
+                        ur => ur.RoleId,
+                        r => r.Id,
+                        (ur, r) => r.Name)
+                    .FirstOrDefault() ?? string.Empty,
                 u.IsActive,
-                u.CreatedAt ?? DateTimeOffset.UtcNow
+                u.CreatedAt
             ))
             .ToListAsync(cancellationToken);
 
-        return Result<GetUsersResponse>.Success(new GetUsersResponse(users));
+        return Results.Ok(new GetUsersResponse(users));
     }
 }
