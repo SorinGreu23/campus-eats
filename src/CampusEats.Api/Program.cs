@@ -97,39 +97,21 @@ app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
 
 // Kitchen endpoints
 app.MapGet("/api/kitchen/pending-orders", async (IMediator mediator) =>
-{
-    var query = new GetPendingOrdersQuery();
-    var result = await mediator.Send(query);
-    
-    return result.IsSuccess 
-        ? Results.Ok(result.Value) 
-        : Results.BadRequest(result.Error);
-})
+    await mediator.Send(new GetPendingOrdersQuery()))
     .WithName("GetPendingOrders")
     .WithTags("Kitchen")
     .WithDescription("Returns all orders that are in Pending or Preparing status")
     .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
     .ProducesProblem(StatusCodes.Status400BadRequest);
 
-app.MapPut("/api/kitchen/orders/{id:guid}/status", async (Guid id, UpdateOrderStatusRequest request, IMediator mediator, IValidator<UpdateOrderStatusCommand> validator) =>
+app.MapPut("/api/kitchen/orders/{id:guid}/status", async (Guid id, UpdateOrderStatusRequest request, IMediator mediator) =>
 {
     var status = Enum.TryParse<OrderStatus>(request.Status, out var orderStatus) 
         ? orderStatus 
         : OrderStatus.Pending;
         
     var command = new UpdateOrderStatusCommand(id, status);
-    
-    var validationResult = await validator.ValidateAsync(command);
-    if (!validationResult.IsValid)
-    {
-        return Results.BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
-    }
-    
-    var result = await mediator.Send(command);
-    
-    return result.IsSuccess 
-        ? Results.NoContent() 
-        : Results.BadRequest(result.Error);
+    return await mediator.Send(command);
 })
     .WithName("UpdateOrderStatus")
     .WithTags("Kitchen")

@@ -13,7 +13,7 @@ public class UpdateOrderStatusValidatorTests
     public async Task ShouldHaveError_WhenOrderIdIsEmpty()
     {
         // Arrange
-        var command = new UpdateOrderStatusCommand(Guid.Empty, "Preparing");
+        var command = new UpdateOrderStatusCommand(Guid.Empty, OrderStatus.Preparing);
         
         // Act
         var result = await _validator.ValidateAsync(command);
@@ -24,24 +24,10 @@ public class UpdateOrderStatusValidatorTests
     }
     
     [Fact]
-    public async Task ShouldHaveError_WhenStatusIsEmpty()
-    {
-        // Arrange
-        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), "");
-        
-        // Act
-        var result = await _validator.ValidateAsync(command);
-        
-        // Assert
-        result.IsValid.ShouldBeFalse();
-        result.Errors.ShouldContain(e => e.PropertyName == "Status");
-    }
-    
-    [Fact]
     public async Task ShouldHaveError_WhenStatusIsInvalid()
     {
         // Arrange
-        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), "InvalidStatus");
+        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), OrderStatus.Pending);
         
         // Act
         var result = await _validator.ValidateAsync(command);
@@ -52,10 +38,10 @@ public class UpdateOrderStatusValidatorTests
     }
     
     [Theory]
-    [InlineData("Preparing")]
-    [InlineData("Ready")]
-    [InlineData("Completed")]
-    public async Task ShouldNotHaveError_WhenStatusIsValid(string status)
+    [InlineData(OrderStatus.Preparing)]
+    [InlineData(OrderStatus.Ready)]
+    [InlineData(OrderStatus.Completed)]
+    public async Task ShouldNotHaveError_WhenStatusIsValid(OrderStatus status)
     {
         // Arrange
         var command = new UpdateOrderStatusCommand(Guid.NewGuid(), status);
@@ -72,7 +58,7 @@ public class UpdateOrderStatusValidatorTests
     public async Task ShouldNotHaveError_WhenCommandIsValid()
     {
         // Arrange
-        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), "Preparing");
+        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), OrderStatus.Preparing);
         
         // Act
         var result = await _validator.ValidateAsync(command);

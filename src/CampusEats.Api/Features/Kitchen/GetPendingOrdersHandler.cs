@@ -1,4 +1,3 @@
-using CampusEats.Api.Common.Models;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using MediatR;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Kitchen;
 
-public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, Result<List<PendingOrderDto>>>
+public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IResult>
 {
     private readonly CampusDbContext _context;
 
@@ -15,9 +14,11 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, Re
         _context = context;
     }
 
-    public async Task<Result<List<PendingOrderDto>>> Handle(GetPendingOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(GetPendingOrdersQuery request, CancellationToken cancellationToken)
     {
-        var pendingStatuses = new[] { "Pending", "Preparing" };
+        var pendingStatuses = new[] { OrderStatus.Pending, OrderStatus.Preparing }
+            .Select(s => s.ToString())
+            .ToArray();
 
         var orders = await _context.Orders
             .Include(o => o.Items)
@@ -45,7 +46,7 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, Re
             })
             .ToListAsync(cancellationToken);
 
-        return Result<List<PendingOrderDto>>.Success(orders);
+        return Results.Ok(orders);
     }
 }
 
