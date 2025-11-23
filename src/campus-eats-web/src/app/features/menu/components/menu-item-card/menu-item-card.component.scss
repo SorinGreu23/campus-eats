@@ -1,0 +1,267 @@
+/* Component-scoped, no ::ng-deep, no PrimeNG internals */
+.menu-item-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 25px;
+  overflow: hidden;
+  border: 5px solid #ffffff;
+  background: #ffffff;
+  box-shadow: 0 6px 0px #16a34a, 0 10px 25px rgba(0, 0, 0, 0.3);
+  transform: rotate(-0.5deg);
+  padding: 0.75rem; /* inner gap before the outer border */
+
+  &:hover {
+    transform: rotate(0deg) translateY(-10px);
+    box-shadow: 0 12px 0px #16a34a, 0 16px 35px rgba(0, 0, 0, 0.4);
+
+    .card-image {
+      transform: scale(1.08) rotate(1deg);
+    }
+  }
+
+  &:active {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: 0 4px 0px #16a34a, 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.card-image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border-bottom: 5px solid #ffffff;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .unavailable-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(69, 26, 3, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+
+    .status-tag {
+      font-size: 1.2rem;
+      padding: 1rem 2.5rem;
+      font-weight: 700;
+      background: #dc2626;
+      border: 3px solid white;
+      border-radius: 20px;
+      font-family: 'Fredoka', sans-serif;
+      text-transform: uppercase;
+      box-shadow: 0 4px 0px #991b1b;
+      color: #ffffff;
+    }
+  }
+
+  .calories-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    .calories-tag {
+      background: #ffffff;
+      color: #16a34a;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 3px solid #16a34a;
+      border-radius: 15px;
+      padding: 0.5rem 1rem;
+      font-family: 'Fredoka', sans-serif;
+      box-shadow: 0 3px 0px #15803d;
+      display: inline-block;
+    }
+  }
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: white;
+  padding: 0.5rem;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+
+  .item-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #16a34a;
+    margin: 0;
+    flex: 1;
+    line-height: 1.2;
+    font-family: 'Pacifico', cursive;
+    text-transform: capitalize;
+  }
+
+  .item-price {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #dc2626;
+    white-space: nowrap;
+    font-family: 'Fredoka', sans-serif;
+    text-shadow: 2px 2px 0px #fbbf24;
+  }
+}
+
+.item-description {
+  color: #78350f;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 3px dashed #16a34a;
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .prep-time {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #451a03;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Fredoka', sans-serif;
+      background: #dcfce7;
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      border: 3px solid #16a34a;
+
+      i {
+        font-size: 1rem;
+        color: #16a34a;
+        margin-right: 0.35rem; /* consistent spacing before text */
+      }
+    }
+  }
+
+  .add-to-cart-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border: none;
+    padding: 0.875rem 1.75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    border-radius: 20px;
+    box-shadow: 0 4px 0px #991b1b, 0 6px 15px rgba(220, 38, 38, 0.4);
+    font-family: 'Fredoka', sans-serif;
+    text-transform: uppercase;
+    border: 3px solid white;
+
+    &:not(:disabled):hover {
+      background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0px #7f1d1d, 0 10px 20px rgba(220, 38, 38, 0.5);
+    }
+
+    &:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 0px #7f1d1d, 0 4px 10px rgba(220, 38, 38, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #9ca3af;
+      border-color: white;
+      box-shadow: 0 4px 0px #6b7280;
+    }
+
+    .p-button-icon {
+      font-size: 1.1rem;
+    }
+
+    .p-button-label {
+      font-weight: 700;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card-image-container {
+    height: 220px;
+  }
+
+  .item-header {
+    .item-name {
+      font-size: 1.3rem;
+    }
+
+    .item-price {
+      font-size: 1.6rem;
+    }
+  }
+
+  .item-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+
+    .item-meta {
+      justify-content: center;
+    }
+
+    ::ng-deep .add-to-cart-btn .p-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@for $i from 1 through 20 {
+  .menu-item-card:nth-child(#{$i}) {
+    animation: popIn 0.5s ease-out #{$i * 0.05}s backwards;
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-0.5deg);
+  }
+}

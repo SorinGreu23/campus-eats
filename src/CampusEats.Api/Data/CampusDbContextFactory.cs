@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using DotNetEnv;
 
 namespace CampusEats.Api.Data;
 
@@ -7,20 +8,17 @@ public class CampusDbContextFactory : IDesignTimeDbContextFactory<CampusDbContex
 {
     public CampusDbContext CreateDbContext(string[] args)
     {
-        DotNetEnv.Env.Load();
-        
+        Env.Load();
+
+        var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+        var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+        var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+        var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+        var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
+
         var optionsBuilder = new DbContextOptionsBuilder<CampusDbContext>();
-        
-        var postgresHost = Environment.GetEnvironmentVariable("DB_Host");
-        var postgresPort = Environment.GetEnvironmentVariable("DB_Port") ?? "5432";
-        var postgresDb = Environment.GetEnvironmentVariable("DB_Name");
-        var postgresUser = Environment.GetEnvironmentVariable("DB_User");
-        var postgresPassword = Environment.GetEnvironmentVariable("DB_Password");
-        
-        var connectionString = string.IsNullOrEmpty(postgresHost)
-            ? "Host=localhost;Port=5432;Database=campuseats;Username=postgres;Password=postgres" // Fallback
-            : $"Host={postgresHost};Port={postgresPort};Database={postgresDb};Username={postgresUser};Password={postgresPassword}";
-        
         optionsBuilder.UseNpgsql(connectionString);
 
         return new CampusDbContext(optionsBuilder.Options);
