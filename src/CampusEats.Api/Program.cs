@@ -1,14 +1,8 @@
 using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
-using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Data.Extensions;
-using CampusEats.Api.Features.Users.Create;
-using CampusEats.Api.Features.Users.Delete;
-using CampusEats.Api.Features.Users.Get;
-using CampusEats.Api.Features.Users.Login;
-using CampusEats.Api.Features.Users.Overview;
-using CampusEats.Api.Features.Users.Update;
+using CampusEats.Api.Features.Users;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -81,41 +75,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// --- User endpoints ---
-app.MapPost("/api/users/register", async (RegisterRequest request, IMediator mediator) =>
-        await mediator.Send(request))
-    .WithName("RegisterUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
-        await mediator.Send(request))
-    .WithName("LoginUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapGet("/api/users", async (IMediator mediator) =>
-        await mediator.Send(new GetUsersRequest()))
-    .WithName("GetUsers")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapGet("/api/users/{id}", async (string id, IMediator mediator) =>
-        await mediator.Send(new GetUserRequest(id)))
-    .WithName("GetUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapPut("/api/users/{id}", async (string id, UpdateUserRequest request, IMediator mediator) =>
-        await mediator.Send(request with { Id = id }))
-    .WithName("UpdateUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapDelete("/api/users/{id}", async (string id, IMediator mediator) =>
-        await mediator.Send(new DeleteUserRequest(id)))
-    .WithName("DeleteUser")
-    .WithTags("Users")
-    .WithOpenApi();
+app.MapUserEndpoints();
 
 app.Run();

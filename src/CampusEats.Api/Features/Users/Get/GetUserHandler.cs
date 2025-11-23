@@ -31,11 +31,6 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
         var roles = await _userManager.GetRolesAsync(appUser);
         var userRole = roles.FirstOrDefault();
         
-        if (userRole == null)
-        {
-            return Results.BadRequest("User has no role assigned.");
-        }
-        
         return Results.Ok(new GetUserResponse
         (
             appUser.Email!,
