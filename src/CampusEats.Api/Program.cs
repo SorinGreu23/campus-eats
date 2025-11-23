@@ -1,11 +1,5 @@
 using CampusEats.Api.Data;
-using CampusEats.Api.Data.Entities;
-using CampusEats.Api.Features.Users.Create;
-using CampusEats.Api.Features.Users.Delete;
-using CampusEats.Api.Features.Users.Get;
-using CampusEats.Api.Features.Users.Login;
-using CampusEats.Api.Features.Users.Overview;
-using CampusEats.Api.Features.Users.Update;
+using CampusEats.Api.Features.Menu;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -76,61 +70,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowClientApp");
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-// --- User endpoints ---
-app.MapPost("/api/users/register", async (CreateUserRequest request, IMediator mediator) =>
-{
-    var result = await mediator.Send(request);
-    return result.IsSuccess
-        ? Results.Created($"/api/users/{result.Value!.Id}", result.Value)
-        : Results.BadRequest(result.Error);
-})
-    .WithName("RegisterUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
-{
-    var result = await mediator.Send(request);
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-}); // NO .RequireAuthorization() here!
-
-app.MapGet("/api/users", async (IMediator mediator) =>
-{
-    var result = await mediator.Send(new GetUsersRequest());
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
-}).RequireAuthorization(); // This one should have authorization
-
-app.MapGet("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    return await mediator.Send(new GetUserRequest(id)) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.NotFound(result.Error);
-})
-    .WithName("GetUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapPut("/api/users/{id:guid}", async (Guid id, UpdateUserRequest request, IMediator mediator) =>
-{
-    return await mediator.Send(request with { Id = id }) is var result && result.IsSuccess
-        ? Results.Ok(result.Value)
-        : Results.BadRequest(result.Error);
-})
-    .WithName("UpdateUser")
-    .WithTags("Users")
-    .WithOpenApi();
-
-app.MapDelete("/api/users/{id:guid}", async (Guid id, IMediator mediator) =>
-{
-    return await mediator.Send(new DeleteUserRequest(id)) is var result && result.IsSuccess
-        ? Results.NoContent()
-        : Results.BadRequest(result.Error);
-})
-    .WithName("DeleteUser")
-    .WithTags("Users")
-    .WithOpenApi();
+// Map feature endpoints
+app.MapMenuEndpoints();
 
 app.Run();
