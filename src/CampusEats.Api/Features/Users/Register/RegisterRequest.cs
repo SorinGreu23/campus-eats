@@ -3,9 +3,11 @@ using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Features.Users.Create;
 
-public record CreateUserRequest(
+public record RegisterRequest(
     string Email,
     string Password,
     string FirstName,
-    string LastName
-) : IRequest<Result<CreateUserResponse>>;
+    string LastName,
+    string Role,
+    string UserName
+) : IRequest<IResult>;

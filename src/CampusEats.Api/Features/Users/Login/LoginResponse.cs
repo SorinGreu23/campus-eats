@@ -1,8 +1,7 @@
-// C#
 namespace CampusEats.Api.Features.Users.Login;
 
 public record LoginResponse(
-    Guid Id,
+    string Id,
     string Email,
     string FirstName,
     string LastName,

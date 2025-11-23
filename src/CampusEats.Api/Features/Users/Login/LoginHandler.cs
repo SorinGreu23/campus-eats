@@ -8,69 +8,68 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Login;
 
-public class LoginHandler : IRequestHandler<LoginRequest, Result<LoginResponse>>
+public class LoginHandler : IRequestHandler<LoginRequest, IResult>
 {
-    private readonly CampusDbContext _context;
-    private readonly IdentityDbContext _identityContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IValidator<LoginRequest> _validator;
 
     public LoginHandler(
-        CampusDbContext context,
-        IdentityDbContext identityContext,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IValidator<LoginRequest> validator)
     {
-        _context = context;
-        _identityContext = identityContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _validator = validator;
     }
 
-    public async Task<Result<LoginResponse>> Handle(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Result<LoginResponse>.Failure(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
         var appUser = await _userManager.FindByEmailAsync(request.Email);
 
         if (appUser == null)
         {
-            return Result<LoginResponse>.Failure("Invalid email or password");
+            return Results.BadRequest("Invalid email or password");
         }
 
-        var user = await _identityContext.Users
-            .FirstOrDefaultAsync(u => u.Id == appUser.UserId, cancellationToken);
-
-        if (user == null || !user.IsActive)
+        if (!appUser.IsActive)
         {
-            return Result<LoginResponse>.Failure("Account is inactive or not found");
+            return Results.BadRequest("Account is inactive");
+        }
+        
+        var roles = await _userManager.GetRolesAsync(appUser);
+        var userRole = roles.FirstOrDefault();
+        
+        if (userRole == null)
+        {
+            return Results.BadRequest("User has no role assigned.");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, lockoutOnFailure: false);
 
         if (!result.Succeeded)
         {
-            return Result<LoginResponse>.Failure("Invalid email or password");
+            return Results.BadRequest("Invalid email or password");
         }
 
         var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
         var response = new LoginResponse(
-            user.Id,
-            user.Email,
-            user.FirstName ?? string.Empty,
-            user.LastName ?? string.Empty,
-            user.Role ?? "Student",
+            appUser.Id,
+            appUser.Email!,
+            appUser.FirstName ?? string.Empty,
+            appUser.LastName ?? string.Empty,
+            userRole,
             token
         );
 
-        return Result<LoginResponse>.Success(response);
+        return Results.Ok(response);
     }
 }

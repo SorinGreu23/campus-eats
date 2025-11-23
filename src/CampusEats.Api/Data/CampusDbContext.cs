@@ -46,8 +46,10 @@ public class CampusDbContext : DbContext
             b.ToTable("Order");
             b.Property(o => o.Id).ValueGeneratedNever();
             b.Property(o => o.UserId).IsRequired();
-
             b.Property(o => o.Status).IsRequired();
+            
+            // Ignore User navigation property - User is managed by IdentityDbContext
+            b.Ignore(o => o.User);
         });
 
         builder.Entity<OrderItem>(b =>
@@ -105,7 +107,7 @@ public class CampusDbContext : DbContext
             b.Property(n => n.UserId).IsRequired();
             b.Property(n => n.Message).IsRequired();
         });
-
+        
         builder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
     }
 }

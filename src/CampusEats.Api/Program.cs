@@ -1,4 +1,8 @@
+using CampusEats.Api.Common.Interfaces;
+using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
+using CampusEats.Api.Data.Extensions;
+using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
 using FluentValidation;
 using MediatR;
@@ -14,11 +18,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
-var dbName = Environment.GetEnvironmentVariable("DB_NAME");
-var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+var dbHost = Environment.GetEnvironmentVariable("DB_Host");
+var dbPort = Environment.GetEnvironmentVariable("DB_Port");
+var dbName = Environment.GetEnvironmentVariable("DB_Name");
+var dbUser = Environment.GetEnvironmentVariable("DB_User");
+var dbPassword = Environment.GetEnvironmentVariable("DB_Password");
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
@@ -28,11 +32,10 @@ builder.Services.AddDbContext<CampusDbContext>(opt =>
 builder.Services.AddDbContext<IdentityDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<IdentityDbContext>()
-    .AddDefaultTokenProviders();
-
+builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
@@ -70,6 +73,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowClientApp");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapUserEndpoints();
 // Map feature endpoints
 app.MapMenuEndpoints();
 

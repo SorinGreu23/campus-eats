@@ -22,9 +22,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.CancelledAt);
         builder.Property(x => x.CancellationReason);
 
-        builder.HasOne(x => x.User)
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // User navigation property is ignored - User is managed by IdentityDbContext
+        builder.Ignore(x => x.User);
     }
 }

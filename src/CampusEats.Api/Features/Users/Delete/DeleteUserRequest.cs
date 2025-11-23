@@ -1,6 +1,7 @@
 ﻿using CampusEats.Api.Common;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CampusEats.Api.Features.Users.Delete;
 
-public record DeleteUserRequest(Guid Id) : IRequest<Result<DeleteUserResponse>>;
+public record DeleteUserRequest(string Id) : IRequest<IResult>;

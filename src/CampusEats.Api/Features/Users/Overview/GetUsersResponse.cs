@@ -3,11 +3,10 @@
 public record GetUsersResponse(List<UserDto> Users);
 
 public record UserDto(
-    Guid Id,
+    string Id,
     string Email,
     string FirstName,
     string LastName,
-    string? Role,
-    bool IsActive,
-    DateTimeOffset CreatedAt
+    string Role,
+    bool IsActive
 );

@@ -2,10 +2,11 @@
 
 namespace CampusEats.Api.Features.Users.Create;
 
-public record CreateUserResponse(
-    Guid Id,
+public record RegisterResponse(
+    string Id,
     string Email,
     string FirstName,
     string LastName,
-    DateTimeOffset CreateAt
+    string UserName,
+    string Role
 );

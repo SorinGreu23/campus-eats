@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 namespace CampusEats.Api.Data.Entities;
 
-public class Order : BaseEntity
+public class Order
 {
+    public Guid Id { get; set; }
     public string? OrderNumber { get; set; }
-    public Guid? UserId { get; set; }
+    public string? UserId { get; set; }
     public string? Status { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Tax { get; set; }
@@ -18,6 +19,6 @@ public class Order : BaseEntity
     public DateTimeOffset? CancelledAt { get; set; }
     public string? CancellationReason { get; set; }
 
-    public User? User { get; set; }
+    public ApplicationUser? User { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }
