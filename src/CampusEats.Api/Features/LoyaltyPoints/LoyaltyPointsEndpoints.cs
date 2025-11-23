@@ -1,4 +1,5 @@
 ﻿using CampusEats.Api.Features.LoyaltyPoints.AddPoints;
+using CampusEats.Api.Features.LoyaltyPoints.Claims;
 using CampusEats.Api.Features.LoyaltyPoints.Get;
 using CampusEats.Api.Features.LoyaltyPoints.GetRewards;
 using CampusEats.Api.Features.LoyaltyPoints.RedeemReward;
@@ -32,6 +33,10 @@ public static class LoyaltyPointsEndpoints
                 await mediator.Send(request))
             .WithName("RedeemLoyaltyReward")
             .WithOpenApi();
+        
+        group.MapGet("/claims/{userId}", async (string userId, IMediator mediator) =>
+                await mediator.Send(new GetClaimsRequest(userId)))
+            .WithName("GetLoyaltyClaims")
+            .WithOpenApi();
     }
 }
-

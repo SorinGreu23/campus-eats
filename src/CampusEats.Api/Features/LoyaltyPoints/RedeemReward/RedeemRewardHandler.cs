@@ -72,13 +72,27 @@ public class RedeemRewardHandler : IRequestHandler<RedeemRewardRequest, IResult>
 
         // Deduct points
         loyaltyAccount.PointsBalance -= reward.PointsCost;
+
+        // Create claim record
+        var claim = new CampusEats.Api.Data.Entities.LoyaltyClaim
+        {
+            Id = Guid.NewGuid(),
+            LoyaltyAccountId = loyaltyAccount.Id,
+            RewardId = reward.Id,
+            ClaimedAt = DateTimeOffset.UtcNow,
+            Notes = request.Reason
+        };
+
+        // Save both changes
+        _context.LoyaltyClaims.Add(claim);
         await _context.SaveChangesAsync(cancellationToken);
 
         var response = new RedeemRewardResponse
         {
             AccountId = loyaltyAccount.Id,
             NewPointsBalance = loyaltyAccount.PointsBalance,
-            Message = $"Successfully redeemed {reward.Name}!"
+            Message = $"Successfully redeemed {reward.Name}!",
+            ClaimId = claim.Id
         };
 
         return Results.Ok(response);
@@ -96,4 +110,3 @@ public class RedeemRewardHandler : IRequestHandler<RedeemRewardRequest, IResult>
         };
     }
 }
-

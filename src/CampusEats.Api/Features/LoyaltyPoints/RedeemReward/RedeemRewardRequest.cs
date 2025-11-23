@@ -11,6 +11,9 @@ public class RedeemRewardRequest : IRequest<IResult>
     
     [JsonPropertyName("rewardId")]
     public Guid RewardId { get; set; }
+
+    [JsonPropertyName("reason")]
+    public string? Reason { get; set; }
 }
 
 public class RedeemRewardResponse
@@ -23,5 +26,7 @@ public class RedeemRewardResponse
     
     [JsonPropertyName("message")]
     public string Message { get; set; } = null!;
-}
 
+    [JsonPropertyName("claimId")]
+    public Guid ClaimId { get; set; }
+}
