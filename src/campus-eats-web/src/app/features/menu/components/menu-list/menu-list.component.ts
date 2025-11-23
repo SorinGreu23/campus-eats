@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ChipModule } from 'primeng/chip';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuService } from '../../services/menu.service';
@@ -6,14 +6,14 @@ import { MenuItemCardComponent } from '../menu-item-card/menu-item-card.componen
 
 @Component({
   selector: 'app-menu-list',
-  standalone: true,
   imports: [
     ChipModule,
     InputTextModule,
     MenuItemCardComponent
   ],
   templateUrl: './menu-list.component.html',
-  styleUrl: './menu-list.component.scss'
+  styleUrl: './menu-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuListComponent {
   private menuService = inject(MenuService);
@@ -42,11 +42,11 @@ export class MenuListComponent {
     return items;
   });
 
-  selectCategory(categoryId: string | null) {
+  selectCategory(categoryId: string | null): void {
     this.selectedCategoryId.set(categoryId);
   }
 
-  onSearchChange(event: Event) {
+  onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchTerm.set(input.value);
   }

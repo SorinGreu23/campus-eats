@@ -1,0 +1,107 @@
+<div class="orders-page">
+  <div class="orders-container">
+    <header class="page-header">
+      <h1 class="page-title">
+        <i class="pi pi-shopping-bag"></i>
+        My Orders
+      </h1>
+      <button class="toggle-view-btn" (click)="toggleView()">
+        <i [class]="showCompleted() ? 'pi pi-clock' : 'pi pi-check-circle'"></i>
+        {{ showCompleted() ? 'Show Active Orders' : 'Show Order History' }}
+      </button>
+    </header>
+
+    @if (!showCompleted()) {
+      <section class="orders-section">
+        <div class="section-header">
+          <h2 class="section-title">Active Orders</h2>
+          
+          <div class="filters-container">
+            <div class="search-box">
+              <i class="pi pi-search"></i>
+              <input 
+                type="text" 
+                placeholder="Search by order # or item..."
+                [(ngModel)]="searchQuery"
+                class="search-input"
+              />
+            </div>
+            
+            <select 
+              [(ngModel)]="selectedStatus"
+              class="status-filter"
+            >
+              @for (option of statusOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            
+            @if (searchQuery() || selectedStatus() !== 'all') {
+              <button class="clear-filters-btn" (click)="clearFilters()">
+                <i class="pi pi-times"></i>
+                Clear
+              </button>
+            }
+          </div>
+        </div>
+        
+        @if (filteredActiveOrders().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-shopping-bag empty-icon"></i>
+            <p class="empty-message">No active orders</p>
+            <p class="empty-submessage">
+              @if (searchQuery() || selectedStatus() !== 'all') {
+                No orders match your filters. Try clearing filters.
+              } @else {
+                Your current orders will appear here
+              }
+            </p>
+          </div>
+        } @else {
+          <div class="orders-grid">
+            @for (order of filteredActiveOrders(); track order.id) {
+              <app-order-card 
+                [order]="order"
+                (cancelOrder)="handleCancelOrder($event)"
+                (reorderOrder)="handleReorder($event)"
+                (viewDetails)="handleViewDetails($event)">
+              </app-order-card>
+            }
+          </div>
+        }
+      </section>
+    } @else {
+      <section class="orders-section">
+        <h2 class="section-title">Order History</h2>
+        
+        @if (completedOrders().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-history empty-icon"></i>
+            <p class="empty-message">No order history</p>
+            <p class="empty-submessage">Your past orders will appear here</p>
+          </div>
+        } @else {
+          <div class="orders-grid">
+            @for (order of completedOrders(); track order.id) {
+              <app-order-card 
+                [order]="order"
+                (cancelOrder)="handleCancelOrder($event)"
+                (reorderOrder)="handleReorder($event)"
+                (viewDetails)="handleViewDetails($event)">
+              </app-order-card>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Order Detail Modal -->
+    <app-order-detail
+      [visible]="showDetailModal()"
+      [order]="selectedOrder()"
+      (close)="handleCloseDetail()"
+      (cancelOrder)="handleCancelOrder($event)"
+      (reorderOrder)="handleReorder($event)">
+    </app-order-detail>
+  </div>
+</div>

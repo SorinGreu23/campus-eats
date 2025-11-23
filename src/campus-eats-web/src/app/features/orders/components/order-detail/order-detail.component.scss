@@ -1,0 +1,448 @@
+:host ::ng-deep .p-dialog-mask.order-detail-dialog {
+  z-index: 9999 !important;
+}
+
+:host ::ng-deep .p-dialog.order-detail-dialog {
+  z-index: 10000 !important;
+  border-radius: 25px;
+  overflow: hidden;
+  
+  .p-dialog-header {
+    display: none !important;
+  }
+
+  .p-dialog-content {
+    padding: 0 !important;
+    background: white !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    border-radius: 25px;
+  }
+}
+
+.order-detail-content {
+  font-family: 'Fredoka', sans-serif;
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 25px;
+  scroll-behavior: auto;
+  overflow-anchor: none;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #fef3c7;
+    border-radius: 0 10px 10px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #fbbf24;
+    border-radius: 10px;
+    border: 2px solid #fef3c7;
+
+    &:hover {
+      background: #f59e0b;
+    }
+  }
+}
+
+.detail-header {
+  border-radius: 25px 25px 0 0;
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  padding: 2rem;
+  border-bottom: 5px solid #fbbf24;
+
+  .header-info {
+    margin-bottom: 1rem;
+
+    .order-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 0.5rem 0;
+      font-family: 'Pacifico', cursive;
+    }
+
+    .order-date {
+      font-size: 1rem;
+      color: #dcfce7;
+      font-weight: 500;
+    }
+  }
+
+  .status-badges {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      border: 2px solid white;
+
+      i {
+        font-size: 1rem;
+      }
+
+      &.status-warning {
+        background: #fbbf24;
+        color: #451a03;
+      }
+
+      &.status-info {
+        background: #3b82f6;
+        color: white;
+      }
+
+      &.status-success {
+        background: white;
+        color: #16a34a;
+      }
+
+      &.status-danger {
+        background: #dc2626;
+        color: white;
+      }
+    }
+  }
+}
+
+.timeline-section,
+.items-section,
+.delivery-section,
+.summary-section {
+  padding: 1.5rem 2rem;
+  border-bottom: 3px solid #fef3c7;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #451a03;
+    margin: 0 0 1.25rem 0;
+
+    i {
+      color: #16a34a;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 2.25rem; /* left gutter for vertical line + markers */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0.9rem; /* centers line behind markers */
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 3px;
+    background: #e5e7eb;
+    border-radius: 3px;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .marker {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #e5e7eb;
+    transition: background .3s ease, box-shadow .3s ease;
+    margin-left: -2.25rem; /* pull marker into gutter centered on line */
+  }
+
+  .timeline-item.active .marker {
+    background: #16a34a;
+    box-shadow: 0 0 0 2px #16a34a;
+  }
+
+  .timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .timeline-label {
+    font-weight: 700;
+    color: #451a03;
+    font-size: 1rem;
+  }
+
+  .timeline-time {
+    font-size: 0.875rem;
+    color: #78350f;
+  }
+
+  .timeline-item:not(.active) .timeline-content {
+    opacity: 0.5;
+  }
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .order-item {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1rem;
+    background: #fef3c7;
+    border-radius: 12px;
+    border: 3px solid #fbbf24;
+
+    .item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 3px solid white;
+    }
+
+    .item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .item-name {
+        font-weight: 700;
+        color: #451a03;
+        font-size: 1.1rem;
+      }
+
+      .item-instructions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        font-size: 0.9rem;
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+
+      .item-quantity {
+        color: #78350f;
+        font-size: 0.9rem;
+      }
+    }
+
+    .item-pricing {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+
+      .unit-price {
+        font-size: 0.875rem;
+        color: #78350f;
+      }
+
+      .total-price {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #16a34a;
+      }
+    }
+  }
+}
+
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .info-row {
+    display: flex;
+    gap: 1rem;
+
+    .info-label {
+      font-weight: 700;
+      color: #78350f;
+      min-width: 150px;
+    }
+
+    .info-value {
+      color: #451a03;
+    }
+  }
+}
+
+.summary-section {
+  background: #fef3c7;
+
+  .summary-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
+      color: #78350f;
+
+      &.total {
+        padding-top: 0.75rem;
+        border-top: 3px solid #fbbf24;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #451a03;
+
+        span:last-child {
+          color: #16a34a;
+        }
+      }
+    }
+  }
+}
+
+.actions-section {
+  padding: 1.5rem 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  .action-btn {
+    padding: 0.875rem 1.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 15px;
+    font-family: 'Fredoka', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    border: 3px solid white;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &.cancel-btn {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+      }
+    }
+
+    &.reorder-btn {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+      }
+    }
+
+    &.track-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
+    }
+
+    &.close-btn {
+      background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: #451a03;
+
+      &:hover {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-header,
+  .timeline-section,
+  .items-section,
+  .delivery-section,
+  .summary-section,
+  .actions-section {
+    padding: 1.25rem;
+  }
+
+  .items-list .order-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .item-pricing {
+      align-items: center;
+    }
+  }
+
+  .delivery-info .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .info-label {
+      min-width: auto;
+    }
+  }
+
+  .actions-section {
+    justify-content: stretch;
+
+    .action-btn {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+}

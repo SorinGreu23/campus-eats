@@ -1,0 +1,195 @@
+<p-dialog 
+  [visible]="visible()"
+  [modal]="true" 
+  [style]="{width: '90vw', maxWidth: '900px'}"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [focusOnShow]="false"
+  [blockScroll]="true"
+  (onHide)="onClose()"
+  (onShow)="handleDialogShow()"
+  [contentStyle]="{padding: '0', overflow: 'hidden', borderRadius: '25px'}"
+  styleClass="order-detail-dialog"
+>
+  @if (order(); as currentOrder) {
+    <div class="order-detail-content" #scrollContent tabindex="0">
+      <!-- Header Section -->
+      <div class="detail-header">
+        <div class="header-info">
+          <h2 class="order-number">{{ currentOrder.orderNumber }}</h2>
+          <span class="order-date">
+            Placed {{ currentOrder.placedAt | date:'medium' }}
+          </span>
+        </div>
+        <div class="status-badges">
+          <div class="status-badge order-status" [class]="'status-' + statusConfig()?.color">
+            <i [class]="'pi ' + statusConfig()?.icon"></i>
+            <span>{{ statusConfig()?.label }}</span>
+          </div>
+          <div class="status-badge payment-status" [class]="'status-' + paymentStatusConfig()?.color">
+            <i class="pi pi-credit-card"></i>
+            <span>{{ paymentStatusConfig()?.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Section -->
+      <div class="timeline-section">
+        <h3 class="section-title">
+          <i class="pi pi-history"></i>
+          Order Timeline
+        </h3>
+        <ul class="timeline">
+          <li class="timeline-item" [class.active]="currentOrder.placedAt">
+            <span class="marker"></span>
+            <div class="timeline-content">
+              <span class="timeline-label">Order Placed</span>
+              @if (currentOrder.placedAt) {
+                <span class="timeline-time">{{ currentOrder.placedAt | date:'short' }}</span>
+              }
+            </div>
+          </li>
+          <li class="timeline-item" [class.active]="currentOrder.confirmedAt">
+            <span class="marker"></span>
+            <div class="timeline-content">
+              <span class="timeline-label">Order Confirmed</span>
+              @if (currentOrder.confirmedAt) {
+                <span class="timeline-time">{{ currentOrder.confirmedAt | date:'short' }}</span>
+              }
+            </div>
+          </li>
+          <li class="timeline-item" [class.active]="currentOrder.completedAt">
+            <span class="marker"></span>
+            <div class="timeline-content">
+              <span class="timeline-label">Order Completed</span>
+              @if (currentOrder.completedAt) {
+                <span class="timeline-time">{{ currentOrder.completedAt | date:'short' }}</span>
+              }
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Order Items Section -->
+      <div class="items-section">
+        <h3 class="section-title">
+          <i class="pi pi-shopping-cart"></i>
+          Order Items
+        </h3>
+        <div class="items-list">
+          @for (item of currentOrder.items; track item.id) {
+            <div class="order-item">
+              <img 
+                [src]="item.menuItemImage || 'https://via.placeholder.com/80x80?text=Food'" 
+                [alt]="item.menuItemName"
+                class="item-image"
+              />
+              <div class="item-info">
+                <span class="item-name">{{ item.menuItemName }}</span>
+                @if (item.specialInstructions) {
+                  <span class="item-instructions">
+                    <i class="pi pi-info-circle"></i>
+                    {{ item.specialInstructions }}
+                  </span>
+                }
+                <span class="item-quantity">Quantity: {{ item.quantity }}</span>
+              </div>
+              <div class="item-pricing">
+                <span class="unit-price">${{ item.unitPrice.toFixed(2) }} each</span>
+                <span class="total-price">${{ item.totalPrice.toFixed(2) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Delivery Information -->
+      <div class="delivery-section">
+        <h3 class="section-title">
+          <i [class]="currentOrder.deliveryMethod === DeliveryMethod.Pickup ? 'pi pi-shopping-bag' : 'pi pi-truck'"></i>
+          Delivery Information
+        </h3>
+        <div class="delivery-info">
+          <div class="info-row">
+            <span class="info-label">Method:</span>
+            <span class="info-value">{{ currentOrder.deliveryMethod }}</span>
+          </div>
+          @if (currentOrder.deliveryAddress) {
+            <div class="info-row">
+              <span class="info-label">Address:</span>
+              <span class="info-value">{{ currentOrder.deliveryAddress }}</span>
+            </div>
+          }
+          @if (currentOrder.estimatedDeliveryTime) {
+            <div class="info-row">
+              <span class="info-label">Estimated Time:</span>
+              <span class="info-value">{{ currentOrder.estimatedDeliveryTime | date:'short' }}</span>
+            </div>
+          }
+          @if (currentOrder.specialInstructions) {
+            <div class="info-row">
+              <span class="info-label">Special Instructions:</span>
+              <span class="info-value">{{ currentOrder.specialInstructions }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="summary-section">
+        <h3 class="section-title">
+          <i class="pi pi-calculator"></i>
+          Order Summary
+        </h3>
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span>${{ currentOrder.subtotal.toFixed(2) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax:</span>
+            <span>${{ currentOrder.taxAmount.toFixed(2) }}</span>
+          </div>
+          @if (currentOrder.deliveryFee > 0) {
+            <div class="summary-row">
+              <span>Delivery Fee:</span>
+              <span>${{ currentOrder.deliveryFee.toFixed(2) }}</span>
+            </div>
+          }
+          <div class="summary-row total">
+            <span>Total:</span>
+            <span>${{ currentOrder.totalAmount.toFixed(2) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions-section">
+        @if (canCancel()) {
+          <button class="action-btn cancel-btn" (click)="onCancel()">
+            <i class="pi pi-times"></i>
+            Cancel Order
+          </button>
+        }
+        @if (currentOrder.status === OrderStatus.Completed) {
+          <button class="action-btn reorder-btn" (click)="onReorder()">
+            <i class="pi pi-refresh"></i>
+            Reorder
+          </button>
+        }
+        @if (currentOrder.status !== OrderStatus.Completed && currentOrder.status !== OrderStatus.Cancelled) {
+          <button class="action-btn track-btn">
+            <i class="pi pi-map-marker"></i>
+            Track Order
+          </button>
+        }
+        <button class="action-btn close-btn" (click)="onClose()">
+          <i class="pi pi-times-circle"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  }
+</p-dialog>
