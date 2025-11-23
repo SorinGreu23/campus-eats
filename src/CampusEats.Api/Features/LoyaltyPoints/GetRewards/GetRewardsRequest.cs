@@ -1,8 +1,11 @@
-using System;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 
-namespace CampusEats.Api.Data.Entities;
+namespace CampusEats.Api.Features.LoyaltyPoints.GetRewards;
 
-public class LoyaltyReward
+public record GetRewardsRequest() : IRequest<IResult>;
+
+public class RewardResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
@@ -13,5 +16,6 @@ public class LoyaltyReward
     public bool IsActive { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidUntil { get; set; }
-    public string? MinimumTier { get; set; } // Bronze, Silver, Gold, Platinum
+    public string? MinimumTier { get; set; }
 }
+
