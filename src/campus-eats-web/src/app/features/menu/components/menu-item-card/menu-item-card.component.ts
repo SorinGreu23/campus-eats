@@ -1,4 +1,4 @@
-import { Component, input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MenuItem } from '../../models/menu-item.model';
@@ -14,12 +14,16 @@ import { MessageService } from 'primeng/api';
 })
 export class MenuItemCardComponent {
   menuItem = input.required<MenuItem>();
+  itemClick = output<MenuItem>();
   
   private cartService = inject(CartService);
   private messageService = inject(MessageService);
   isAdding = signal(false);
 
-  addToCart(): void {
+  addToCart(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.isAdding.set(true);
     this.cartService.addItem(this.menuItem(), 1);
     
@@ -35,5 +39,9 @@ export class MenuItemCardComponent {
     setTimeout(() => {
       this.isAdding.set(false);
     }, 800);
+  }
+
+  onCardClick(): void {
+    this.itemClick.emit(this.menuItem());
   }
 }

@@ -143,11 +143,18 @@
       box-shadow: 0 4px 0px #991b1b;
       text-transform: uppercase;
       font-family: 'Fredoka', sans-serif;
+      color: white;
+
+      .p-button-icon {
+        color: white;
+        margin-right: 0.5rem;
+      }
 
       &:hover {
         background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
         transform: translateY(-2px);
         box-shadow: 0 6px 0px #7f1d1d;
+        color: white;
       }
 
       &:active {
@@ -157,6 +164,7 @@
 
       .p-button-label {
         font-weight: 700;
+        color: white;
       }
     }
 
@@ -171,6 +179,10 @@
       box-shadow: 0 4px 0px #15803d;
       text-transform: uppercase;
       font-family: 'Fredoka', sans-serif;
+
+      .p-button-icon {
+        margin-right: 0.5rem;
+      }
 
       &:hover {
         background: #dcfce7;

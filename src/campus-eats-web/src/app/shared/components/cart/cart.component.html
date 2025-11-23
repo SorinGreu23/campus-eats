@@ -30,7 +30,7 @@
 
             <div class="item-details">
               <h3 class="item-name">{{ item.menuItem.name }}</h3>
-              <p class="item-price">${{ item.menuItem.price.toFixed(2) }}</p>
+              <p class="item-price">{{ item.menuItem.price.toFixed(2) }} RON</p>
               
               <div class="item-controls">
                 <p-inputNumber
@@ -58,7 +58,7 @@
             </div>
 
             <div class="item-total">
-              ${{ (item.menuItem.price * item.quantity).toFixed(2) }}
+              {{ (item.menuItem.price * item.quantity).toFixed(2) }} RON
             </div>
           </div>
         }
@@ -67,15 +67,15 @@
       <div class="cart-summary">
         <div class="summary-row">
           <span class="summary-label">Subtotal:</span>
-          <span class="summary-value">${{ cartService.subtotal().toFixed(2) }}</span>
+          <span class="summary-value">{{ cartService.subtotal().toFixed(2) }} RON</span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Tax (8%):</span>
-          <span class="summary-value">${{ cartService.tax().toFixed(2) }}</span>
+          <span class="summary-value">{{ cartService.tax().toFixed(2) }} RON</span>
         </div>
         <div class="summary-row total-row">
           <span class="summary-label">Total:</span>
-          <span class="summary-value">${{ cartService.total().toFixed(2) }}</span>
+          <span class="summary-value">{{ cartService.total().toFixed(2) }} RON</span>
         </div>
       </div>
 

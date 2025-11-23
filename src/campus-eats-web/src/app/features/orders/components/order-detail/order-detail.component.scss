@@ -143,42 +143,48 @@
 }
 
 .timeline {
+  /* Fresh layout: grid with fixed marker column and central vertical line */
+  --marker-col-width: 44px; /* total width of first column */
+  --marker-size: 20px;
+  --line-color: #e5e7eb;
   list-style: none;
   margin: 0;
-  padding: 0 0 0 2.25rem; /* left gutter for vertical line + markers */
+  padding: 0; /* no extra left padding, grid handles spacing */
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 
   &::before {
     content: '';
     position: absolute;
-    left: 0.9rem; /* centers line behind markers */
-    top: 0.4rem;
-    bottom: 0.4rem;
+    left: calc(var(--marker-col-width) / 2 - 1.5px); /* center of first col minus half line width */
+    top: 4px;
+    bottom: 4px;
     width: 3px;
-    background: #e5e7eb;
+    background: var(--line-color);
     border-radius: 3px;
   }
 
   .timeline-item {
-    display: flex;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: var(--marker-col-width) 1fr;
     align-items: flex-start;
+    column-gap: 1.25rem;
     position: relative;
   }
 
   .marker {
-    flex: 0 0 18px;
-    width: 18px;
-    height: 18px;
+    width: var(--marker-size);
+    height: var(--marker-size);
     border-radius: 50%;
-    background: #e5e7eb;
-    border: 3px solid #fff;
-    box-shadow: 0 0 0 2px #e5e7eb;
+    background: var(--line-color);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 2px var(--line-color);
     transition: background .3s ease, box-shadow .3s ease;
-    margin-left: -2.25rem; /* pull marker into gutter centered on line */
+    justify-self: center; /* horizontally center in marker column */
+    align-self: flex-start; /* top-align with first line of text */
+    margin-top: 2px; /* fine vertical align tweak */
   }
 
   .timeline-item.active .marker {
@@ -196,6 +202,7 @@
     font-weight: 700;
     color: #451a03;
     font-size: 1rem;
+    line-height: 1.2;
   }
 
   .timeline-time {
@@ -204,7 +211,7 @@
   }
 
   .timeline-item:not(.active) .timeline-content {
-    opacity: 0.5;
+    opacity: 0.55;
   }
 }
 

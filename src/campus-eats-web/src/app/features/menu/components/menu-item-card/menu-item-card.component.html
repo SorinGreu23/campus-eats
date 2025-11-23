@@ -1,4 +1,4 @@
-<article class="menu-item-card" [class.unavailable]="!menuItem().isAvailable" [class.adding]="isAdding()">
+<article class="menu-item-card" [class.unavailable]="!menuItem().isAvailable" [class.adding]="isAdding()" (click)="onCardClick()">
   <div class="card-image-container">
     <img
       [src]="menuItem().imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'"
@@ -13,7 +13,7 @@
     }
     @if (menuItem().calories) {
       <div class="calories-badge">
-        <p-tag [value]="menuItem().calories + ' cal'" severity="secondary" styleClass="calories-tag"></p-tag>
+        <p-tag [value]="menuItem().calories + ' kcal'" severity="secondary" styleClass="calories-tag"></p-tag>
       </div>
     }
   </div>
@@ -21,7 +21,7 @@
   <div class="card-content">
     <header class="item-header">
       <h3 class="item-name">{{ menuItem().name }}</h3>
-      <span class="item-price">${{ menuItem().price.toFixed(2) }}</span>
+      <span class="item-price">{{ menuItem().price.toFixed(2) }} RON</span>
     </header>
 
     <p class="item-description">{{ menuItem().description }}</p>
@@ -40,7 +40,7 @@
         class="add-to-cart-btn"
         [class.added]="isAdding()"
         [disabled]="!menuItem().isAvailable"
-        (click)="addToCart()"
+        (click)="addToCart($event)"
       >
         <i [class]="isAdding() ? 'pi pi-check' : 'pi pi-shopping-cart'"></i>
         <span>{{ isAdding() ? 'Added!' : 'Add to Cart' }}</span>

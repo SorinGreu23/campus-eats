@@ -1,4 +1,4 @@
-import { Component, input, output, computed, viewChild, ElementRef, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, computed, viewChild, ElementRef, effect, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { Order, OrderStatus, PaymentStatus, DeliveryMethod } from '../../models/order.model';
@@ -18,8 +18,16 @@ export class OrderDetailComponent {
   reorderOrder = output<Order>();
 
   scrollContent = viewChild<ElementRef>('scrollContent');
+  
+  // Writable signal for two-way binding with dialog
+  isVisible = signal(false);
 
   constructor() {
+    // Sync visible input with isVisible signal
+    effect(() => {
+      this.isVisible.set(this.visible());
+    });
+    
     effect(() => {
       if (this.visible() && this.scrollContent()) {
         this.resetScroll();
@@ -86,15 +94,20 @@ export class OrderDetailComponent {
     return status === OrderStatus.Pending || status === OrderStatus.Confirmed;
   });
 
-  onClose(): void {
+  onDialogHide(): void {
+    // Called when dialog closes (Esc, mask click, or programmatically)
     this.close.emit();
+  }
+
+  onClose(): void {
+    this.isVisible.set(false);
   }
 
   onCancel(): void {
     const order = this.order();
     if (order && this.canCancel()) {
       this.cancelOrder.emit(order.id);
-      this.close.emit();
+      this.isVisible.set(false);
     }
   }
 
@@ -102,7 +115,7 @@ export class OrderDetailComponent {
     const order = this.order();
     if (order) {
       this.reorderOrder.emit(order);
-      this.close.emit();
+      this.isVisible.set(false);
     }
   }
 }

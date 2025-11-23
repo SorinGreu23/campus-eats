@@ -1,14 +1,15 @@
 <p-dialog 
-  [visible]="visible()"
+  [(visible)]="isVisible"
   [modal]="true" 
   [style]="{width: '90vw', maxWidth: '900px'}"
   [dismissableMask]="true"
+  [closeOnEscape]="true"
   [draggable]="false"
   [resizable]="false"
   [showHeader]="false"
   [focusOnShow]="false"
   [blockScroll]="true"
-  (onHide)="onClose()"
+  (onHide)="onDialogHide()"
   (onShow)="handleDialogShow()"
   [contentStyle]="{padding: '0', overflow: 'hidden', borderRadius: '25px'}"
   styleClass="order-detail-dialog"
@@ -97,8 +98,8 @@
                 <span class="item-quantity">Quantity: {{ item.quantity }}</span>
               </div>
               <div class="item-pricing">
-                <span class="unit-price">${{ item.unitPrice.toFixed(2) }} each</span>
-                <span class="total-price">${{ item.totalPrice.toFixed(2) }}</span>
+                <span class="unit-price">{{ item.unitPrice.toFixed(2) }} RON each</span>
+                <span class="total-price">{{ item.totalPrice.toFixed(2) }} RON</span>
               </div>
             </div>
           }
@@ -146,21 +147,21 @@
         <div class="summary-rows">
           <div class="summary-row">
             <span>Subtotal:</span>
-            <span>${{ currentOrder.subtotal.toFixed(2) }}</span>
+            <span>{{ currentOrder.subtotal.toFixed(2) }} RON</span>
           </div>
           <div class="summary-row">
             <span>Tax:</span>
-            <span>${{ currentOrder.taxAmount.toFixed(2) }}</span>
+            <span>{{ currentOrder.taxAmount.toFixed(2) }} RON</span>
           </div>
           @if (currentOrder.deliveryFee > 0) {
             <div class="summary-row">
               <span>Delivery Fee:</span>
-              <span>${{ currentOrder.deliveryFee.toFixed(2) }}</span>
+              <span>{{ currentOrder.deliveryFee.toFixed(2) }} RON</span>
             </div>
           }
           <div class="summary-row total">
             <span>Total:</span>
-            <span>${{ currentOrder.totalAmount.toFixed(2) }}</span>
+            <span>{{ currentOrder.totalAmount.toFixed(2) }} RON</span>
           </div>
         </div>
       </div>

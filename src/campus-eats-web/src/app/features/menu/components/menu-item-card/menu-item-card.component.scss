@@ -11,6 +11,7 @@
   box-shadow: 0 6px 0px #16a34a, 0 10px 25px rgba(0, 0, 0, 0.3);
   transform: rotate(-0.5deg);
   padding: 0.75rem; /* inner gap before the outer border */
+  cursor: pointer;
 
   &:hover {
     transform: rotate(0deg) translateY(-10px);
@@ -109,12 +110,12 @@
 .item-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: baseline;
   margin-bottom: 0.75rem;
   gap: 1rem;
 
   .item-name {
-    font-size: 1.35rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #16a34a;
     margin: 0;
