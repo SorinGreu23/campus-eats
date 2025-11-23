@@ -16,6 +16,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, IResult>
 
     public async Task<IResult> Handle(GetUsersRequest request, CancellationToken cancellationToken)
     {
+        // Query ApplicationUser (AspNetUsers table) with their roles from AspNetUserRoles
         var users = await _identityContext.Users
             .Select(u => new UserDto(
                 u.Id,
@@ -29,8 +30,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, IResult>
                         r => r.Id,
                         (ur, r) => r.Name)
                     .FirstOrDefault() ?? string.Empty,
-                u.IsActive,
-                u.CreatedAt
+                u.IsActive
             ))
             .ToListAsync(cancellationToken);
 

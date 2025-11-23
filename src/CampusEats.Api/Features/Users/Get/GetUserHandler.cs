@@ -10,10 +10,10 @@ namespace CampusEats.Api.Features.Users.Get;
 
 public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
 {
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
 
-    public GetUserHandler(UserManager<User> userManager, ITokenService tokenService)
+    public GetUserHandler(UserManager<ApplicationUser> userManager, ITokenService tokenService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
@@ -21,14 +21,14 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
 
     public async Task<IResult> Handle(GetUserRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var appUser = await _userManager.FindByIdAsync(request.Id);
         
-        if (user == null)
+        if (appUser == null)
         {
             return Results.NotFound("User not found.");
         }
         
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await _userManager.GetRolesAsync(appUser);
         var userRole = roles.FirstOrDefault();
         
         if (userRole == null)
@@ -38,12 +38,12 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
         
         return Results.Ok(new GetUserResponse
         (
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            user.UserName,
+            appUser.Email!,
+            appUser.FirstName ?? string.Empty,
+            appUser.LastName ?? string.Empty,
+            appUser.UserName!,
             userRole,
-            _tokenService.CreateToken(user)
+            _tokenService.CreateToken(appUser)
         ));
     }
 }

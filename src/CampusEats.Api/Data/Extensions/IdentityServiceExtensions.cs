@@ -10,12 +10,10 @@ public static class IdentityServiceExtensions
 {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config)
     {
-        var builder = services.AddIdentityCore<User>();
-        
-        builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
-        builder.AddEntityFrameworkStores<IdentityDbContext>();
-        builder.AddSignInManager<SignInManager<User>>();
-        
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<IdentityDbContext>()
+            .AddDefaultTokenProviders();
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -28,7 +26,7 @@ public static class IdentityServiceExtensions
                     ValidateAudience = false
                 };
             });
-        
+
         return services;
     }
 }

@@ -5,6 +5,5 @@ public record UpdateUserResponse(
     string Email,
     string FirstName,
     string LastName,
-    bool IsActive,
-    DateTimeOffset UpdatedAt
+    bool IsActive
 );

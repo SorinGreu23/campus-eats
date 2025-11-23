@@ -14,17 +14,17 @@ namespace CampusEats.Api.Features.Users.Create;
 public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IValidator<RegisterRequest> _validator;
-    private readonly IdentityDbContext _identityDbContext;
 
     public RegisterHandler(
         UserManager<ApplicationUser> userManager,
-        IValidator<RegisterRequest> validator,
-        IdentityDbContext identityDbContext)
+        RoleManager<IdentityRole> roleManager,
+        IValidator<RegisterRequest> validator)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _validator = validator;
-        _identityDbContext = identityDbContext;
     }
 
     public async Task<IResult> Handle(RegisterRequest request, CancellationToken cancellationToken)
@@ -32,11 +32,14 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
             return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
-
+        
         var applicationUser = new ApplicationUser
         {
             UserName = request.UserName,
             Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            IsActive = true
         };
 
         var identityResult = await _userManager.CreateAsync(applicationUser, request.Password);
@@ -44,27 +47,36 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
         {
             return Results.BadRequest(string.Join(", ", identityResult.Errors.Select(e => e.Description)));
         }
-
-        var user = new User
+        
+        if (!string.IsNullOrEmpty(request.Role))
         {
-            Id = applicationUser.UserId,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            IsActive = true,
-            Role = request.Role,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
+            if (!await _roleManager.RoleExistsAsync(request.Role))
+            {
+                var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(request.Role));
+                if (!createRoleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(applicationUser);
+                    return Results.BadRequest($"Failed to create role: {string.Join(", ", createRoleResult.Errors.Select(e => e.Description))}");
+                }
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(applicationUser, request.Role);
+            if (!roleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(applicationUser);
+                return Results.BadRequest($"Failed to assign role: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+            }
+        }
 
         var response = new RegisterResponse(
-            user.Id,
-            user.Email,
-            user.FirstName,
-            user.LastName,
-            applicationUser.UserName,
-            user.Role,
-            user.CreatedAt
-            );
+            applicationUser.Id,
+            applicationUser.Email!,
+            applicationUser.FirstName,
+            applicationUser.LastName,
+            applicationUser.UserName!,
+            request.Role
+        );
             
-        return Results.Ok(response);
+        return Results.Created($"/users/{applicationUser.Id}", response);
     }
 }

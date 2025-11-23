@@ -10,21 +10,15 @@ namespace CampusEats.Api.Features.Users.Login;
 
 public class LoginHandler : IRequestHandler<LoginRequest, IResult>
 {
-    private readonly CampusDbContext _context;
-    private readonly IdentityDbContext _identityContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IValidator<LoginRequest> _validator;
 
     public LoginHandler(
-        CampusDbContext context,
-        IdentityDbContext identityContext,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IValidator<LoginRequest> validator)
     {
-        _context = context;
-        _identityContext = identityContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _validator = validator;
@@ -45,12 +39,9 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
             return Results.BadRequest("Invalid email or password");
         }
 
-        var user = await _identityContext.Users
-            .FirstOrDefaultAsync(u => u.Id == appUser.UserId, cancellationToken);
-
-        if (user == null || !user.IsActive)
+        if (!appUser.IsActive)
         {
-            return Results.BadRequest("Account is inactive or not found");
+            return Results.BadRequest("Account is inactive");
         }
         
         var roles = await _userManager.GetRolesAsync(appUser);
@@ -71,10 +62,10 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
         var response = new LoginResponse(
-            user.Id,
-            user.Email,
-            user.FirstName ?? string.Empty,
-            user.LastName ?? string.Empty,
+            appUser.Id,
+            appUser.Email!,
+            appUser.FirstName ?? string.Empty,
+            appUser.LastName ?? string.Empty,
             userRole,
             token
         );

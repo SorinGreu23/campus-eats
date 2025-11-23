@@ -1,19 +1,19 @@
-﻿using CampusEats.Api.Data;
+﻿using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using CampusEats.Api.Common;
 
 namespace CampusEats.Api.Features.Users.Update;
 
 public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
 {
-    private readonly IdentityDbContext _identityContext;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IValidator<UpdateUserRequest> _validator;
 
-    public UpdateUserHandler(IdentityDbContext identityContext, IValidator<UpdateUserRequest> validator)
+    public UpdateUserHandler(UserManager<ApplicationUser> userManager, IValidator<UpdateUserRequest> validator)
     {
-        _identityContext = identityContext;
+        _userManager = userManager;
         _validator = validator;
     }
 
@@ -25,8 +25,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
             return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
-        var user = await _identityContext.Users
-            .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
+        var user = await _userManager.FindByIdAsync(request.Id);
 
         if (user == null)
         {
@@ -42,17 +41,18 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
         if (request.IsActive.HasValue)
             user.IsActive = request.IsActive.Value;
 
-        user.UpdatedAt = DateTimeOffset.UtcNow;
-
-        await _identityContext.SaveChangesAsync(cancellationToken);
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
 
         var response = new UpdateUserResponse(
-            user.Id.ToString(),
-            user.Email,
+            user.Id,
+            user.Email ?? string.Empty,
             user.FirstName ?? string.Empty,
             user.LastName ?? string.Empty,
-            user.IsActive,
-            user.UpdatedAt
+            user.IsActive
         );
 
         return Results.Ok(response);

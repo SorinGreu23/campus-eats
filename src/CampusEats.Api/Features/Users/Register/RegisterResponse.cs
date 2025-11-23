@@ -8,6 +8,5 @@ public record RegisterResponse(
     string FirstName,
     string LastName,
     string UserName,
-    string Role,
-    DateTimeOffset CreateAt
+    string Role
 );

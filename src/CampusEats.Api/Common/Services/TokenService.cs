@@ -15,15 +15,17 @@ public class TokenService : ITokenService
     public TokenService(IConfiguration config)
     {
         _config = config;
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Token:Key"]));
+        var tokenKey = _config["Token:Key"] ?? throw new InvalidOperationException(
+            "Token:Key configuration is missing. Please add it to appsettings.json or appsettings.Development.json");
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
     }
     
-    public string CreateToken(User user)
+    public string CreateToken(ApplicationUser user)
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.GivenName, user.UserName)
+            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.GivenName, user.UserName!)
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

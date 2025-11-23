@@ -8,6 +8,5 @@ public record UserDto(
     string FirstName,
     string LastName,
     string Role,
-    bool IsActive,
-    DateTimeOffset CreatedAt
+    bool IsActive
 );

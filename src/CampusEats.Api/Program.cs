@@ -1,3 +1,5 @@
+using CampusEats.Api.Common.Interfaces;
+using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Data.Extensions;
@@ -37,6 +39,8 @@ builder.Services.AddDbContext<IdentityDbContext>(opt =>
 
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
@@ -92,24 +96,23 @@ app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator)
 
 app.MapGet("/api/users", async (IMediator mediator) =>
         await mediator.Send(new GetUsersRequest()))
-    .RequireAuthorization()
     .WithName("GetUsers")
     .WithTags("Users")
     .WithOpenApi();
 
-app.MapGet("/api/users/{id:string}", async (string id, IMediator mediator) =>
+app.MapGet("/api/users/{id}", async (string id, IMediator mediator) =>
         await mediator.Send(new GetUserRequest(id)))
     .WithName("GetUser")
     .WithTags("Users")
     .WithOpenApi();
 
-app.MapPut("/api/users/{id:string}", async (string id, UpdateUserRequest request, IMediator mediator) =>
+app.MapPut("/api/users/{id}", async (string id, UpdateUserRequest request, IMediator mediator) =>
         await mediator.Send(request with { Id = id }))
     .WithName("UpdateUser")
     .WithTags("Users")
     .WithOpenApi();
 
-app.MapDelete("/api/users/{id:string}", async (string id, IMediator mediator) =>
+app.MapDelete("/api/users/{id}", async (string id, IMediator mediator) =>
         await mediator.Send(new DeleteUserRequest(id)))
     .WithName("DeleteUser")
     .WithTags("Users")

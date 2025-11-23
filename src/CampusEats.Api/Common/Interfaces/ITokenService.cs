@@ -4,5 +4,5 @@ namespace CampusEats.Api.Common.Interfaces;
 
 public interface ITokenService
 {
-    string CreateToken(User user);
+    string CreateToken(ApplicationUser user);
 }
