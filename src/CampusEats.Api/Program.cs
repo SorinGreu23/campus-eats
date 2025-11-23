@@ -3,6 +3,7 @@ using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
 using CampusEats.Api.Features.Users;
+using CampusEats.Api.Features.Menu;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -76,5 +77,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapUserEndpoints();
+// Map feature endpoints
+app.MapMenuEndpoints();
 
 app.Run();
