@@ -19,6 +19,8 @@ public class CampusDbContext : DbContext
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
     public DbSet<LoyaltyReward> LoyaltyRewards { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+    public DbSet<Allergen> Allergens { get; set; }
+    public DbSet<DietaryRestriction> DietaryRestrictions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -47,7 +49,7 @@ public class CampusDbContext : DbContext
             b.Property(o => o.Id).ValueGeneratedNever();
             b.Property(o => o.UserId).IsRequired();
             b.Property(o => o.Status).IsRequired();
-            
+
             // Ignore User navigation property - User is managed by IdentityDbContext
             b.Ignore(o => o.User);
         });
@@ -107,7 +109,7 @@ public class CampusDbContext : DbContext
             b.Property(n => n.UserId).IsRequired();
             b.Property(n => n.Message).IsRequired();
         });
-        
+
         builder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
     }
 }

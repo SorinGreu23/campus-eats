@@ -4,6 +4,8 @@ using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
 using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
+using CampusEats.Api.Features.Allergens;
+using CampusEats.Api.Features.DietaryRestrictions;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -79,5 +81,7 @@ app.UseAuthorization();
 app.MapUserEndpoints();
 // Map feature endpoints
 app.MapMenuEndpoints();
+app.MapAllergenEndpoints();
+app.MapDietaryRestrictionEndpoints();
 
 app.Run();

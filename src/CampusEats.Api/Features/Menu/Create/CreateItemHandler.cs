@@ -47,6 +47,32 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
             UpdatedAt = DateTimeOffset.UtcNow
         };
 
+        // Add allergens
+        if (request.AllergenIds?.Any() == true)
+        {
+            foreach (var allergenId in request.AllergenIds)
+            {
+                menuItem.MenuItemAllergens.Add(new MenuItemAllergen
+                {
+                    MenuItemId = menuItem.Id,
+                    AllergenId = allergenId
+                });
+            }
+        }
+
+        // Add dietary restrictions
+        if (request.DietaryRestrictionIds?.Any() == true)
+        {
+            foreach (var restrictionId in request.DietaryRestrictionIds)
+            {
+                menuItem.MenuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction
+                {
+                    MenuItemId = menuItem.Id,
+                    DietaryRestrictionId = restrictionId
+                });
+            }
+        }
+
         _context.MenuItems.Add(menuItem);
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -61,7 +87,9 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
             menuItem.IsAvailable,
             menuItem.Calories,
             menuItem.CreatedAt,
-            menuItem.UpdatedAt
+            menuItem.UpdatedAt,
+            request.AllergenIds,
+            request.DietaryRestrictionIds
         );
 
         return Results.Created($"/api/menuitems/{response.Id}", response);

@@ -1,4 +1,5 @@
 using CampusEats.Api.Data;
+using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,8 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
         }
 
         var menuItem = await _context.MenuItems
+            .Include(m => m.MenuItemAllergens)
+            .Include(m => m.MenuItemDietaryRestrictions)
             .FirstOrDefaultAsync(m => m.Id == command.Id, cancellationToken);
 
         if (menuItem == null)
@@ -49,6 +52,34 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
         menuItem.IsAvailable = command.Request.IsAvailable;
         menuItem.Calories = command.Request.Calories;
         menuItem.UpdatedAt = DateTimeOffset.UtcNow;
+
+        // Update allergens
+        menuItem.MenuItemAllergens.Clear();
+        if (command.Request.AllergenIds?.Any() == true)
+        {
+            foreach (var allergenId in command.Request.AllergenIds)
+            {
+                menuItem.MenuItemAllergens.Add(new MenuItemAllergen
+                {
+                    MenuItemId = menuItem.Id,
+                    AllergenId = allergenId
+                });
+            }
+        }
+
+        // Update dietary restrictions
+        menuItem.MenuItemDietaryRestrictions.Clear();
+        if (command.Request.DietaryRestrictionIds?.Any() == true)
+        {
+            foreach (var restrictionId in command.Request.DietaryRestrictionIds)
+            {
+                menuItem.MenuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction
+                {
+                    MenuItemId = menuItem.Id,
+                    DietaryRestrictionId = restrictionId
+                });
+            }
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
         

@@ -18,6 +18,10 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
     {
         var items = await _context.MenuItems
             .Include(m => m.Category)
+            .Include(m => m.MenuItemAllergens)
+                .ThenInclude(mia => mia.Allergen)
+            .Include(m => m.MenuItemDietaryRestrictions)
+                .ThenInclude(midr => midr.DietaryRestriction)
             .Select(m => new GetItemsResponse(
                 m.Id,
                 m.Name,
@@ -29,7 +33,17 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
                 m.IsAvailable,
                 m.Calories,
                 m.CreatedAt,
-                m.UpdatedAt
+                m.UpdatedAt,
+                m.MenuItemAllergens.Select(mia => new AllergenDto(
+                    mia.Allergen.Id,
+                    mia.Allergen.Name,
+                    mia.Allergen.Icon
+                )).ToList(),
+                m.MenuItemDietaryRestrictions.Select(midr => new DietaryRestrictionDto(
+                    midr.DietaryRestriction.Id,
+                    midr.DietaryRestriction.Name,
+                    midr.DietaryRestriction.Icon
+                )).ToList()
             ))
             .ToListAsync(cancellationToken);
 

@@ -1,4 +1,4 @@
-﻿using CampusEats.Api.Common;
+﻿﻿using CampusEats.Api.Common;
 using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
@@ -29,7 +29,7 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
         }
         
         var roles = await _userManager.GetRolesAsync(appUser);
-        var userRole = roles.FirstOrDefault();
+        var userRole = roles.FirstOrDefault() ?? string.Empty;
         
         return Results.Ok(new GetUserResponse
         (
