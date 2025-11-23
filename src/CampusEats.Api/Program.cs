@@ -1,11 +1,17 @@
+using CampusEats.Api.Common.Interfaces;
+using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
-using CampusEats.Api.Data.Entities;
+using CampusEats.Api.Data.Extensions;
+using CampusEats.Api.Features.Users;
+using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Kitchen;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
 
-DotNetEnv.Env.Load();
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +19,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
-var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? builder.Configuration["POSTGRES_HOST"];
-var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? builder.Configuration["POSTGRES_PORT"];
-var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? builder.Configuration["POSTGRES_DB"];
-var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? builder.Configuration["POSTGRES_USER"];
-var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? builder.Configuration["POSTGRES_PASSWORD"];
+var dbHost = Environment.GetEnvironmentVariable("DB_Host");
+var dbPort = Environment.GetEnvironmentVariable("DB_Port");
+var dbName = Environment.GetEnvironmentVariable("DB_Name");
+var dbUser = Environment.GetEnvironmentVariable("DB_User");
+var dbPassword = Environment.GetEnvironmentVariable("DB_Password");
 
-var connectionString = string.IsNullOrEmpty(postgresHost)
-    ? builder.Configuration.GetConnectionString("DefaultConnection")
-    : $"Host={postgresHost};Port={postgresPort};Database={postgresDb};Username={postgresUser};Password={postgresPassword}";
+var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-builder.Services.AddDbContext<CampusDbContext>(options =>
-    options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<CampusDbContext>(opt =>
+    opt.UseNpgsql(connectionString));
+
+builder.Services.AddDbContext<IdentityDbContext>(opt =>
+    opt.UseNpgsql(connectionString));
+
+builder.Services.AddIdentityServices(builder.Configuration);
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
@@ -43,6 +55,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
+    await campusDb.Database.MigrateAsync();
+    
+    var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+    await identityDb.Database.MigrateAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -52,6 +73,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowClientApp");
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapUserEndpoints();
+// Map feature endpoints
+app.MapMenuEndpoints();
 
 app.MapGet("/api/menuitems", async (CampusDbContext db) =>
     await db.MenuItems.ToListAsync())
@@ -121,6 +149,3 @@ app.MapPut("/api/kitchen/orders/{id:guid}/status", async (Guid id, UpdateOrderSt
     .ProducesProblem(StatusCodes.Status404NotFound);
 
 app.Run();
-
-public record UpdateOrderStatusRequest(string Status);
-

@@ -17,8 +17,6 @@ public class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         builder.Property(x => x.PreparationTimeMinutes);
         builder.Property(x => x.IsAvailable).HasDefaultValue(true);
         builder.Property(x => x.Calories);
-        builder.Property(x => x.CreatedAt);
-        builder.Property(x => x.UpdatedAt);
 
         builder.HasOne(x => x.Category)
             .WithMany()

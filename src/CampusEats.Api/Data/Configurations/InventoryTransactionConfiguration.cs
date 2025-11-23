@@ -14,7 +14,6 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
         builder.Property(x => x.Quantity).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Reason);
         builder.Property(x => x.PerformedBy);
-        builder.Property(x => x.CreatedAt);
 
         builder.HasOne(x => x.InventoryItem)
             .WithMany()

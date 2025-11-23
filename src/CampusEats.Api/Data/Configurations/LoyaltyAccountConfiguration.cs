@@ -13,7 +13,5 @@ public class LoyaltyAccountConfiguration : IEntityTypeConfiguration<LoyaltyAccou
         builder.Property(x => x.PointsBalance).HasDefaultValue(0);
         builder.Property(x => x.LifetimePoints).HasDefaultValue(0);
         builder.Property(x => x.Tier).HasMaxLength(64);
-        builder.Property(x => x.CreatedAt);
-        builder.Property(x => x.UpdatedAt);
     }
 }

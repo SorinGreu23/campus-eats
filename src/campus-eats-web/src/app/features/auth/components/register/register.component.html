@@ -1,0 +1,45 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Join us and start ordering</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input id="name" type="text" pInputText formControlName="name" placeholder="Mario Rossi" />
+        @if (form.get('name')?.touched && form.get('name')?.invalid) {
+          <small class="error">Name is required</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" pInputText formControlName="email" placeholder="you@example.com" />
+        @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          <small class="error">Valid email required</small>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" pInputText formControlName="password" placeholder="••••••" />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm</label>
+          <input id="confirmPassword" type="password" pInputText formControlName="confirmPassword" placeholder="••••••" />
+        </div>
+      </div>
+      @if (form.errors?.['passwordMismatch'] && (form.touched || form.dirty)) {
+        <small class="error">Passwords do not match</small>
+      }
+
+      <button pButton type="submit" label="Register" [disabled]="form.invalid || submitting" class="auth-btn"></button>
+    </form>
+
+    <div class="auth-links">
+      <a routerLink="/login">Already have an account?</a>
+      <a routerLink="/menu">Back to menu</a>
+    </div>
+  </div>
+</div>

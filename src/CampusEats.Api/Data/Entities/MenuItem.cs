@@ -2,8 +2,9 @@ using System;
 
 namespace CampusEats.Api.Data.Entities;
 
-public class MenuItem : BaseEntity
+public class MenuItem
 {
+    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public decimal Price { get; set; }

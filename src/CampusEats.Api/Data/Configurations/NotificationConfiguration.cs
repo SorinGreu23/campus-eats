@@ -14,6 +14,5 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
         builder.Property(x => x.Title).HasMaxLength(250);
         builder.Property(x => x.Message);
         builder.Property(x => x.IsRead).HasDefaultValue(false);
-        builder.Property(x => x.CreatedAt);
     }
 }

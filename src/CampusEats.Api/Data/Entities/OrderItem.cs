@@ -2,8 +2,9 @@ using System;
 
 namespace CampusEats.Api.Data.Entities;
 
-public class OrderItem : BaseEntity
+public class OrderItem
 {
+    public Guid Id { get; set; }
     public Guid? OrderId { get; set; }
     public Guid? MenuItemId { get; set; }
     public int Quantity { get; set; }
