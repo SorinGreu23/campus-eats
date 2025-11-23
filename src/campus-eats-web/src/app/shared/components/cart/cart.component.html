@@ -1,0 +1,100 @@
+<p-drawer [(visible)]="visible" position="right" styleClass="cart-drawer">
+  <ng-template pTemplate="header">
+    <div class="cart-header">
+      <h2 class="cart-title">
+        <i class="pi pi-shopping-cart"></i>
+        Your Cart
+      </h2>
+      <span class="cart-badge">{{ cartService.itemCount() }}</span>
+    </div>
+  </ng-template>
+
+  <div class="cart-content">
+    @if (cartService.items().length === 0) {
+      <div class="empty-cart">
+        <i class="pi pi-shopping-cart empty-icon"></i>
+        <p class="empty-message">Your cart is empty</p>
+        <p class="empty-submessage">Add some delicious items to get started!</p>
+      </div>
+    } @else {
+      <div class="cart-items">
+        @for (item of cartService.items(); track item.menuItem.id) {
+          <div class="cart-item">
+            <div class="item-image-container">
+              <img
+                [src]="item.menuItem.imageUrl || 'https://via.placeholder.com/80x80?text=No+Image'"
+                [alt]="item.menuItem.name"
+                class="item-image"
+              />
+            </div>
+
+            <div class="item-details">
+              <h3 class="item-name">{{ item.menuItem.name }}</h3>
+              <p class="item-price">{{ item.menuItem.price.toFixed(2) }} RON</p>
+              
+              <div class="item-controls">
+                <p-inputNumber
+                  [(ngModel)]="item.quantity"
+                  (ngModelChange)="updateQuantity(item.menuItem.id, $event)"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  [min]="0"
+                  [max]="99"
+                  inputStyleClass="quantity-input"
+                  decrementButtonClass="p-button-danger"
+                  incrementButtonClass="p-button-success"
+                  [inputStyle]="{ width: '3rem', textAlign: 'center' }"
+                ></p-inputNumber>
+                
+                <button
+                  pButton
+                  icon="pi pi-trash"
+                  class="p-button-text p-button-danger remove-btn"
+                  (click)="removeItem(item.menuItem.id)"
+                  pTooltip="Remove item"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+            </div>
+
+            <div class="item-total">
+              {{ (item.menuItem.price * item.quantity).toFixed(2) }} RON
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal:</span>
+          <span class="summary-value">{{ cartService.subtotal().toFixed(2) }} RON</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tax (8%):</span>
+          <span class="summary-value">{{ cartService.tax().toFixed(2) }} RON</span>
+        </div>
+        <div class="summary-row total-row">
+          <span class="summary-label">Total:</span>
+          <span class="summary-value">{{ cartService.total().toFixed(2) }} RON</span>
+        </div>
+      </div>
+
+      <div class="cart-actions">
+        <button
+          pButton
+          label="Clear Cart"
+          icon="pi pi-trash"
+          class="p-button-outlined p-button-danger clear-btn"
+          (click)="clearCart()"
+        ></button>
+        <button
+          pButton
+          label="Checkout"
+          icon="pi pi-check"
+          class="checkout-btn"
+          (click)="checkout()"
+        ></button>
+      </div>
+    }
+  </div>
+</p-drawer>

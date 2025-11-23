@@ -1,0 +1,50 @@
+<article class="reward-card" [class.affordable]="canAfford()" [class.locked]="!canAfford()">
+  <div class="reward-image-container">
+    <img 
+      [src]="reward().imageUrl || 'https://via.placeholder.com/300x200?text=Reward'" 
+      [alt]="reward().name"
+      class="reward-image"
+    />
+    @if (!canAfford()) {
+      <div class="locked-overlay">
+        <i class="pi pi-lock"></i>
+      </div>
+    }
+    <div class="category-badge" [class]="'category-' + reward().category.toLowerCase()">
+      {{ reward().category }}
+    </div>
+  </div>
+
+  <div class="reward-content">
+    <h3 class="reward-name">{{ reward().name }}</h3>
+    <p class="reward-description">{{ reward().description }}</p>
+
+    <div class="reward-footer">
+      <div class="points-cost">
+        <i class="pi pi-gift"></i>
+        <span>{{ reward().pointsCost }} points</span>
+      </div>
+
+      <button 
+        class="redeem-btn"
+        [disabled]="!canAfford()"
+        (click)="onRedeem()"
+      >
+        @if (canAfford()) {
+          <i class="pi pi-check"></i>
+          <span>Redeem</span>
+        } @else {
+          <i class="pi pi-lock"></i>
+          <span>Locked</span>
+        }
+      </button>
+    </div>
+
+    @if (reward().expiryDays) {
+      <p class="expiry-info">
+        <i class="pi pi-clock"></i>
+        Valid for {{ reward().expiryDays }} days after redemption
+      </p>
+    }
+  </div>
+</article>

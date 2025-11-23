@@ -11,6 +11,7 @@
   box-shadow: 0 6px 0px #16a34a, 0 10px 25px rgba(0, 0, 0, 0.3);
   transform: rotate(-0.5deg);
   padding: 0.75rem; /* inner gap before the outer border */
+  cursor: pointer;
 
   &:hover {
     transform: rotate(0deg) translateY(-10px);
@@ -24,6 +25,14 @@
   &:active {
     transform: rotate(0deg) translateY(-2px);
     box-shadow: 0 4px 0px #16a34a, 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  &.adding {
+    animation: addToCartPulse 0.8s ease;
+    
+    .add-to-cart-btn.added {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    }
   }
 }
 
@@ -101,12 +110,12 @@
 .item-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: baseline;
   margin-bottom: 0.75rem;
   gap: 1rem;
 
   .item-name {
-    font-size: 1.35rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #16a34a;
     margin: 0;
@@ -178,26 +187,41 @@
 
   .add-to-cart-btn {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    border: none;
-    padding: 0.875rem 1.75rem;
+    border: 3px solid white;
+    outline: 3px solid #fbbf24;
+    outline-offset: -6px;
+    padding: 0.625rem 1.25rem;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.2s ease;
     border-radius: 20px;
-    box-shadow: 0 4px 0px #991b1b, 0 6px 15px rgba(220, 38, 38, 0.4);
     font-family: 'Fredoka', sans-serif;
     text-transform: uppercase;
-    border: 3px solid white;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1rem;
+      font-weight: 700;
+    }
 
     &:not(:disabled):hover {
       background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
-      transform: translateY(-3px);
-      box-shadow: 0 7px 0px #7f1d1d, 0 10px 20px rgba(220, 38, 38, 0.5);
+      transform: translateY(-2px);
+      outline-color: #f59e0b;
     }
 
     &:not(:disabled):active {
       transform: translateY(1px);
-      box-shadow: 0 2px 0px #7f1d1d, 0 4px 10px rgba(220, 38, 38, 0.4);
+    }
+
+    &.added {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+      outline-color: #fbbf24 !important;
     }
 
     &:disabled {
@@ -205,15 +229,7 @@
       cursor: not-allowed;
       background: #9ca3af;
       border-color: white;
-      box-shadow: 0 4px 0px #6b7280;
-    }
-
-    .p-button-icon {
-      font-size: 1.1rem;
-    }
-
-    .p-button-label {
-      font-weight: 700;
+      outline-color: #6b7280;
     }
   }
 }
@@ -242,7 +258,7 @@
       justify-content: center;
     }
 
-    ::ng-deep .add-to-cart-btn .p-button {
+    .add-to-cart-btn {
       width: 100%;
       justify-content: center;
     }
@@ -263,5 +279,32 @@
   to {
     opacity: 1;
     transform: scale(1) rotate(-0.5deg);
+  }
+}
+
+@keyframes addToCartPulse {
+  0% {
+    transform: rotate(-0.5deg) scale(1);
+  }
+  25% {
+    transform: rotate(0deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(0deg) scale(0.98);
+  }
+  75% {
+    transform: rotate(0deg) scale(1.02);
+  }
+  100% {
+    transform: rotate(-0.5deg) scale(1);
+  }
+}
+
+.unavailable {
+  opacity: 0.6;
+  
+  &:hover {
+    transform: rotate(-0.5deg) translateY(0);
+    box-shadow: 0 6px 0px #16a34a, 0 10px 25px rgba(0, 0, 0, 0.3);
   }
 }

@@ -1,0 +1,323 @@
+.order-card {
+  background: white;
+  border-radius: 25px;
+  border: 5px solid #fbbf24;
+  box-shadow: 0 6px 0px #f59e0b, 0 10px 25px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  font-family: 'Fredoka', sans-serif;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 0px #f59e0b, 0 15px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-header,
+  .card-body {
+    cursor: pointer;
+  }
+}
+
+.card-header {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 4px solid #fbbf24;
+
+  .order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .order-number {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+      font-family: 'Pacifico', cursive;
+    }
+
+    .order-date {
+      font-size: 0.9rem;
+      color: #dcfce7;
+      font-weight: 500;
+    }
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border: 2px solid white;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &.status-warning {
+      background: #fbbf24;
+      color: #451a03;
+    }
+
+    &.status-info {
+      background: #3b82f6;
+      color: white;
+    }
+
+    &.status-success {
+      background: white;
+      color: #16a34a;
+    }
+
+    &.status-danger {
+      background: #dc2626;
+      color: white;
+    }
+  }
+}
+
+.card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #fef3c7;
+    border-radius: 12px;
+    border: 2px solid #fbbf24;
+
+    .item-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid white;
+    }
+
+    .item-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .item-name {
+        font-weight: 700;
+        color: #451a03;
+        font-size: 1rem;
+      }
+
+      .item-quantity {
+        color: #78350f;
+        font-size: 0.9rem;
+      }
+    }
+
+    .item-price {
+      font-weight: 700;
+      color: #16a34a;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.special-instructions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #dbeafe;
+  border-radius: 12px;
+  border: 2px solid #3b82f6;
+  color: #1e40af;
+  font-size: 0.9rem;
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 2px dashed #fbbf24;
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+
+    .detail-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #78350f;
+
+      i {
+        color: #16a34a;
+        font-size: 1rem;
+      }
+    }
+
+    .detail-value {
+      color: #451a03;
+      font-weight: 500;
+    }
+
+    &.time-remaining {
+      .detail-value {
+        font-weight: 700;
+        color: #dc2626;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.card-footer {
+  padding: 1.25rem;
+  background: #fef3c7;
+  border-top: 4px solid #fbbf24;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .total-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      color: #78350f;
+
+      &.total {
+        padding-top: 0.5rem;
+        border-top: 2px solid #fbbf24;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #451a03;
+
+        span:last-child {
+          color: #16a34a;
+        }
+      }
+    }
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: fit-content;
+      padding: 0.75rem 1.25rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 15px;
+      font-family: 'Fredoka', sans-serif;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      border: 3px solid white;
+
+      i {
+        font-size: 1rem;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .track-order-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      }
+    }
+
+    .cancel-order-btn {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+      }
+    }
+
+    .reorder-btn {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      outline: 3px solid #fbbf24;
+      outline-offset: -6px;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .status-badge {
+      align-self: stretch;
+      justify-content: center;
+    }
+  }
+
+  .order-items .order-item {
+    .item-image {
+      width: 50px;
+      height: 50px;
+    }
+
+    .item-details .item-name {
+      font-size: 0.9rem;
+    }
+  }
+}

@@ -45,9 +45,20 @@
     } @else {
       <div class="menu-grid">
         @for (item of filteredMenuItems(); track item.id) {
-          <app-menu-item-card [menuItem]="item" />
+          <app-menu-item-card 
+            [menuItem]="item"
+            (itemClick)="onMenuItemClick(item)"
+          />
         }
       </div>
     }
   </div>
 </div>
+
+<!-- Menu Item Detail Modal -->
+<app-menu-item-detail
+  [visible]="showDetailModal()"
+  [menuItem]="selectedMenuItem()"
+  (close)="handleCloseDetail()"
+  (addToCart)="handleAddToCart($event)"
+/>
