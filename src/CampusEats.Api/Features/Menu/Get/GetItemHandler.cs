@@ -22,7 +22,7 @@ public class GetItemHandler : IRequestHandler<GetItemRequest, IResult>
 
         if (menuItem == null)
         {
-            return Results.NotFound(new { message = $"Menu item with ID '{request.Id}' was not found." });
+            return Results.NotFound($"Menu item with ID '{request.Id}' was not found.");
         }
 
         var response = new GetItemResponse(

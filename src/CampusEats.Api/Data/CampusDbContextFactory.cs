@@ -11,11 +11,11 @@ public class CampusDbContextFactory : IDesignTimeDbContextFactory<CampusDbContex
         
         var optionsBuilder = new DbContextOptionsBuilder<CampusDbContext>();
         
-        var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-        var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
-        var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB");
-        var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
-        var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+        var postgresHost = Environment.GetEnvironmentVariable("DB_Host");
+        var postgresPort = Environment.GetEnvironmentVariable("DB_Port") ?? "5432";
+        var postgresDb = Environment.GetEnvironmentVariable("DB_Name");
+        var postgresUser = Environment.GetEnvironmentVariable("DB_User");
+        var postgresPassword = Environment.GetEnvironmentVariable("DB_Password");
         
         var connectionString = string.IsNullOrEmpty(postgresHost)
             ? "Host=localhost;Port=5432;Database=campuseats;Username=postgres;Password=postgres" // Fallback
