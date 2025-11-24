@@ -47,6 +47,11 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
             return Results.BadRequest(string.Join(", ", result.Errors.Select(e => e.Description)));
         }
 
+        if (string.IsNullOrEmpty(user.Email))
+        {
+            return Results.Problem("User email cannot be empty.", statusCode: 500);
+        }
+
         var response = new UpdateUserResponse(
             user.Id,
             user.Email,
