@@ -1,4 +1,5 @@
 using CampusEats.Api.Data;
+using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,10 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
         }
 
         var order = await _context.Orders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.MenuItem)
+            .ThenInclude(m => m.Ingredients)
+            .ThenInclude(mi => mi.InventoryItem)
             .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
 
         if (order == null)
@@ -48,6 +53,16 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
             });
         }
 
+        // Deduct inventory when starting preparation
+        if (newStatus == OrderStatus.Preparing)
+        {
+            var deductionResult = await DeductInventoryAsync(order, cancellationToken);
+            if (!deductionResult.IsSuccess)
+            {
+                return Results.BadRequest(new { message = deductionResult.Error });
+            }
+        }
+
         order.Status = newStatus.ToString();
         order.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -59,6 +74,61 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
         await _context.SaveChangesAsync(cancellationToken);
 
         return Results.NoContent();
+    }
+
+    private async Task<(bool IsSuccess, string? Error)> DeductInventoryAsync(Order order, CancellationToken cancellationToken)
+    {
+        var requiredIngredients = new Dictionary<Guid, decimal>();
+
+        // Calculate total required quantities
+        foreach (var orderItem in order.Items)
+        {
+            if (orderItem.MenuItem?.Ingredients == null) continue;
+
+            foreach (var ingredient in orderItem.MenuItem.Ingredients)
+            {
+                var totalRequired = ingredient.QuantityRequired * orderItem.Quantity;
+                if (requiredIngredients.ContainsKey(ingredient.InventoryItemId))
+                {
+                    requiredIngredients[ingredient.InventoryItemId] += totalRequired;
+                }
+                else
+                {
+                    requiredIngredients[ingredient.InventoryItemId] = totalRequired;
+                }
+            }
+        }
+
+        // Check availability and deduct
+        foreach (var (inventoryItemId, requiredQty) in requiredIngredients)
+        {
+            var inventoryItem = await _context.InventoryItems.FindAsync(new object[] { inventoryItemId }, cancellationToken);
+            
+            if (inventoryItem == null)
+            {
+                return (false, $"Inventory item {inventoryItemId} not found.");
+            }
+
+            if (inventoryItem.CurrentQuantity < requiredQty)
+            {
+                return (false, $"Insufficient inventory for '{inventoryItem.Name}'. Required: {requiredQty}, Available: {inventoryItem.CurrentQuantity}");
+            }
+
+            inventoryItem.CurrentQuantity -= requiredQty;
+            inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
+
+            _context.InventoryTransactions.Add(new InventoryTransaction
+            {
+                Id = Guid.NewGuid(),
+                InventoryItemId = inventoryItemId,
+                TransactionType = "OrderUsage",
+                Quantity = -requiredQty,
+                Reason = $"Used for Order {order.OrderNumber}",
+                PerformedBy = null 
+            });
+        }
+
+        return (true, null);
     }
 
     private static bool IsValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus)

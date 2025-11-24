@@ -9,4 +9,6 @@ public class InventoryItem
     public string? Unit { get; set; }
     public decimal CurrentQuantity { get; set; }
     public decimal MinimumQuantity { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

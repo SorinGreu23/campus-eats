@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CampusEats.Api.Data.Entities;
 
@@ -17,4 +18,5 @@ public class MenuItem
     public DateTimeOffset? UpdatedAt { get; set; }
 
     public Category? Category { get; set; }
+    public ICollection<MenuItemIngredient> Ingredients { get; set; } = new List<MenuItemIngredient>();
 }

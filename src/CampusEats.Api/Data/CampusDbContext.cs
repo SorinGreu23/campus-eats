@@ -16,6 +16,7 @@ public class CampusDbContext : DbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<InventoryItem> InventoryItems { get; set; }
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+    public DbSet<MenuItemIngredient> MenuItemIngredients { get; set; }
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
     public DbSet<LoyaltyReward> LoyaltyRewards { get; set; }
     public DbSet<Notification> Notifications { get; set; }
@@ -68,6 +69,18 @@ public class CampusDbContext : DbContext
             b.Property(p => p.OrderId).IsRequired();
             b.Property(p => p.Amount).IsRequired();
             b.Property(p => p.PaymentMethod).IsRequired();
+        });
+
+        builder.Entity<MenuItemIngredient>(b =>
+        {
+            b.ToTable("MenuItemIngredient");
+            b.HasKey(mi => mi.Id);
+            b.HasOne(mi => mi.MenuItem)
+                .WithMany()
+                .HasForeignKey(mi => mi.MenuItemId);
+            b.HasOne(mi => mi.InventoryItem)
+                .WithMany()
+                .HasForeignKey(mi => mi.InventoryItemId);
         });
 
         builder.Entity<InventoryItem>(b =>

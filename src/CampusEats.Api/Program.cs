@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using CampusEats.Api.Data.Entities;
+using CampusEats.Api.Features.InventoryReports;
 
 Env.Load();
 
@@ -126,5 +127,8 @@ app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
 
 // Kitchen endpoints
 app.MapKitchenEndpoints();
+
+// Inventory endpoints
+app.MapInventoryEndpoints();
 
 app.Run();
