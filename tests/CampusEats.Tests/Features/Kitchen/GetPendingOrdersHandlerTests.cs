@@ -26,7 +26,8 @@ public class GetPendingOrdersHandlerTests
             OrderNumber = "ORD-001",
             Status = "Pending",
             Total = 25.50m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         var preparingOrder = new Order
@@ -35,7 +36,8 @@ public class GetPendingOrdersHandlerTests
             OrderNumber = "ORD-002",
             Status = "Preparing",
             Total = 15.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         var completedOrder = new Order
@@ -44,7 +46,8 @@ public class GetPendingOrdersHandlerTests
             OrderNumber = "ORD-003",
             Status = "Completed",
             Total = 30.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.AddRange(pendingOrder, preparingOrder, completedOrder);
@@ -76,7 +79,8 @@ public class GetPendingOrdersHandlerTests
             OrderNumber = "ORD-001",
             Status = "Completed",
             Total = 30.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.Add(completedOrder);
@@ -106,7 +110,9 @@ public class GetPendingOrdersHandlerTests
         {
             Id = Guid.NewGuid(),
             Name = "Pizza",
-            Price = 10.00m
+            Price = 10.00m,
+            CategoryId = Guid.NewGuid(),
+            Description = "Test Description"
         };
         
         var order = new Order
@@ -116,6 +122,7 @@ public class GetPendingOrdersHandlerTests
             Status = "Pending",
             Total = 20.00m,
             CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user",
             Items = new List<OrderItem>
             {
                 new OrderItem

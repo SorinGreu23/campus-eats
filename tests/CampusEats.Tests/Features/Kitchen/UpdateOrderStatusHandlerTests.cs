@@ -11,26 +11,6 @@ namespace CampusEats.Tests.Features.Kitchen;
 
 public class UpdateOrderStatusHandlerTests
 {
-    private IValidator<UpdateOrderStatusCommand> CreateMockValidator(bool isValid = true)
-    {
-        var validator = Substitute.For<IValidator<UpdateOrderStatusCommand>>();
-        if (isValid)
-        {
-            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
-            validationResult.IsValid.Returns(true);
-            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
-                .Returns(validationResult);
-        }
-        else
-        {
-            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
-            validationResult.IsValid.Returns(false);
-            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
-                .Returns(validationResult);
-        }
-        return validator;
-    }
-
     [Fact]
     public async Task Handle_ShouldUpdateStatus_WhenValidTransition()
     {
@@ -47,7 +27,8 @@ public class UpdateOrderStatusHandlerTests
             OrderNumber = "ORD-001",
             Status = "Pending",
             Total = 25.50m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.Add(order);
@@ -85,7 +66,8 @@ public class UpdateOrderStatusHandlerTests
             OrderNumber = "ORD-001",
             Status = "Ready",
             Total = 25.50m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.Add(order);
@@ -165,7 +147,8 @@ public class UpdateOrderStatusHandlerTests
             OrderNumber = "ORD-001",
             Status = "Pending",
             Total = 25.50m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.Add(order);
@@ -205,7 +188,8 @@ public class UpdateOrderStatusHandlerTests
             OrderNumber = "ORD-001",
             Status = currentStatus.ToString(),
             Total = 25.50m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
         };
         
         context.Orders.Add(order);
@@ -226,6 +210,26 @@ public class UpdateOrderStatusHandlerTests
             var updatedOrder = await context.Orders.FindAsync(order.Id);
             updatedOrder!.Status.ShouldBe(newStatus.ToString());
         }
+    }
+
+    private IValidator<UpdateOrderStatusCommand> CreateMockValidator(bool isValid = true)
+    {
+        var validator = Substitute.For<IValidator<UpdateOrderStatusCommand>>();
+        if (isValid)
+        {
+            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
+            validationResult.IsValid.Returns(true);
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
+                .Returns(validationResult);
+        }
+        else
+        {
+            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
+            validationResult.IsValid.Returns(false);
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
+                .Returns(validationResult);
+        }
+        return validator;
     }
 }
 

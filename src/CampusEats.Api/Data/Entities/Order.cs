@@ -18,6 +18,8 @@ public class Order
     public DateTimeOffset? CompletedAt { get; set; }
     public DateTimeOffset? CancelledAt { get; set; }
     public string? CancellationReason { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     public ApplicationUser? User { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

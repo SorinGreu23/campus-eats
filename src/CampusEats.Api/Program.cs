@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using CampusEats.Api.Data.Entities;
 
 Env.Load();
 
@@ -124,28 +125,6 @@ app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
     .WithTags("MenuItems");
 
 // Kitchen endpoints
-app.MapGet("/api/kitchen/pending-orders", async (IMediator mediator) =>
-    await mediator.Send(new GetPendingOrdersQuery()))
-    .WithName("GetPendingOrders")
-    .WithTags("Kitchen")
-    .WithDescription("Returns all orders that are in Pending or Preparing status")
-    .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
-    .ProducesProblem(StatusCodes.Status400BadRequest);
-
-app.MapPut("/api/kitchen/orders/{id:guid}/status", async (Guid id, UpdateOrderStatusRequest request, IMediator mediator) =>
-{
-    var status = Enum.TryParse<OrderStatus>(request.Status, out var orderStatus) 
-        ? orderStatus 
-        : OrderStatus.Pending;
-        
-    var command = new UpdateOrderStatusCommand(id, status);
-    return await mediator.Send(command);
-})
-    .WithName("UpdateOrderStatus")
-    .WithTags("Kitchen")
-    .WithDescription("Updates the status of an order. Valid transitions: Pending → Preparing → Ready → Completed")
-    .Produces(StatusCodes.Status204NoContent)
-    .ProducesProblem(StatusCodes.Status400BadRequest)
-    .ProducesProblem(StatusCodes.Status404NotFound);
+app.MapKitchenEndpoints();
 
 app.Run();
