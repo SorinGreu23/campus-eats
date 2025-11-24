@@ -49,7 +49,7 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
 
         var response = new UpdateUserResponse(
             user.Id,
-            user.Email,
+            user.Email ?? string.Empty,
             user.FirstName ?? string.Empty,
             user.LastName ?? string.Empty,
             user.IsActive
