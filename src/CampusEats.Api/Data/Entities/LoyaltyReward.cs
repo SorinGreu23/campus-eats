@@ -13,4 +13,5 @@ public class LoyaltyReward
     public bool IsActive { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidUntil { get; set; }
+    public string? MinimumTier { get; set; } // Bronze, Silver, Gold, Platinum
 }

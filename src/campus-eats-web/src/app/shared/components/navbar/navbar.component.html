@@ -20,8 +20,22 @@
     </div>
 
     <div class="navbar-actions">
-      <button pButton class="cart-button" icon="pi pi-shopping-cart" label="Cart" severity="danger"></button>
+      <div class="cart-button-wrapper">
+        <button 
+          pButton 
+          class="cart-button" 
+          icon="pi pi-shopping-cart" 
+          label="Cart" 
+          severity="danger"
+          (click)="openCart()"
+        ></button>
+        @if (cartService.itemCount() > 0) {
+          <span class="cart-count-badge">{{ cartService.itemCount() }}</span>
+        }
+      </div>
       <button pButton class="login-button" icon="pi pi-user" label="Login" outlined routerLink="/login"></button>
     </div>
   </div>
 </nav>
+
+<app-cart></app-cart>

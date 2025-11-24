@@ -18,6 +18,7 @@ public class CampusDbContext : DbContext
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }
     public DbSet<LoyaltyReward> LoyaltyRewards { get; set; }
+    public DbSet<LoyaltyClaim> LoyaltyClaims { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Allergen> Allergens { get; set; }
     public DbSet<DietaryRestriction> DietaryRestrictions { get; set; }
@@ -100,6 +101,15 @@ public class CampusDbContext : DbContext
         {
             b.ToTable("LoyaltyReward");
             b.Property(l => l.Id).ValueGeneratedNever();
+        });
+
+        builder.Entity<LoyaltyClaim>(b =>
+        {
+            b.ToTable("LoyaltyClaim");
+            b.Property(c => c.Id).ValueGeneratedNever();
+            b.Property(c => c.LoyaltyAccountId).IsRequired();
+            b.Property(c => c.RewardId).IsRequired();
+            b.Property(c => c.ClaimedAt).IsRequired();
         });
 
         builder.Entity<Notification>(b =>

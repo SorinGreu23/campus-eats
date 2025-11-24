@@ -2,6 +2,7 @@ using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
+using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Allergens;
@@ -60,6 +61,7 @@ using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
     await campusDb.Database.MigrateAsync();
+    await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
     
     var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await identityDb.Database.MigrateAsync();
@@ -79,6 +81,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapUserEndpoints();
+app.MapLoyaltyPointsEndpoints();
 // Map feature endpoints
 app.MapMenuEndpoints();
 app.MapAllergenEndpoints();
