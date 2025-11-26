@@ -31,7 +31,6 @@
     <Folder Include="Common\Models\" />
     <Folder Include="Features\Kitchen\" />
     <Folder Include="Features\Menu\" />
-    <Folder Include="Features\Orders\" />
     <Folder Include="Features\Payments\" />
   </ItemGroup>
 

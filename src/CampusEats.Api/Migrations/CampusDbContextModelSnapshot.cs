@@ -292,6 +292,9 @@ namespace CampusEats.Api.Migrations
                     b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DeliveryInstructions")
+                        .HasColumnType("text");
+
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
 
@@ -299,11 +302,13 @@ namespace CampusEats.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("OrderType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("order_type");
+
                     b.Property<DateTimeOffset?>("PickupTime")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SpecialInstructions")
-                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
