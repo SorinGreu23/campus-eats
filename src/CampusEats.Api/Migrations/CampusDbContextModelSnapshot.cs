@@ -53,21 +53,17 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<int?>("DisplayOrder")
                         .HasColumnType("integer");
-                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
                         .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
-                        .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("categories", (string)null);
@@ -104,24 +100,19 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<decimal>("CurrentQuantity")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("MinimumQuantity")
-                        .HasColumnType("decimal(18,2)");
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
-                        .HasColumnType("character varying(250)");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-                        .HasColumnType("character varying(64)");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("inventory_items", (string)null);
@@ -138,26 +129,19 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<Guid?>("PerformedBy")
                         .HasColumnType("uuid");
-                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Reason")
                         .HasColumnType("text");
-                        .HasColumnType("text");
 
                     b.Property<string>("TransactionType")
-                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
-                    b.HasKey("Id");
 
-                    b.HasIndex("InventoryItemId");
                     b.HasIndex("InventoryItemId");
 
                     b.ToTable("inventory_transactions", (string)null);
@@ -173,23 +157,19 @@ namespace CampusEats.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
-                        .HasDefaultValue(0);
 
                     b.Property<int>("PointsBalance")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
-                        .HasDefaultValue(0);
 
                     b.Property<string>("Tier")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
                         .HasColumnType("character varying(64)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("loyalty_accounts", (string)null);
@@ -231,24 +211,16 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
-                        .HasColumnType("text");
 
                     b.Property<decimal?>("DiscountValue")
-                        .HasColumnType("decimal(18,2)");
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
-                        .HasDefaultValue(true);
 
                     b.Property<Guid?>("MenuItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("MinimumTier")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
                         .HasColumnType("uuid");
 
                     b.Property<string>("MinimumTier")
@@ -259,21 +231,16 @@ namespace CampusEats.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
-                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("PointsCost")
-                        .HasColumnType("integer");
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("ValidFrom")
                         .HasColumnType("timestamp with time zone");
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("ValidUntil")
                         .HasColumnType("timestamp with time zone");
-                        .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("loyalty_rewards", (string)null);
@@ -287,7 +254,6 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<int?>("Calories")
                         .HasColumnType("integer");
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
@@ -298,31 +264,25 @@ namespace CampusEats.Api.Migrations
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
-                        .HasColumnType("character varying(512)");
 
                     b.Property<bool>("IsAvailable")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
                         .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
-                        .HasColumnType("character varying(250)");
 
                     b.Property<int?>("PreparationTimeMinutes")
-                        .HasColumnType("integer");
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
                     b.HasIndex("CategoryId");
 
                     b.ToTable("menu_items", (string)null);
@@ -368,29 +328,24 @@ namespace CampusEats.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
-                        .HasDefaultValue(false);
 
                     b.Property<string>("Message")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uuid");
-                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
                         .HasColumnType("character varying(250)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
-                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("notifications", (string)null);
@@ -404,55 +359,42 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<string>("CancellationReason")
                         .HasColumnType("text");
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)");
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("OrderNumber")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset?>("PickupTime")
-                        .HasColumnType("timestamp with time zone");
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SpecialInstructions")
                         .HasColumnType("text");
-                        .HasColumnType("text");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
                         .HasColumnType("character varying(64)");
 
                     b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tax")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.ToTable("orders", (string)null);
@@ -472,27 +414,20 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
-                        .HasColumnType("integer");
 
                     b.Property<string>("SpecialInstructions")
-                        .HasColumnType("text");
                         .HasColumnType("text");
 
                     b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.HasIndex("MenuItemId");
-                    b.HasIndex("MenuItemId");
 
-                    b.HasIndex("OrderId");
                     b.HasIndex("OrderId");
 
                     b.ToTable("order_items", (string)null);
@@ -506,10 +441,7 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
-                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -517,32 +449,23 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("PaymentMethod")
-                        .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
                         .HasColumnType("character varying(128)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("TransactionId")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-                        .HasColumnType("character varying(256)");
 
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
-                    b.HasKey("Id");
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -558,25 +481,6 @@ namespace CampusEats.Api.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("InventoryItem");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyClaim", b =>
-                {
-                    b.HasOne("CampusEats.Api.Data.Entities.LoyaltyAccount", "LoyaltyAccount")
-                        .WithMany()
-                        .HasForeignKey("LoyaltyAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CampusEats.Api.Data.Entities.LoyaltyReward", "LoyaltyReward")
-                        .WithMany()
-                        .HasForeignKey("RewardId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("LoyaltyAccount");
-
-                    b.Navigation("LoyaltyReward");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyClaim", b =>
