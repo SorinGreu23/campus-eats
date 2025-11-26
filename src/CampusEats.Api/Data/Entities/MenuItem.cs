@@ -13,8 +13,8 @@ public class MenuItem
     public int? PreparationTimeMinutes { get; set; }
     public bool IsAvailable { get; set; }
     public int? Calories { get; set; }
-    public DateTimeOffset? CreatedAt { get; set; }
-    public DateTimeOffset? UpdatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 
     public Category? Category { get; set; }
     public ICollection<MenuItemAllergen> MenuItemAllergens { get; set; } = new List<MenuItemAllergen>();

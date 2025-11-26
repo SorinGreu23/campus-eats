@@ -27,13 +27,23 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
         {
             return Results.NotFound("User not found.");
         }
+
+        if (string.IsNullOrEmpty(appUser.Email))
+        {
+            return Results.Problem("User email is not configured.", statusCode: 500);
+        }
         
         var roles = await _userManager.GetRolesAsync(appUser);
-        var userRole = roles.FirstOrDefault() ?? string.Empty;
+        var userRole = roles.FirstOrDefault();
+
+        if (string.IsNullOrEmpty(userRole))
+        {
+            return Results.Problem("User role is not assigned.", statusCode: 500);
+        }
         
         return Results.Ok(new GetUserResponse
         (
-            appUser.Email!,
+            appUser.Email,
             appUser.FirstName ?? string.Empty,
             appUser.LastName ?? string.Empty,
             appUser.UserName!,
