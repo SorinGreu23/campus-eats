@@ -22,13 +22,8 @@ public class CampusDbContext : DbContext
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Allergen> Allergens { get; set; }
     public DbSet<DietaryRestriction> DietaryRestrictions { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Suppress pending model changes warning as we've cleaned up duplicate configurations
-        optionsBuilder.ConfigureWarnings(warnings =>
-            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
-    }
+    public DbSet<MenuItemAllergen> MenuItemAllergens { get; set; }
+    public DbSet<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

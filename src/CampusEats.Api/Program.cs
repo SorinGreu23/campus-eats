@@ -73,18 +73,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    try
-    {
-        // Try to apply pending migrations
-        // Note: Some migrations may fail if they try to drop constraints that don't exist
-        // The database schema should already be correct from Configuration classes
-        await campusDb.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-        // Log the error but continue - the schema should already be correct
-        Console.WriteLine($"Migration warning (can be ignored if tables exist): {ex.Message}");
-    }
     
     try
     {
