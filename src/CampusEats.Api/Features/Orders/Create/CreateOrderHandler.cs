@@ -29,6 +29,9 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
         var menuItems = await _db.MenuItems.Where(m => menuItemIds.Contains(m.Id)).ToListAsync(cancellationToken);
         if (menuItems.Count != menuItemIds.Count)
             return Results.BadRequest(new { error = "One or more menu items were not found." });
+        
+        if (string.IsNullOrWhiteSpace(request.UserId))
+            return Results.BadRequest(new { error = "userId is required." });
 
         // Create order and compute totals
         var order = new Order
