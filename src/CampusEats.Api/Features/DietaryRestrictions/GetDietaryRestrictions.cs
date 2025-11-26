@@ -15,7 +15,7 @@ public class GetDietaryRestrictionsHandler : IRequestHandler<GetDietaryRestricti
     public async Task<IResult> Handle(GetDietaryRestrictionsRequest request, CancellationToken cancellationToken)
     {
         var restrictions = await _context.DietaryRestrictions
-            .Select(dr => new DietaryRestrictionDto(dr.Id, dr.Name, dr.Icon))
+            .Select(dr => new DietaryRestrictionDto(dr.Id, dr.Name, dr.Description, dr.Icon))
             .ToListAsync(cancellationToken);
         return Results.Ok(restrictions);
     }

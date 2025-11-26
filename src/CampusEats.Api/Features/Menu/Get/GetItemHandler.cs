@@ -44,11 +44,13 @@ public class GetItemHandler : IRequestHandler<GetItemRequest, IResult>
             menuItem.MenuItemAllergens?.Select(mia => new AllergenDto(
                 mia.Allergen.Id,
                 mia.Allergen.Name,
+                mia.Allergen.Description,
                 mia.Allergen.Icon
             )).ToList(),
             menuItem.MenuItemDietaryRestrictions?.Select(midr => new DietaryRestrictionDto(
                 midr.DietaryRestriction.Id,
                 midr.DietaryRestriction.Name,
+                midr.DietaryRestriction.Description,
                 midr.DietaryRestriction.Icon
             )).ToList()
         );

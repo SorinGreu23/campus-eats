@@ -15,6 +15,9 @@ public class AllergenConfiguration : IEntityTypeConfiguration<Allergen>
         builder.Property(a => a.Name)
             .IsRequired()
             .HasMaxLength(100);
+        
+        builder.Property(a => a.Description)
+            .HasMaxLength(500);
             
         builder.Property(a => a.Icon)
             .HasMaxLength(50);

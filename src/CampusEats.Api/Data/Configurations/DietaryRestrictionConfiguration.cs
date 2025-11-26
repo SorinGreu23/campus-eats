@@ -12,6 +12,8 @@ public class DietaryRestrictionConfiguration : IEntityTypeConfiguration<DietaryR
         builder.Property(dr => dr.Name)
             .IsRequired()
             .HasMaxLength(100);
+        builder.Property(dr => dr.Description)
+            .HasMaxLength(500);
         builder.Property(dr => dr.Icon)
             .HasMaxLength(50);
     }

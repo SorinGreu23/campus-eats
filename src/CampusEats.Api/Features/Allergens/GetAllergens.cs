@@ -15,7 +15,7 @@ public class GetAllergensHandler : IRequestHandler<GetAllergensRequest, IResult>
     public async Task<IResult> Handle(GetAllergensRequest request, CancellationToken cancellationToken)
     {
         var allergens = await _context.Allergens
-            .Select(a => new AllergenDto(a.Id, a.Name, a.Icon))
+            .Select(a => new AllergenDto(a.Id, a.Name, a.Description, a.Icon))
             .ToListAsync(cancellationToken);
         return Results.Ok(allergens);
     }
