@@ -3,17 +3,20 @@ using System;
 using CampusEats.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CampusEats.Api.Migrations
+namespace CampusEats.Api.Data.Migrations
 {
     [DbContext(typeof(CampusDbContext))]
-    partial class CampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126093741_AddOrderTypeToOrder")]
+    partial class AddOrderTypeToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,33 +25,9 @@ namespace CampusEats.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.Allergen", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("allergens", (string)null);
-                });
-
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int?>("DisplayOrder")
@@ -69,33 +48,9 @@ namespace CampusEats.Api.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.DietaryRestriction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("dietary_restrictions", (string)null);
-                });
-
             modelBuilder.Entity("CampusEats.Api.Data.Entities.InventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("CurrentQuantity")
@@ -121,10 +76,9 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.InventoryTransaction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("InventoryItemId")
+                    b.Property<Guid>("InventoryItemId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("PerformedBy")
@@ -137,6 +91,7 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("TransactionType")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
@@ -150,7 +105,6 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyAccount", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int>("LifetimePoints")
@@ -168,6 +122,7 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("character varying(64)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -178,7 +133,6 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyClaim", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ClaimedAt")
@@ -206,7 +160,6 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyReward", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
@@ -249,16 +202,19 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int?>("Calories")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("CategoryId")
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ImageUrl")
@@ -281,6 +237,9 @@ namespace CampusEats.Api.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -288,40 +247,9 @@ namespace CampusEats.Api.Migrations
                     b.ToTable("menu_items", (string)null);
                 });
 
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemAllergen", b =>
-                {
-                    b.Property<Guid>("MenuItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AllergenId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("MenuItemId", "AllergenId");
-
-                    b.HasIndex("AllergenId");
-
-                    b.ToTable("menu_item_allergens", (string)null);
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemDietaryRestriction", b =>
-                {
-                    b.Property<Guid>("MenuItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("DietaryRestrictionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("MenuItemId", "DietaryRestrictionId");
-
-                    b.HasIndex("DietaryRestrictionId");
-
-                    b.ToTable("menu_item_dietary_restrictions", (string)null);
-                });
-
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Notification", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsRead")
@@ -330,6 +258,7 @@ namespace CampusEats.Api.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("Message")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid?>("OrderId")
@@ -344,6 +273,7 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -354,7 +284,6 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("CancellationReason")
@@ -385,6 +314,7 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
@@ -398,6 +328,7 @@ namespace CampusEats.Api.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -408,13 +339,12 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("MenuItemId")
+                    b.Property<Guid>("MenuItemId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
@@ -441,7 +371,6 @@ namespace CampusEats.Api.Migrations
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Payment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
@@ -450,10 +379,11 @@ namespace CampusEats.Api.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
@@ -483,7 +413,8 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.InventoryItem", "InventoryItem")
                         .WithMany()
                         .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.Navigation("InventoryItem");
                 });
@@ -512,47 +443,10 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemAllergen", b =>
-                {
-                    b.HasOne("CampusEats.Api.Data.Entities.Allergen", "Allergen")
-                        .WithMany("MenuItemAllergens")
-                        .HasForeignKey("AllergenId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
-                        .WithMany("MenuItemAllergens")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Allergen");
-
-                    b.Navigation("MenuItem");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemDietaryRestriction", b =>
-                {
-                    b.HasOne("CampusEats.Api.Data.Entities.DietaryRestriction", "DietaryRestriction")
-                        .WithMany("MenuItemDietaryRestrictions")
-                        .HasForeignKey("DietaryRestrictionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
-                        .WithMany("MenuItemDietaryRestrictions")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DietaryRestriction");
-
-                    b.Navigation("MenuItem");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.OrderItem", b =>
@@ -560,33 +454,18 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
                         .WithMany()
                         .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.HasOne("CampusEats.Api.Data.Entities.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MenuItem");
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.Allergen", b =>
-                {
-                    b.Navigation("MenuItemAllergens");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.DietaryRestriction", b =>
-                {
-                    b.Navigation("MenuItemDietaryRestrictions");
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItem", b =>
-                {
-                    b.Navigation("MenuItemAllergens");
-
-                    b.Navigation("MenuItemDietaryRestrictions");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Order", b =>

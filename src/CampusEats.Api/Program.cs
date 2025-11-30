@@ -7,6 +7,7 @@ using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Allergens;
 using CampusEats.Api.Features.DietaryRestrictions;
+using CampusEats.Api.Features.Orders;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -77,6 +78,8 @@ using (var scope = app.Services.CreateScope())
     try
     {
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
+        await CategoriesSeeder.SeedCategories(campusDb);
+        await MenuItemsSeeder.SeedMenuItems(campusDb);
         await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
     }
     catch (Exception ex)
@@ -103,9 +106,9 @@ app.UseAuthorization();
 
 app.MapUserEndpoints();
 app.MapLoyaltyPointsEndpoints();
-// Map feature endpoints
 app.MapMenuEndpoints();
 app.MapAllergenEndpoints();
 app.MapDietaryRestrictionEndpoints();
+app.MapOrdersEndpoints();
 
 app.Run();
