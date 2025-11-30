@@ -78,9 +78,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
+        await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
         await CategoriesSeeder.SeedCategories(campusDb);
         await MenuItemsSeeder.SeedMenuItems(campusDb);
-        await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
     }
     catch (Exception ex)
     {
