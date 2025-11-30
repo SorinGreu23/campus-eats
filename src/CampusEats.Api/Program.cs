@@ -5,6 +5,7 @@ using CampusEats.Api.Data.Extensions;
 using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
+using CampusEats.Api.Features.Orders;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -60,6 +61,8 @@ using (var scope = app.Services.CreateScope())
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
     await campusDb.Database.MigrateAsync();
     await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
+    await CategoriesSeeder.SeedCategories(campusDb);
+    await MenuItemsSeeder.SeedMenuItems(campusDb);
     
     var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await identityDb.Database.MigrateAsync();
@@ -80,7 +83,7 @@ app.UseAuthorization();
 
 app.MapUserEndpoints();
 app.MapLoyaltyPointsEndpoints();
-// Map feature endpoints
 app.MapMenuEndpoints();
+app.MapOrdersEndpoints();
 
 app.Run();

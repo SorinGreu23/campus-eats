@@ -3,17 +3,20 @@ using System;
 using CampusEats.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CampusEats.Api.Migrations
+namespace CampusEats.Api.Data.Migrations
 {
     [DbContext(typeof(CampusDbContext))]
-    partial class CampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126093741_AddOrderTypeToOrder")]
+    partial class AddOrderTypeToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
