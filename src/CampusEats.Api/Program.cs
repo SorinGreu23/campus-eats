@@ -5,6 +5,8 @@ using CampusEats.Api.Data.Extensions;
 using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
+using CampusEats.Api.Features.Allergens;
+using CampusEats.Api.Features.DietaryRestrictions;
 using CampusEats.Api.Features.Orders;
 using FluentValidation;
 using MediatR;
@@ -12,7 +14,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 
-Env.Load();
+// Load .env file - check local directory first, then solution root
+var localEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(localEnvPath))
+{
+    Env.Load(localEnvPath);
+}
+else
+{
+    var solutionEnvPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+    if (File.Exists(solutionEnvPath))
+    {
+        Env.Load(solutionEnvPath);
+    }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,10 +74,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    await campusDb.Database.MigrateAsync();
-    await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
-    await CategoriesSeeder.SeedCategories(campusDb);
-    await MenuItemsSeeder.SeedMenuItems(campusDb);
+    
+    try
+    {
+        await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
+        await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
+        await CategoriesSeeder.SeedCategories(campusDb);
+        await MenuItemsSeeder.SeedMenuItems(campusDb);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Seeder warning: {ex.Message}");
+    }
     
     var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await identityDb.Database.MigrateAsync();
@@ -84,6 +107,8 @@ app.UseAuthorization();
 app.MapUserEndpoints();
 app.MapLoyaltyPointsEndpoints();
 app.MapMenuEndpoints();
+app.MapAllergenEndpoints();
+app.MapDietaryRestrictionEndpoints();
 app.MapOrdersEndpoints();
 
 app.Run();
