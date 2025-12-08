@@ -6,10 +6,10 @@ namespace CampusEats.Api.Data.Entities;
 public class Order
 {
     public Guid Id { get; set; }
-    public string? OrderNumber { get; set; }
-    public string? UserId { get; set; }
-    public string? Status { get; set; }
-    public string? OrderType { get; set; }
+    public string OrderNumber { get; set; }
+    public string UserId { get; set; }
+    public string Status { get; set; }
+    public string OrderType { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Tax { get; set; }
     public decimal Discount { get; set; }

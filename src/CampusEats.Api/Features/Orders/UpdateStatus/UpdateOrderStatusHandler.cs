@@ -1,28 +1,28 @@
 using CampusEats.Api.Data;
+using CampusEats.Api.Features.Kitchen;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace CampusEats.Api.Features.Kitchen;
+namespace CampusEats.Api.Features.Orders.UpdateStatus;
 
-public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand, IResult>
+public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest, IResult>
 {
     private readonly CampusDbContext _context;
-    private readonly IValidator<UpdateOrderStatusCommand> _validator;
+    private readonly IValidator<UpdateOrderStatusRequest> _validator;
 
-    public UpdateOrderStatusHandler(CampusDbContext context, IValidator<UpdateOrderStatusCommand> validator)
+    public UpdateOrderStatusHandler(CampusDbContext context, IValidator<UpdateOrderStatusRequest> validator)
     {
         _context = context;
         _validator = validator;
     }
 
-    public async Task<IResult> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(UpdateOrderStatusRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(new { errors });
+            return Results.BadRequest(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
         }
 
         var order = await _context.Orders
@@ -30,31 +30,28 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
 
         if (order == null)
         {
-            return Results.NotFound(new { message = "Order not found." });
+            return Results.NotFound("Order not found.");
         }
 
-        var currentStatus = Enum.TryParse<OrderStatus>(order.Status, out var parsedCurrent)
-            ? parsedCurrent
-            : OrderStatus.Pending;
+        var currentStatus = Enum.Parse<OrderStatus>(order.Status!);
 
-        var newStatus = request.Status;
-
+        if (!Enum.TryParse<OrderStatus>(request.Status, out var newStatus))
+        {
+            return Results.BadRequest("Invalid order status value.");
+        }
+        
         if (!IsValidStatusTransition(currentStatus, newStatus))
         {
-            return Results.BadRequest(new
-            {
-                message = $"Invalid status transition from '{currentStatus}' to '{newStatus}'.",
-                validTransitions = "Pending → Preparing → Ready → Completed"
-            });
+            return Results.BadRequest($"Invalid status transition from {currentStatus} to {newStatus}.");
         }
-
-        order.Status = newStatus.ToString();
-        order.UpdatedAt = DateTimeOffset.UtcNow;
 
         if (newStatus == OrderStatus.Completed)
         {
             order.CompletedAt = DateTimeOffset.UtcNow;
         }
+        
+        order.Status = request.Status;
+        order.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -1,4 +1,4 @@
-namespace CampusEats.Api.Features.Kitchen;
+namespace CampusEats.Api.Features.Orders;
 
 public enum OrderStatus
 {

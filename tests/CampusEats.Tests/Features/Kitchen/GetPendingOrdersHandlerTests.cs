@@ -1,6 +1,7 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Kitchen;
+using CampusEats.Api.Features.Orders.GetPendingOrders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
@@ -25,6 +26,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Pending",
+            OrderType = "Pickup",
             Total = 25.50m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -35,6 +37,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-002",
             Status = "Preparing",
+            OrderType = "Pickup",
             Total = 15.00m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -45,6 +48,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-003",
             Status = "Completed",
+            OrderType = "Pickup",
             Total = 30.00m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -78,6 +82,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Completed",
+            OrderType = "Pickup",
             Total = 30.00m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -120,12 +125,13 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Pending",
+            OrderType = "Pickup",
             Total = 20.00m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user",
             Items = new List<OrderItem>
             {
-                new OrderItem
+                new()
                 {
                     Id = Guid.NewGuid(),
                     MenuItemId = menuItem.Id,

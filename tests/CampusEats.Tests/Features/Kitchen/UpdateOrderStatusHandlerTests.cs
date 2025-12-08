@@ -1,6 +1,8 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Kitchen;
+using CampusEats.Api.Features.Orders;
+using CampusEats.Api.Features.Orders.UpdateStatus;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
@@ -26,6 +28,7 @@ public class UpdateOrderStatusHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Pending",
+            OrderType = "Pickup",
             Total = 25.50m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -36,7 +39,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: true);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(order.Id, OrderStatus.Preparing);
+        var command = new UpdateOrderStatusRequest(order.Id, nameof(OrderStatus.Preparing));
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -65,6 +68,7 @@ public class UpdateOrderStatusHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Ready",
+            OrderType = "Pickup",
             Total = 25.50m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -75,7 +79,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: true);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(order.Id, OrderStatus.Completed);
+        var command = new UpdateOrderStatusRequest(order.Id, nameof(OrderStatus.Completed));
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -101,7 +105,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: true);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), OrderStatus.Preparing);
+        var command = new UpdateOrderStatusRequest(Guid.NewGuid(), nameof(OrderStatus.Preparing));
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -122,7 +126,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: false);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(Guid.NewGuid(), OrderStatus.Preparing);
+        var command = new UpdateOrderStatusRequest(Guid.NewGuid(), nameof(OrderStatus.Preparing));
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -146,6 +150,7 @@ public class UpdateOrderStatusHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = "Pending",
+            OrderType = "Pickup",
             Total = 25.50m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -156,7 +161,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: true);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(order.Id, OrderStatus.Completed);
+        var command = new UpdateOrderStatusRequest(order.Id, nameof(OrderStatus.Completed));
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -187,6 +192,7 @@ public class UpdateOrderStatusHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             Status = currentStatus.ToString(),
+            OrderType = "Pickup",
             Total = 25.50m,
             CreatedAt = DateTimeOffset.UtcNow,
             UserId = "test-user"
@@ -197,7 +203,7 @@ public class UpdateOrderStatusHandlerTests
         
         var validator = CreateMockValidator(isValid: true);
         var handler = new UpdateOrderStatusHandler(context, validator);
-        var command = new UpdateOrderStatusCommand(order.Id, newStatus);
+        var command = new UpdateOrderStatusRequest(order.Id, newStatus.ToString());
         
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -212,21 +218,21 @@ public class UpdateOrderStatusHandlerTests
         }
     }
 
-    private IValidator<UpdateOrderStatusCommand> CreateMockValidator(bool isValid = true)
+    private IValidator<UpdateOrderStatusRequest> CreateMockValidator(bool isValid = true)
     {
-        var validator = Substitute.For<IValidator<UpdateOrderStatusCommand>>();
+        var validator = Substitute.For<IValidator<UpdateOrderStatusRequest>>();
         if (isValid)
         {
             var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
             validationResult.IsValid.Returns(true);
-            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusRequest>(), Arg.Any<CancellationToken>())
                 .Returns(validationResult);
         }
         else
         {
             var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
             validationResult.IsValid.Returns(false);
-            validator.ValidateAsync(Arg.Any<UpdateOrderStatusCommand>(), Arg.Any<CancellationToken>())
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusRequest>(), Arg.Any<CancellationToken>())
                 .Returns(validationResult);
         }
         return validator;
