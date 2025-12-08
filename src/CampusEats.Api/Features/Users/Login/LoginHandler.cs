@@ -1,4 +1,5 @@
 using CampusEats.Api.Common;
+using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
@@ -13,15 +14,18 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IValidator<LoginRequest> _validator;
+    private readonly ITokenService _tokenService;
 
     public LoginHandler(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IValidator<LoginRequest> validator)
+        IValidator<LoginRequest> validator,
+        ITokenService tokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _validator = validator;
+        _tokenService = tokenService;
     }
 
     public async Task<IResult> Handle(LoginRequest request, CancellationToken cancellationToken)
@@ -59,7 +63,7 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
             return Results.BadRequest("Invalid email or password");
         }
 
-        var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        var token = _tokenService.CreateToken(appUser, userRole);
 
         var response = new LoginResponse(
             appUser.Id,

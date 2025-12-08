@@ -32,10 +32,12 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
             return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+        var displayName = $"{request.FirstName} {request.LastName}".Trim();
         
         var applicationUser = new ApplicationUser
         {
-            UserName = request.UserName,
+            UserName = displayName,
             Email = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,

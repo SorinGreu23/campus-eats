@@ -4,12 +4,21 @@
     <p class="auth-subtitle">Join us and start ordering</p>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input id="name" type="text" pInputText formControlName="name" placeholder="Mario Rossi" />
-        @if (form.get('name')?.touched && form.get('name')?.invalid) {
-          <small class="error">Name is required</small>
-        }
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First name</label>
+          <input id="firstName" type="text" pInputText formControlName="firstName" placeholder="Mario" />
+          @if (form.get('firstName')?.touched && form.get('firstName')?.invalid) {
+            <small class="error">First name is required</small>
+          }
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last name</label>
+          <input id="lastName" type="text" pInputText formControlName="lastName" placeholder="Rossi" />
+          @if (form.get('lastName')?.touched && form.get('lastName')?.invalid) {
+            <small class="error">Last name is required</small>
+          }
+        </div>
       </div>
 
       <div class="form-group">
@@ -24,6 +33,9 @@
         <div class="form-group">
           <label for="password">Password</label>
           <input id="password" type="password" pInputText formControlName="password" placeholder="••••••" />
+          @if (form.get('password')?.touched && form.get('password')?.invalid) {
+            <small class="error">8+ chars, upper, lower, number, special</small>
+          }
         </div>
         <div class="form-group">
           <label for="confirmPassword">Confirm</label>
@@ -35,6 +47,10 @@
       }
 
       <button pButton type="submit" label="Register" [disabled]="form.invalid || submitting" class="auth-btn"></button>
+
+      @if (error) {
+        <p class="error-banner">{{ error }}</p>
+      }
     </form>
 
     <div class="auth-links">

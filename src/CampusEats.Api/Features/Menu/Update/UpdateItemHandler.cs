@@ -43,10 +43,26 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
             return Results.NotFound($"Menu item with ID '{command.Id}' was not found.");
         }
 
+        // Keep existing category if none provided to satisfy NOT NULL constraint
+        Guid? resolvedCategoryId = command.Request.CategoryId ?? menuItem.CategoryId;
+        if (!resolvedCategoryId.HasValue)
+        {
+            var fallbackCategory = await _context.Categories
+                .OrderBy(c => c.DisplayOrder ?? int.MaxValue)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (fallbackCategory == null)
+            {
+                return Results.BadRequest(new { error = "Category is required but no categories exist." });
+            }
+
+            resolvedCategoryId = fallbackCategory.Id;
+        }
+
         menuItem.Name = command.Request.Name;
         menuItem.Description = command.Request.Description;
         menuItem.Price = command.Request.Price;
-        menuItem.CategoryId = command.Request.CategoryId;
+        menuItem.CategoryId = resolvedCategoryId;
         menuItem.ImageUrl = command.Request.ImageUrl;
         menuItem.PreparationTimeMinutes = command.Request.PreparationTimeMinutes;
         menuItem.IsAvailable = command.Request.IsAvailable;

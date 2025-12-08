@@ -1,0 +1,154 @@
+<div class="kitchen-page">
+  <header class="page-header">
+    <div>
+      <h1>Kitchen</h1>
+      <p class="subtitle">Manage menu items and keep pending orders moving.</p>
+    </div>
+    <button class="refresh-btn" type="button" (click)="refresh()">Refresh</button>
+  </header>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Pending Orders</h2>
+        <p class="subtitle">Mark orders as completed when ready.</p>
+      </div>
+      <div class="status-pill" [class.error]="ordersError()">
+        @if (ordersLoading()) { Loading... }
+        @else if (ordersError()) { {{ ordersError() }} }
+        @else { {{ pendingOrders().length }} pending }
+      </div>
+    </div>
+
+    @if (ordersLoading()) {
+      <div class="empty">Loading pending orders...</div>
+    } @else if (ordersError()) {
+      <div class="empty error">{{ ordersError() }}</div>
+    } @else if (pendingOrders().length === 0) {
+      <div class="empty">No pending orders right now.</div>
+    } @else {
+      <div class="orders-grid">
+        @for (order of pendingOrders(); track order.id) {
+          <article class="order-card">
+            <header class="order-card__head">
+              <div>
+                <div class="order-number">#{{ order.orderNumber || order.id }}</div>
+                <div class="order-total">Total: {{ order.total | number:'1.2-2' }}</div>
+              </div>
+              <button class="complete-btn" type="button" (click)="markOrderComplete(order.id)">
+                Complete
+              </button>
+            </header>
+            <ul class="order-items">
+              @for (item of order.items; track item.id) {
+                <li>
+                  <div class="item-name">{{ item.menuItemName }}</div>
+                  <div class="item-meta">x{{ item.quantity }} · {{ item.subtotal | number:'1.2-2' }}</div>
+                  @if (item.specialInstructions) {
+                    <div class="item-notes">{{ item.specialInstructions }}</div>
+                  }
+                </li>
+              }
+            </ul>
+            @if (order.deliveryInstructions) {
+              <div class="order-note">{{ order.deliveryInstructions }}</div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>{{ editingId() ? 'Edit Menu Item' : 'Add Menu Item' }}</h2>
+        <p class="subtitle">Create new dishes or update existing ones.</p>
+      </div>
+      @if (editingId()) {
+        <button class="ghost" type="button" (click)="cancelEdit()">Cancel edit</button>
+      }
+    </div>
+
+    <form class="menu-form" [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-grid">
+        <label>
+          <span>Name</span>
+          <input formControlName="name" type="text" placeholder="e.g. Veggie Burrito" />
+        </label>
+        <label>
+          <span>Price</span>
+          <input formControlName="price" type="number" min="0" step="0.01" />
+        </label>
+        <label>
+          <span>Prep Time (min)</span>
+          <input formControlName="preparationTimeMinutes" type="number" min="0" step="1" />
+        </label>
+        <label>
+          <span>Calories</span>
+          <input formControlName="calories" type="number" min="0" step="1" />
+        </label>
+        <label class="full">
+          <span>Description</span>
+          <textarea formControlName="description" rows="2" placeholder="Optional description"></textarea>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" formControlName="isAvailable" />
+          <span>Available</span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary" type="submit" [disabled]="form.invalid || menuLoading()">
+          {{ editingId() ? 'Save Changes' : 'Add Item' }}
+        </button>
+        <button class="ghost" type="button" (click)="refresh()">Reload menu</button>
+      </div>
+      @if (menuError()) {
+        <div class="form-error">{{ menuError() }}</div>
+      }
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Menu Items</h2>
+        <p class="subtitle">Tap an item to edit or remove.</p>
+      </div>
+      <div class="status-pill" [class.error]="menuError()">
+        @if (menuLoading()) { Loading... }
+        @else if (menuError()) { {{ menuError() }} }
+        @else { {{ menuItems().length }} items }
+      </div>
+    </div>
+
+    @if (menuLoading()) {
+      <div class="empty">Loading menu...</div>
+    } @else if (menuError()) {
+      <div class="empty error">{{ menuError() }}</div>
+    } @else if (menuItems().length === 0) {
+      <div class="empty">No menu items yet.</div>
+    } @else {
+      <div class="menu-grid">
+        @for (item of menuItems(); track item.id) {
+          <article class="menu-card" (click)="editItem(item)">
+            <header>
+              <h3>{{ item.name }}</h3>
+              <span class="badge" [class.offline]="!item.isAvailable">{{ item.isAvailable ? 'Available' : 'Unavailable' }}</span>
+            </header>
+            <p class="description">{{ item.description || 'No description' }}</p>
+            <div class="meta">
+              <span>${{ item.price | number:'1.2-2' }}</span>
+              @if (item.preparationTimeMinutes) {<span>{{ item.preparationTimeMinutes }} min</span>}
+            </div>
+            <div class="actions">
+              <button class="ghost" type="button" (click)="editItem(item); $event.stopPropagation();">Edit</button>
+              <button class="danger" type="button" (click)="deleteItem(item.id); $event.stopPropagation();">Delete</button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</div>

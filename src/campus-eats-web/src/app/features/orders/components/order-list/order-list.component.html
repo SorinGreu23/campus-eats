@@ -11,7 +11,21 @@
       </button>
     </header>
 
-    @if (!showCompleted()) {
+    @if (loading()) {
+      <section class="orders-section">
+        <div class="empty-state">
+          <i class="pi pi-spin pi-spinner empty-icon"></i>
+          <p class="empty-message">Loading your orders...</p>
+        </div>
+      </section>
+    } @else if (error()) {
+      <section class="orders-section">
+        <div class="empty-state">
+          <i class="pi pi-exclamation-triangle empty-icon"></i>
+          <p class="empty-message">{{ error() }}</p>
+        </div>
+      </section>
+    } @else if (!showCompleted()) {
       <section class="orders-section">
         <div class="section-header">
           <h2 class="section-title">Active Orders</h2>

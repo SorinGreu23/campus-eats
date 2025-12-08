@@ -31,6 +31,9 @@ export class MenuListComponent {
   selectedMenuItem = signal<MenuItem | null>(null);
 
   categories = this.menuService.categories;
+  loading = this.menuService.loading;
+  error = this.menuService.error;
+  menuItems = this.menuService.menuItems;
   
   filteredMenuItems = computed(() => {
     const categoryId = this.selectedCategoryId();
@@ -38,7 +41,7 @@ export class MenuListComponent {
     let items = this.menuService.menuItems();
 
     if (categoryId) {
-      items = items.filter(item => item.categoryId === categoryId);
+      items = items.filter(item => item.categoryName === categoryId);
     }
 
     if (search) {
@@ -50,6 +53,10 @@ export class MenuListComponent {
 
     return items;
   });
+
+  constructor() {
+    this.menuService.loadMenuItems();
+  }
 
   selectCategory(categoryId: string | null): void {
     this.selectedCategoryId.set(categoryId);

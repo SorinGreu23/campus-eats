@@ -99,6 +99,83 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.65rem 1rem;
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      border: 3px solid #16a34a;
+      border-radius: 999px;
+      box-shadow: 0 4px 0 #15803d;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      font-weight: 800;
+      color: #14532d;
+      font-family: 'Fredoka', sans-serif;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #15803d;
+      }
+
+      .pill-greeting {
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #166534;
+      }
+
+      .pill-name {
+        font-size: 1rem;
+      }
+
+      i {
+        font-size: 0.85rem;
+        color: #166534;
+      }
+    }
+
+    .user-menu {
+      position: absolute;
+      right: 0.5rem;
+      top: 100%;
+      margin-top: 0.4rem;
+      background: #ffffff;
+      border: 3px solid #16a34a;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      padding: 0.35rem;
+      min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      z-index: 1100;
+
+      .user-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 0.85rem;
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-weight: 700;
+        color: #14532d;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
+        font-family: 'Fredoka', sans-serif;
+
+        i { color: #16a34a; }
+
+        &:hover {
+          background: #dcfce7;
+          transform: translateX(2px);
+        }
+      }
+    }
 
   .cart-button-wrapper {
     position: relative;

@@ -15,6 +15,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/orders/components/order-list/order-list.component').then(m => m.OrderListComponent)
   },
   {
+    path: 'kitchen',
+    loadComponent: () => import('./features/kitchen/components/kitchen-dashboard/kitchen-dashboard.component').then(m => m.KitchenDashboardComponent)
+  },
+  {
     path: 'loyalty',
     loadComponent: () => import('./features/loyalty/components/loyalty-dashboard/loyalty-dashboard.component').then(m => m.LoyaltyDashboardComponent)
   },

@@ -48,7 +48,7 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
             appUser.LastName ?? string.Empty,
             appUser.UserName!,
             userRole,
-            _tokenService.CreateToken(appUser)
+            _tokenService.CreateToken(appUser, userRole)
         ));
     }
 }

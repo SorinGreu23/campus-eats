@@ -14,6 +14,9 @@
       <a routerLink="/orders" routerLinkActive="active" class="nav-link">
         <span>Orders</span>
       </a>
+      <a routerLink="/kitchen" routerLinkActive="active" class="nav-link">
+        <span>Kitchen</span>
+      </a>
       <a routerLink="/loyalty" routerLinkActive="active" class="nav-link">
         <span>Rewards</span>
       </a>
@@ -33,7 +36,24 @@
           <span class="cart-count-badge">{{ cartService.itemCount() }}</span>
         }
       </div>
-      <button pButton class="login-button" icon="pi pi-user" label="Login" outlined routerLink="/login"></button>
+
+      @if (authState.isLoggedIn()) {
+        <div class="user-pill" (click)="toggleUserMenu()">
+          <span class="pill-greeting">Hello</span>
+          <span class="pill-name">{{ authState.displayName() || 'User' }}</span>
+          <i class="pi pi-chevron-down"></i>
+        </div>
+        @if (showUserMenu()) {
+          <div class="user-menu">
+            <button class="user-menu-item" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        }
+      } @else {
+        <button pButton class="login-button" icon="pi pi-user" label="Login" outlined routerLink="/login"></button>
+      }
     </div>
   </div>
 </nav>

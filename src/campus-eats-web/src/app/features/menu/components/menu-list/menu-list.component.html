@@ -37,7 +37,17 @@
 
   <!-- Menu Items Grid -->
   <div class="menu-items-section">
-    @if (filteredMenuItems().length === 0) {
+    @if (loading()) {
+      <div class="no-results">
+        <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+        <p>Loading menu...</p>
+      </div>
+    } @else if (error()) {
+      <div class="no-results">
+        <i class="pi pi-exclamation-triangle" style="font-size: 3rem; color: var(--red-500);"></i>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (filteredMenuItems().length === 0) {
       <div class="no-results">
         <i class="pi pi-search" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
         <p>No items found matching your search</p>

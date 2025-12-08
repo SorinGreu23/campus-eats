@@ -61,8 +61,8 @@ export class OrderDetailComponent {
   DeliveryMethod = DeliveryMethod;
 
   statusConfig = computed(() => {
-    const status = this.order()?.status;
-    if (!status) return null;
+    const status = this.order()?.status as OrderStatus | undefined;
+    if (!status) return { color: 'info', icon: 'pi-info-circle', label: 'Unknown' };
 
     const configs = {
       [OrderStatus.Pending]: { color: 'warning', icon: 'pi-clock', label: 'Pending' },
@@ -78,7 +78,7 @@ export class OrderDetailComponent {
 
   paymentStatusConfig = computed(() => {
     const status = this.order()?.paymentStatus;
-    if (!status) return null;
+    if (!status) return { color: 'info', label: 'N/A' };
 
     const configs = {
       [PaymentStatus.Pending]: { color: 'warning', label: 'Pending' },
@@ -90,7 +90,7 @@ export class OrderDetailComponent {
   });
 
   canCancel = computed(() => {
-    const status = this.order()?.status;
+    const status = this.order()?.status as OrderStatus | undefined;
     return status === OrderStatus.Pending || status === OrderStatus.Confirmed;
   });
 

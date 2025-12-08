@@ -22,33 +22,36 @@ export enum DeliveryMethod {
 
 export interface OrderItem {
   id: string;
-  orderId: string;
-  menuItemId: string;
+  orderId?: string;
+  menuItemId?: string;
   menuItemName: string;
   menuItemImage?: string;
+  menuItemDescription?: string;
   quantity: number;
   unitPrice: number;
-  totalPrice: number;
+  subtotal: number;
   specialInstructions?: string;
 }
 
 export interface Order {
   id: string;
-  orderNumber: string;
-  userId: string;
-  status: OrderStatus;
-  deliveryMethod: DeliveryMethod;
-  deliveryAddress?: string;
-  paymentStatus: PaymentStatus;
+  orderNumber?: string;
+  userId?: string;
+  status?: OrderStatus | string;
+  orderType?: DeliveryMethod | string;
+  paymentStatus?: PaymentStatus;
   subtotal: number;
-  taxAmount: number;
-  deliveryFee: number;
-  totalAmount: number;
+  tax: number;
+  discount: number;
+  total: number;
+  deliveryInstructions?: string;
+  pickupTime?: Date;
   estimatedDeliveryTime?: Date;
-  placedAt: Date;
+  placedAt?: Date;
   confirmedAt?: Date;
   completedAt?: Date;
   cancelledAt?: Date;
+  cancellationReason?: string;
   items: OrderItem[];
   specialInstructions?: string;
 }

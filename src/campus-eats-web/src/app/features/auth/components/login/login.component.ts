@@ -4,6 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
+import { finalize } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { AuthStateService } from '../../../../shared/services/auth-state.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +18,8 @@ import { ButtonModule } from 'primeng/button';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private authState = inject(AuthStateService);
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -22,14 +27,29 @@ export class LoginComponent {
   });
 
   submitting = false;
+  error: string | null = null;
 
-  async onSubmit() {
-    if (this.form.invalid) return;
+  onSubmit() {
+    if (this.form.invalid || this.submitting) return;
     this.submitting = true;
-    // Simulate auth; replace with service call
-    setTimeout(() => {
-      this.submitting = false;
-      this.router.navigateByUrl('/menu');
-    }, 700);
+    this.error = null;
+
+    const credentials = this.form.getRawValue() as { email: string; password: string };
+
+    this.authService.login(credentials).pipe(
+      finalize(() => {
+        this.submitting = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        const displayName = `${response.firstName} ${response.lastName}`.trim();
+        this.authState.setSession(displayName, response.token);
+        this.router.navigateByUrl('/menu');
+      },
+      error: (err: unknown) => {
+        const message = typeof (err as any)?.error === 'string' ? (err as any).error : 'Login failed. Please try again.';
+        this.error = message;
+      }
+    });
   }
 }
