@@ -2,17 +2,32 @@ using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
+using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Users;
 using CampusEats.Api.Features.Menu;
-using CampusEats.Api.Features.Kitchen;
+using CampusEats.Api.Features.Allergens;
+using CampusEats.Api.Features.DietaryRestrictions;
+using CampusEats.Api.Features.Orders;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
-using CampusEats.Api.Data.Entities;
 
-Env.Load();
+// Load .env file - check local directory first, then solution root
+var localEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(localEnvPath))
+{
+    Env.Load(localEnvPath);
+}
+else
+{
+    var solutionEnvPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+    if (File.Exists(solutionEnvPath))
+    {
+        Env.Load(solutionEnvPath);
+    }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +74,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    await campusDb.Database.MigrateAsync();
+    
+    try
+    {
+        await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
+        await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
+        await CategoriesSeeder.SeedCategories(campusDb);
+        await MenuItemsSeeder.SeedMenuItems(campusDb);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Seeder warning: {ex.Message}");
+    }
     
     var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await identityDb.Database.MigrateAsync();
@@ -79,52 +105,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapUserEndpoints();
-// Map feature endpoints
+app.MapLoyaltyPointsEndpoints();
 app.MapMenuEndpoints();
-
-app.MapGet("/api/menuitems", async (CampusDbContext db) =>
-    await db.MenuItems.ToListAsync())
-    .WithName("GetMenuItems")
-    .WithTags("MenuItems");
-
-app.MapGet("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
-    await db.MenuItems.FindAsync(id) is MenuItem item ? Results.Ok(item) : Results.NotFound())
-    .WithName("GetMenuItemById")
-    .WithTags("MenuItems");
-
-app.MapPut("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id, MenuItem update) =>
-{
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
-
-    item.Name = update.Name;
-    item.Description = update.Description;
-    item.Price = update.Price;
-    item.CategoryId = update.CategoryId;
-    item.ImageUrl = update.ImageUrl;
-    item.PreparationTimeMinutes = update.PreparationTimeMinutes;
-    item.IsAvailable = update.IsAvailable;
-    item.Calories = update.Calories;
-    item.UpdatedAt = DateTimeOffset.UtcNow;
-
-    await db.SaveChangesAsync();
-    return Results.NoContent();
-})
-    .WithName("UpdateMenuItem")
-    .WithTags("MenuItems");
-
-app.MapDelete("/api/menuitems/{id:guid}", async (CampusDbContext db, Guid id) =>
-{
-    var item = await db.MenuItems.FindAsync(id);
-    if (item == null) return Results.NotFound();
-    db.MenuItems.Remove(item);
-    await db.SaveChangesAsync();
-    return Results.NoContent();
-})
-    .WithName("DeleteMenuItem")
-    .WithTags("MenuItems");
-
-// Kitchen endpoints
-app.MapKitchenEndpoints();
+app.MapAllergenEndpoints();
+app.MapDietaryRestrictionEndpoints();
+app.MapOrdersEndpoints();
 
 app.Run();

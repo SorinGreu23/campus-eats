@@ -12,11 +12,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.OrderNumber).HasMaxLength(100);
         builder.Property(x => x.Status).HasMaxLength(64);
+        builder.Property(x => x.OrderType).HasColumnName("order_type").HasMaxLength(32);
         builder.Property(x => x.Subtotal).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Tax).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Discount).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Total).HasColumnType("decimal(18,2)");
-        builder.Property(x => x.SpecialInstructions);
+        builder.Property(x => x.DeliveryInstructions);
         builder.Property(x => x.PickupTime);
         builder.Property(x => x.CompletedAt);
         builder.Property(x => x.CancelledAt);

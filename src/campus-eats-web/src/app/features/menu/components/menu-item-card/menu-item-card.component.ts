@@ -1,20 +1,47 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, output, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MenuItem } from '../../models/menu-item.model';
+import { CartService } from '../../../../shared/services/cart.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-menu-item-card',
-  standalone: true,
   imports: [ButtonModule, TagModule],
   templateUrl: './menu-item-card.component.html',
-  styleUrl: './menu-item-card.component.scss'
+  styleUrl: './menu-item-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuItemCardComponent {
-  @Input({ required: true }) menuItem!: MenuItem;
+  menuItem = input.required<MenuItem>();
+  itemClick = output<MenuItem>();
+  
+  private cartService = inject(CartService);
+  private messageService = inject(MessageService);
+  isAdding = signal(false);
 
-  addToCart() {
-    // TODO: Implement cart functionality
-    console.log('Adding to cart:', this.menuItem.name);
+  addToCart(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.isAdding.set(true);
+    this.cartService.addItem(this.menuItem(), 1);
+    
+    // Show success notification
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Added to Cart!',
+      detail: `${this.menuItem().name} has been added to your cart`,
+      life: 3000
+    });
+    
+    // Reset animation state after a short delay
+    setTimeout(() => {
+      this.isAdding.set(false);
+    }, 800);
+  }
+
+  onCardClick(): void {
+    this.itemClick.emit(this.menuItem());
   }
 }

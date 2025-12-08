@@ -1,0 +1,126 @@
+<p-dialog 
+  [(visible)]="isVisible"
+  [modal]="true" 
+  [style]="{width: '90vw', maxWidth: '800px'}"
+  [dismissableMask]="true"
+  [closeOnEscape]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [focusOnShow]="false"
+  [blockScroll]="true"
+  (onHide)="onDialogHide()"
+  [contentStyle]="{padding: '0', overflow: 'hidden', borderRadius: '25px'}"
+  styleClass="menu-item-detail-dialog"
+>
+  @if (menuItem(); as item) {
+    <div class="menu-item-detail-content">
+      <!-- Header with Image -->
+      <div class="detail-header">
+        <img 
+          [src]="item.imageUrl || 'https://via.placeholder.com/800x400?text=No+Image'" 
+          [alt]="item.name"
+          class="detail-image"
+        />
+        @if (!item.isAvailable) {
+          <div class="unavailable-overlay">
+            <span class="unavailable-badge">Unavailable</span>
+          </div>
+        }
+      </div>
+
+      <!-- Content Section -->
+      <div class="detail-body">
+        <!-- Title and Price -->
+        <div class="item-header">
+          <h2 class="item-name">{{ item.name }}</h2>
+          <span class="item-price">{{ item.price.toFixed(2) }} RON</span>
+        </div>
+
+        <!-- Description -->
+        <p class="item-description">{{ item.description }}</p>
+
+        <!-- Meta Information -->
+        <div class="item-meta">
+          @if (item.calories) {
+            <div class="meta-item">
+              <i class="pi pi-bolt"></i>
+              <span>{{ item.calories }} kcal</span>
+            </div>
+          }
+          @if (item.preparationTimeMinutes) {
+            <div class="meta-item">
+              <i class="pi pi-clock"></i>
+              <span>{{ item.preparationTimeMinutes }} min prep time</span>
+            </div>
+          }
+          @if (item.category) {
+            <div class="meta-item">
+              <i class="pi pi-tag"></i>
+              <span>{{ item.category }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Allergens & Dietary Info -->
+        @if (item.allergens && item.allergens.length > 0) {
+          <div class="allergens-section">
+            <h3 class="section-title">
+              <i class="pi pi-exclamation-triangle"></i>
+              Allergens
+            </h3>
+            <div class="allergen-tags">
+              @for (allergen of item.allergens; track allergen) {
+                <span class="allergen-tag">{{ allergen }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (item.dietaryTags && item.dietaryTags.length > 0) {
+          <div class="dietary-section">
+            <h3 class="section-title">
+              <i class="pi pi-check-circle"></i>
+              Dietary Information
+            </h3>
+            <div class="dietary-tags">
+              @for (tag of item.dietaryTags; track tag) {
+                <span class="dietary-tag">{{ tag }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Quantity Selector and Actions -->
+        <div class="actions-section">
+          <div class="quantity-selector">
+            <button 
+              class="quantity-btn" 
+              (click)="decreaseQuantity()"
+              [disabled]="quantity() <= 1"
+            >
+              <i class="pi pi-minus"></i>
+            </button>
+            <span class="quantity-display">{{ quantity() }}</span>
+            <button class="quantity-btn" (click)="increaseQuantity()">
+              <i class="pi pi-plus"></i>
+            </button>
+          </div>
+
+          <button 
+            class="add-to-cart-btn"
+            [disabled]="!item.isAvailable"
+            (click)="onAddToCart()"
+          >
+            <i class="pi pi-shopping-cart"></i>
+            <span>Add to Cart - {{ getTotalPrice().toFixed(2) }} RON</span>
+          </button>
+
+          <button class="close-btn" (click)="onClose()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</p-dialog>

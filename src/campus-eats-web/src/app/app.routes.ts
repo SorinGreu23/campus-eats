@@ -11,6 +11,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/menu/components/menu-list/menu-list.component').then(m => m.MenuListComponent)
   },
   {
+    path: 'orders',
+    loadComponent: () => import('./features/orders/components/order-list/order-list.component').then(m => m.OrderListComponent)
+  },
+  {
+    path: 'loyalty',
+    loadComponent: () => import('./features/loyalty/components/loyalty-dashboard/loyalty-dashboard.component').then(m => m.LoyaltyDashboardComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/components/login/login.component').then(m => m.LoginComponent)
   },

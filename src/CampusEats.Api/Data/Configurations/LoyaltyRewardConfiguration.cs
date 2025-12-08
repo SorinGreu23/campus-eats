@@ -17,5 +17,6 @@ public class LoyaltyRewardConfiguration : IEntityTypeConfiguration<LoyaltyReward
         builder.Property(x => x.IsActive).HasDefaultValue(true);
         builder.Property(x => x.ValidFrom);
         builder.Property(x => x.ValidUntil);
+        builder.Property(x => x.MinimumTier).HasMaxLength(50);
     }
 }

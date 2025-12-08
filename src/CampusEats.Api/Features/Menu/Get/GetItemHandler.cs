@@ -18,6 +18,10 @@ public class GetItemHandler : IRequestHandler<GetItemRequest, IResult>
     {
         var menuItem = await _context.MenuItems
             .Include(m => m.Category)
+            .Include(m => m.MenuItemAllergens)
+                .ThenInclude(mia => mia.Allergen)
+            .Include(m => m.MenuItemDietaryRestrictions)
+                .ThenInclude(midr => midr.DietaryRestriction)
             .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
 
         if (menuItem == null)
@@ -36,7 +40,19 @@ public class GetItemHandler : IRequestHandler<GetItemRequest, IResult>
             menuItem.IsAvailable,
             menuItem.Calories,
             menuItem.CreatedAt,
-            menuItem.UpdatedAt
+            menuItem.UpdatedAt,
+            menuItem.MenuItemAllergens?.Select(mia => new AllergenDto(
+                mia.Allergen.Id,
+                mia.Allergen.Name,
+                mia.Allergen.Description,
+                mia.Allergen.Icon
+            )).ToList(),
+            menuItem.MenuItemDietaryRestrictions?.Select(midr => new DietaryRestrictionDto(
+                midr.DietaryRestriction.Id,
+                midr.DietaryRestriction.Name,
+                midr.DietaryRestriction.Description,
+                midr.DietaryRestriction.Icon
+            )).ToList()
         );
 
         return Results.Ok(response);

@@ -22,79 +22,98 @@ namespace CampusEats.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.Allergen", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("allergens", (string)null);
+                });
+
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("DisplayOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("display_order");
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_categories");
+                    b.HasKey("Id");
 
                     b.ToTable("categories", (string)null);
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.DietaryRestriction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("dietary_restrictions", (string)null);
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.InventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("CurrentQuantity")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("current_quantity");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("MinimumQuantity")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("minimum_quantity");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<string>("Unit")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("unit");
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_inventory_items");
+                    b.HasKey("Id");
 
                     b.ToTable("inventory_items", (string)null);
                 });
@@ -103,43 +122,27 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("InventoryItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("inventory_item_id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("PerformedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("performed_by");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("quantity");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("text")
-                        .HasColumnName("reason");
+                        .HasColumnType("text");
 
                     b.Property<string>("TransactionType")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("transaction_type");
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.HasKey("Id");
 
-                    b.HasKey("Id")
-                        .HasName("p_k_inventory_transactions");
-
-                    b.HasIndex("InventoryItemId")
-                        .HasDatabaseName("i_x_inventory_transactions_inventory_item_id");
+                    b.HasIndex("InventoryItemId");
 
                     b.ToTable("inventory_transactions", (string)null);
                 });
@@ -148,97 +151,97 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("LifetimePoints")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("lifetime_points");
+                        .HasDefaultValue(0);
 
                     b.Property<int>("PointsBalance")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("points_balance");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Tier")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("tier");
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_loyalty_accounts");
+                    b.HasKey("Id");
 
                     b.ToTable("loyalty_accounts", (string)null);
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyClaim", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ClaimedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LoyaltyAccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("RewardId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoyaltyAccountId");
+
+                    b.HasIndex("RewardId");
+
+                    b.ToTable("LoyaltyClaim", (string)null);
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyReward", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("DiscountValue")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("discount_value");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<Guid?>("MenuItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("menu_item_id");
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MinimumTier")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("PointsCost")
-                        .HasColumnType("integer")
-                        .HasColumnName("points_cost");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("ValidFrom")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("valid_from");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("ValidUntil")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("valid_until");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id")
-                        .HasName("p_k_loyalty_rewards");
+                    b.HasKey("Id");
 
                     b.ToTable("loyalty_rewards", (string)null);
                 });
@@ -247,108 +250,103 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("Calories")
-                        .HasColumnType("integer")
-                        .HasColumnName("calories");
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                        .HasColumnType("text");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("character varying(512)");
 
                     b.Property<bool>("IsAvailable")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_available");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<int?>("PreparationTimeMinutes")
-                        .HasColumnType("integer")
-                        .HasColumnName("preparation_time_minutes");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("price");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.HasKey("Id");
 
-                    b.HasKey("Id")
-                        .HasName("p_k_menu_items");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("i_x_menu_items_category_id");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("menu_items", (string)null);
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemAllergen", b =>
+                {
+                    b.Property<Guid>("MenuItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AllergenId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MenuItemId", "AllergenId");
+
+                    b.HasIndex("AllergenId");
+
+                    b.ToTable("menu_item_allergens", (string)null);
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemDietaryRestriction", b =>
+                {
+                    b.Property<Guid>("MenuItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DietaryRestrictionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MenuItemId", "DietaryRestrictionId");
+
+                    b.HasIndex("DietaryRestrictionId");
+
+                    b.ToTable("menu_item_dietary_restrictions", (string)null);
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Notification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsRead")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_read");
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Message")
-                        .HasColumnType("text")
-                        .HasColumnName("message");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("title");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("type");
+                        .HasColumnType("character varying(128)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_notifications");
+                    b.HasKey("Id");
 
                     b.ToTable("notifications", (string)null);
                 });
@@ -357,72 +355,52 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CancellationReason")
-                        .HasColumnType("text")
-                        .HasColumnName("cancellation_reason");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cancelled_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                    b.Property<string>("DeliveryInstructions")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("discount");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("OrderNumber")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("order_number");
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OrderType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("order_type");
 
                     b.Property<DateTimeOffset?>("PickupTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("pickup_time");
-
-                    b.Property<string>("SpecialInstructions")
-                        .HasColumnType("text")
-                        .HasColumnName("special_instructions");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("status");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("subtotal");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tax")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("tax");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("total");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_orders");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("i_x_orders_user_id");
+                    b.HasKey("Id");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -431,49 +409,31 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("MenuItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("menu_item_id");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("integer")
-                        .HasColumnName("quantity");
+                        .HasColumnType("integer");
 
                     b.Property<string>("SpecialInstructions")
-                        .HasColumnType("text")
-                        .HasColumnName("special_instructions");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("subtotal");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("unit_price");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.HasKey("Id");
 
-                    b.HasKey("Id")
-                        .HasName("p_k_order_items");
+                    b.HasIndex("MenuItemId");
 
-                    b.HasIndex("MenuItemId")
-                        .HasDatabaseName("i_x_order_items_menu_item_id");
-
-                    b.HasIndex("OrderId")
-                        .HasDatabaseName("i_x_order_items_order_id");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("order_items", (string)null);
                 });
@@ -482,108 +442,40 @@ namespace CampusEats.Api.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("payment_method");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("status");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("TransactionId")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("transaction_id");
+                        .HasColumnType("character varying(256)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.HasKey("Id")
-                        .HasName("p_k_payments");
+                    b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.ToTable("payments", (string)null);
-                });
-
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("first_name");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("PasswordHash")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("password_hash");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("phone");
-
-                    b.Property<string>("Role")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("role");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("p_k_users");
-
-                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.InventoryTransaction", b =>
@@ -591,10 +483,28 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.InventoryItem", "InventoryItem")
                         .WithMany()
                         .HasForeignKey("InventoryItemId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_inventory_transactions_inventory_items_inventory_item_id");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("InventoryItem");
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.LoyaltyClaim", b =>
+                {
+                    b.HasOne("CampusEats.Api.Data.Entities.LoyaltyAccount", "LoyaltyAccount")
+                        .WithMany()
+                        .HasForeignKey("LoyaltyAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CampusEats.Api.Data.Entities.LoyaltyReward", "LoyaltyReward")
+                        .WithMany()
+                        .HasForeignKey("RewardId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("LoyaltyAccount");
+
+                    b.Navigation("LoyaltyReward");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItem", b =>
@@ -602,21 +512,47 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_menu_items_categories_category_id");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("CampusEats.Api.Data.Entities.Order", b =>
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemAllergen", b =>
                 {
-                    b.HasOne("CampusEats.Api.Data.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_orders__users_user_id");
+                    b.HasOne("CampusEats.Api.Data.Entities.Allergen", "Allergen")
+                        .WithMany("MenuItemAllergens")
+                        .HasForeignKey("AllergenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
+                        .WithMany("MenuItemAllergens")
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Allergen");
+
+                    b.Navigation("MenuItem");
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItemDietaryRestriction", b =>
+                {
+                    b.HasOne("CampusEats.Api.Data.Entities.DietaryRestriction", "DietaryRestriction")
+                        .WithMany("MenuItemDietaryRestrictions")
+                        .HasForeignKey("DietaryRestrictionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
+                        .WithMany("MenuItemDietaryRestrictions")
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DietaryRestriction");
+
+                    b.Navigation("MenuItem");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.OrderItem", b =>
@@ -624,18 +560,33 @@ namespace CampusEats.Api.Migrations
                     b.HasOne("CampusEats.Api.Data.Entities.MenuItem", "MenuItem")
                         .WithMany()
                         .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("f_k_order_items_menu_items_menu_item_id");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CampusEats.Api.Data.Entities.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("f_k_order_items_orders_order_id");
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MenuItem");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.Allergen", b =>
+                {
+                    b.Navigation("MenuItemAllergens");
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.DietaryRestriction", b =>
+                {
+                    b.Navigation("MenuItemDietaryRestrictions");
+                });
+
+            modelBuilder.Entity("CampusEats.Api.Data.Entities.MenuItem", b =>
+                {
+                    b.Navigation("MenuItemAllergens");
+
+                    b.Navigation("MenuItemDietaryRestrictions");
                 });
 
             modelBuilder.Entity("CampusEats.Api.Data.Entities.Order", b =>

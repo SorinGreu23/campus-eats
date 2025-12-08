@@ -1,0 +1,136 @@
+<div class="loyalty-container">
+  <!-- Header Section -->
+  <div class="loyalty-header">
+    <h1 class="page-title">Rewards Program</h1>
+    <p class="page-subtitle">Earn points with every order and unlock exclusive rewards!</p>
+  </div>
+
+  @if (loyaltyService.account(); as account) {
+    <!-- Points Card -->
+    <div class="points-card">
+      <div class="points-display">
+        <div class="points-icon">
+          <i class="pi pi-gift"></i>
+        </div>
+        <div class="points-info">
+          <span class="points-label">Available Points</span>
+          <span class="points-value">{{ loyaltyService.pointsBalance() }}</span>
+        </div>
+      </div>
+      
+      <div class="tier-badge" [style.background]="tierColor()">
+        <i [class]="'pi ' + tierIcon()"></i>
+        <span>{{ loyaltyService.tier() }}</span>
+      </div>
+    </div>
+
+    <!-- Tier Progress -->
+    <div class="tier-progress-card">
+      <div class="progress-header">
+        <h3>Tier Progress</h3>
+        <span class="lifetime-points">{{ account.lifetimePoints }} lifetime points</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="tierProgress().percentage" [style.background]="tierColor()"></div>
+      </div>
+      <div class="progress-footer">
+        @if (loyaltyService.tier() !== 'Platinum') {
+          <span>{{ tierProgress().current }} / {{ tierProgress().next }} points to next tier</span>
+        } @else {
+          <span>🎉 Maximum tier reached!</span>
+        }
+      </div>
+    </div>
+
+    <!-- My Rewards Section -->
+    @if (loyaltyService.myRewards().length > 0) {
+      <div class="my-rewards-section">
+        <h2 class="section-title">
+          <i class="pi pi-ticket"></i>
+          My Rewards
+        </h2>
+        <div class="rewards-grid">
+          @for (userReward of loyaltyService.myRewards(); track userReward.id) {
+            @if (userReward.reward) {
+              <div class="user-reward-card">
+                <img 
+                  [src]="userReward.reward.imageUrl || 'https://via.placeholder.com/300x200?text=Reward'" 
+                  [alt]="userReward.reward.name"
+                  class="reward-image"
+                />
+                <div class="reward-content">
+                  <h3 class="reward-name">{{ userReward.reward.name }}</h3>
+                  <p class="reward-description">{{ userReward.reward.description }}</p>
+                  @if (userReward.expiresAt) {
+                    <p class="expiry-date">
+                      <i class="pi pi-clock"></i>
+                      Expires: {{ userReward.expiresAt | date:'short' }}
+                    </p>
+                  }
+                  <button class="use-reward-btn">
+                    <i class="pi pi-check-circle"></i>
+                    Use Reward
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Available Rewards -->
+    <div class="rewards-section">
+      <h2 class="section-title">
+        <i class="pi pi-shopping-bag"></i>
+        Available Rewards
+      </h2>
+      <div class="rewards-grid">
+        @for (reward of loyaltyService.rewards(); track reward.id) {
+          <app-reward-card 
+            [reward]="reward"
+            [userPoints]="loyaltyService.pointsBalance()"
+            (redeem)="handleRedeemReward($event)"
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="transactions-section">
+      <h2 class="section-title">
+        <i class="pi pi-history"></i>
+        Recent Activity
+      </h2>
+      <div class="transactions-list">
+        @for (transaction of loyaltyService.recentTransactions(); track transaction.id) {
+          <div class="transaction-item" [class]="'type-' + transaction.type.toLowerCase()">
+            <div class="transaction-icon">
+              @switch (transaction.type) {
+                @case (TransactionType.Earned) {
+                  <i class="pi pi-arrow-up"></i>
+                }
+                @case (TransactionType.Redeemed) {
+                  <i class="pi pi-arrow-down"></i>
+                }
+                @case (TransactionType.Bonus) {
+                  <i class="pi pi-star-fill"></i>
+                }
+                @case (TransactionType.Expired) {
+                  <i class="pi pi-times-circle"></i>
+                }
+              }
+            </div>
+            <div class="transaction-info">
+              <span class="transaction-description">{{ transaction.description }}</span>
+              <span class="transaction-date">{{ transaction.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="transaction-points" [class.positive]="transaction.points > 0" [class.negative]="transaction.points < 0">
+              {{ transaction.points > 0 ? '+' : '' }}{{ transaction.points }} pts
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -9,6 +9,8 @@ export interface MenuItem {
   isAvailable: boolean;
   calories?: number;
   category?: Category;
+  allergens?: string[];
+  dietaryTags?: string[];
 }
 
 export interface Category {
