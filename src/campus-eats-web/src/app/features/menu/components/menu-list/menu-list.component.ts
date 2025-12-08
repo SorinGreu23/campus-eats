@@ -41,7 +41,11 @@ export class MenuListComponent {
     let items = this.menuService.menuItems();
 
     if (categoryId) {
-      items = items.filter(item => item.categoryName === categoryId);
+      // Find the category name by ID
+      const category = this.categories().find(c => c.id === categoryId);
+      if (category) {
+        items = items.filter(item => item.categoryName === category.name);
+      }
     }
 
     if (search) {

@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { MenuItem, Category } from '../models/menu-item.model';
 import { AuthStateService } from '../../../shared/services/auth-state.service';
 
+type ApiCategoryDto = {
+  id: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+};
+
 type ApiAllergenDto = {
   id: string;
   name: string;
@@ -59,19 +66,31 @@ export class MenuService {
   menuItems = signal<MenuItem[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  
+  apiCategories = signal<ApiCategoryDto[]>([]);
 
   categories = computed<Category[]>(() => {
-    const seen = new Set<string>();
-    return this.menuItems()
-      .filter(item => !!item.categoryName)
-      .map(item => item.categoryName as string)
-      .filter(name => {
-        if (seen.has(name)) return false;
-        seen.add(name);
-        return true;
-      })
-      .map(name => ({ id: name, name, isActive: true }));
+    return this.apiCategories().map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      isActive: cat.isActive
+    }));
   });
+
+  constructor() {
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.http.get<ApiCategoryDto[]>(`${API_BASE_URL}/categories`).subscribe({
+      next: (response) => {
+        this.apiCategories.set(response);
+      },
+      error: (err) => {
+        console.error('Failed to load categories:', err);
+      }
+    });
+  }
 
   loadMenuItems(force = false): void {
     if (this.loading()) return;

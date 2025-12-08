@@ -30,6 +30,7 @@ export class KitchenDashboardComponent implements OnInit {
   editingId = signal<string | null>(null);
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
+    categoryId: [null as string | null],
     price: [0, [Validators.required, Validators.min(0)]],
     description: [''],
     isAvailable: [true],
@@ -38,6 +39,7 @@ export class KitchenDashboardComponent implements OnInit {
   });
 
   filteredMenu = computed(() => this.menuItems());
+  categories = this.menuService.categories;
 
   ngOnInit(): void {
     this.menuService.loadMenuItems();
@@ -60,8 +62,13 @@ export class KitchenDashboardComponent implements OnInit {
 
   editItem(item: MenuItem): void {
     this.editingId.set(item.id);
+    
+    // Find category ID by name
+    const category = this.categories().find(c => c.name === item.categoryName);
+    
     this.form.patchValue({
       name: item.name,
+      categoryId: category?.id ?? null,
       price: item.price,
       description: item.description,
       isAvailable: item.isAvailable,
@@ -95,7 +102,7 @@ export class KitchenDashboardComponent implements OnInit {
       name: raw.name ?? '',
       description: raw.description ?? undefined,
       price: Number(raw.price ?? 0),
-      categoryId: null,
+      categoryId: raw.categoryId ?? null,
       imageUrl: null,
       preparationTimeMinutes: raw.preparationTimeMinutes ?? null,
       isAvailable: !!raw.isAvailable,
@@ -109,6 +116,7 @@ export class KitchenDashboardComponent implements OnInit {
     this.editingId.set(null);
     this.form.reset({
       name: '',
+      categoryId: null,
       price: 0,
       description: '',
       isAvailable: true,

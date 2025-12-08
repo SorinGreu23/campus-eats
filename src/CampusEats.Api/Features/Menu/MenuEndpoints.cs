@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using CampusEats.Api.Features.Menu.Categories;
 
 namespace CampusEats.Api.Features.Menu;
 
@@ -7,6 +8,15 @@ public static class MenuEndpoints
 {
     public static IEndpointRouteBuilder MapMenuEndpoints(this IEndpointRouteBuilder app)
     {
+        // Categories endpoint
+        app.MapGet("/api/categories", async ([FromServices] IMediator mediator) =>
+        {
+            return await mediator.Send(new GetCategoriesRequest());
+        })
+        .WithName("GetCategories")
+        .WithTags("Categories")
+        .Produces(StatusCodes.Status200OK);
+
         var group = app.MapGroup("/api/menuitems")
             .WithTags("MenuItems");
 

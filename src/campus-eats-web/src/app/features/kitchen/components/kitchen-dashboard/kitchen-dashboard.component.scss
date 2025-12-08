@@ -192,13 +192,20 @@
 }
 
 .form-grid input,
-.form-grid textarea {
+.form-grid textarea,
+.form-grid select {
   padding: 0.55rem 0.65rem;
   border-radius: 10px;
   border: 1px solid #d1d5db;
   background: #fff;
   color: #111827;
   caret-color: #111827;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.form-grid select {
+  cursor: pointer;
 }
 
 .checkbox {
