@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Overview;
 
-public class GetUsersHandler : IRequestHandler<GetUsersRequest, IResult>
+public class GetUsersHandler : IRequestHandler<GetUsersQuery, IResult>
 {
     private readonly IdentityDbContext _identityContext;
 
@@ -14,7 +14,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, IResult>
         _identityContext = identityContext;
     }
 
-    public async Task<IResult> Handle(GetUsersRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
         // Query ApplicationUser (AspNetUsers table) with their roles from AspNetUserRoles
         var users = await _identityContext.Users
