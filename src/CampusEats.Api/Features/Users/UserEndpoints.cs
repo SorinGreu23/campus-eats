@@ -25,7 +25,7 @@ public static class UserEndpoints
             .WithOpenApi();
 
         app.MapGet("/api/users", async (IMediator mediator) =>
-                await mediator.Send(new GetUsersRequest()))
+                await mediator.Send(new GetUsersQuery()))
             .WithName("GetUsers")
             .WithTags("Users")
             .WithOpenApi();
