@@ -58,7 +58,7 @@ public class CreateItemValidatorTests
     }
 
     [Fact]
-    public void Validate_WithNameTooLong_FailsValidation()
+    public void GivenNameTooLong_WhenValidating_ThenFailsValidation()
     {
         // Arrange
         var longName = new string('a', 101);
