@@ -16,12 +16,38 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
 
     public async Task<IResult> Handle(GetItemsRequest request, CancellationToken cancellationToken)
     {
-        var items = await _context.MenuItems
+        var query = _context.MenuItems
             .Include(m => m.Category)
             .Include(m => m.MenuItemAllergens)
                 .ThenInclude(mia => mia.Allergen)
             .Include(m => m.MenuItemDietaryRestrictions)
                 .ThenInclude(midr => midr.DietaryRestriction)
+            .AsQueryable();
+
+        // Filter by category if specified
+        if (request.CategoryId.HasValue)
+        {
+            query = query.Where(m => m.CategoryId == request.CategoryId.Value);
+        }
+
+        // Filter by availability if specified
+        if (request.IsAvailable.HasValue)
+        {
+            query = query.Where(m => m.IsAvailable == request.IsAvailable.Value);
+        }
+
+        // Filter by dietary restrictions if specified
+        // Item must have ALL specified dietary restrictions
+        if (request.DietaryRestrictionIds != null && request.DietaryRestrictionIds.Any())
+        {
+            foreach (var restrictionId in request.DietaryRestrictionIds)
+            {
+                query = query.Where(m => m.MenuItemDietaryRestrictions
+                    .Any(midr => midr.DietaryRestrictionId == restrictionId));
+            }
+        }
+
+        var items = await query
             .Select(m => new GetItemsResponse(
                 m.Id,
                 m.Name,
