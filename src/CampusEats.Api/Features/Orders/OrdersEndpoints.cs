@@ -19,6 +19,7 @@ public static class OrdersEndpoints
                 await mediator.Send(request)
             )
             .WithName("CreateOrder")
+            .RequireAuthorization() // Only authenticated users; handler enforces owner
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
@@ -29,6 +30,7 @@ public static class OrdersEndpoints
                 return await mediator.Send(req);
             })
             .WithName("GetOrdersByUser")
+            .RequireAuthorization() // Admin/Kitchen or owner enforced in handler
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
@@ -38,16 +40,18 @@ public static class OrdersEndpoints
             .WithName("GetPendingOrders")
             .WithTags("Kitchen")
             .WithDescription("Returns all orders that are in Pending or Preparing status")
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
             .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
         group.MapPatch("/{orderId:guid}/cancel", async ([FromRoute] Guid orderId, [FromBody] CancelOrderRequest? body,
                 [FromServices] IMediator mediator) =>
             {
-                var req = new CancelOrderRequest { Reason = body?.Reason };
+                var req = new CancelOrderRequest { OrderId = orderId, Reason = body?.Reason };
                 return await mediator.Send(req);
             })
             .WithName("CancelOrder")
+            .RequireAuthorization() // Admin/Kitchen or owner enforced in handler
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
@@ -55,7 +59,7 @@ public static class OrdersEndpoints
 
         group.MapPatch("/status", async ([FromBody] UpdateOrderStatusRequest request, IMediator mediator) =>
             await mediator.Send(request)
-        );
+        ).RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"));
 
         return app;
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CampusEats.Api.Common;
@@ -47,6 +48,21 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
         {
             return Results.BadRequest(string.Join(", ", identityResult.Errors.Select(e => e.Description)));
         }
+
+        // Add claims to the user
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, applicationUser.Id),
+            new Claim(ClaimTypes.Email, applicationUser.Email!),
+            new Claim(ClaimTypes.GivenName, applicationUser.UserName!)
+        };
+
+        var claimsResult = await _userManager.AddClaimsAsync(applicationUser, claims);
+        if (!claimsResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(applicationUser);
+            return Results.BadRequest($"Failed to add claims: {string.Join(", ", claimsResult.Errors.Select(e => e.Description))}");
+        }
         
         if (!string.IsNullOrEmpty(request.Role))
         {
@@ -65,6 +81,15 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
             {
                 await _userManager.DeleteAsync(applicationUser);
                 return Results.BadRequest($"Failed to assign role: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+            }
+
+            // Add role claim
+            var roleClaim = new Claim(ClaimTypes.Role, request.Role);
+            var roleClaimResult = await _userManager.AddClaimAsync(applicationUser, roleClaim);
+            if (!roleClaimResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(applicationUser);
+                return Results.BadRequest($"Failed to add role claim: {string.Join(", ", roleClaimResult.Errors.Select(e => e.Description))}");
             }
         }
 

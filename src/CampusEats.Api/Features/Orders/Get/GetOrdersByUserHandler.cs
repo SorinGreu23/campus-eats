@@ -8,14 +8,26 @@ namespace CampusEats.Api.Features.Orders.Get;
 public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IResult>
 {
     private readonly CampusDbContext _db;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public GetOrdersByUserHandler(CampusDbContext db)
+    public GetOrdersByUserHandler(CampusDbContext db, IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IResult> Handle(GetOrdersByUserRequest request, CancellationToken cancellationToken)
     {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
+            return Results.Unauthorized();
+
+        var currentUserId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var roles = httpContext.User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
+        var isAdminOrKitchen = roles.Contains("Admin") || roles.Contains("Kitchen");
+        if (!isAdminOrKitchen && !string.Equals(currentUserId, request.UserId, StringComparison.Ordinal))
+            return Results.Forbid();
+
         if (string.IsNullOrWhiteSpace(request.UserId))
             return Results.BadRequest(new { error = "userId is required." });
 

@@ -4,9 +4,11 @@ using MediatR;
 namespace CampusEats.Api.Features.Users.Update;
 
 public record UpdateUserRequest(
-    string Id,
     string? FirstName,
     string? LastName,
+    string? Username,
     string? Role,
-    bool? IsActive
+    bool? IsActive,
+    string? CurrentPassword,
+    string? NewPassword
 ) : IRequest<IResult>;

@@ -2,21 +2,30 @@ using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using CampusEats.Api.Data.Entities;
 
 namespace CampusEats.Api.Features.Orders.Create;
 
 public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
 {
     private readonly CampusDbContext _db;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private const decimal TaxRate = 0.21m; //consider moving to config
 
-    public CreateOrderHandler(CampusDbContext db)
+    public CreateOrderHandler(CampusDbContext db, IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IResult> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
     {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
+            return Results.Unauthorized();
+
         if (request.Items == null || !request.Items.Any())
             return Results.BadRequest(new { error = "Order must contain at least one item." });
 
@@ -32,6 +41,13 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
         
         if (string.IsNullOrWhiteSpace(request.UserId))
             return Results.BadRequest(new { error = "userId is required." });
+
+        // Only the owner (authenticated user) can create an order for their account
+        var currentUserId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(currentUserId))
+            return Results.Unauthorized();
+        if (!string.Equals(currentUserId, request.UserId, StringComparison.Ordinal))
+            return Results.Forbid();
 
         // Create order and compute totals
         var order = new Order
