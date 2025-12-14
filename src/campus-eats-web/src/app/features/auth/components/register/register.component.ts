@@ -67,7 +67,7 @@ export class RegisterComponent {
     ).subscribe({
       next: (response) => {
         const displayName = `${response.firstName} ${response.lastName}`.trim();
-        this.authState.setSession(displayName, response.token);
+        this.authState.setSession(displayName, response.role, response.token);
         this.router.navigateByUrl('/menu');
       },
       error: (err: unknown) => {

@@ -84,17 +84,6 @@ public static class OrdersEndpoints
         .Produces(StatusCodes.Status404NotFound)
         .WithOpenApi();
 
-        app.MapGet(
-                "/pending",
-                async (IMediator mediator) => await mediator.Send(new GetPendingOrdersQuery())
-            )
-            .WithName("GetPendingOrders")
-            .WithTags("Kitchen")
-            .WithDescription("Returns all orders that are in Pending or Preparing status")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
-            .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest);
-
         group
             .MapPatch(
                 "/{orderId:guid}/cancel",

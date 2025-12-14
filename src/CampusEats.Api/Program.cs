@@ -98,17 +98,6 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Pro
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
-        "AllowClientApp",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
-        }
-    );
-});
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
