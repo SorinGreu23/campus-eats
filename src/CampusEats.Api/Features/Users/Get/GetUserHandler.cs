@@ -1,4 +1,4 @@
-﻿using CampusEats.Api.Common;
+﻿﻿using CampusEats.Api.Common;
 using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
@@ -41,12 +41,6 @@ public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
         if (!isAdmin && currentUserId != request.Id)
         {
             return Results.Forbid();
-        }
-        else
-        {
-            throw new InvalidOperationException(
-                "Unable to determine user roles; cannot proceed with user retrieval."
-            );
         }
 
         var appUser = await _userManager.FindByIdAsync(request.Id);

@@ -1,4 +1,4 @@
-﻿using CampusEats.Api.Common;
+﻿﻿using CampusEats.Api.Common;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
@@ -55,12 +55,6 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
         if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
         {
             return Results.Unauthorized();
-        }
-        else
-        {
-            throw new InvalidOperationException(
-                "Unable to determine authentication status; cannot proceed with user update."
-            );
         }
 
         var currentUserId = _userManager.GetUserId(httpContext.User);
