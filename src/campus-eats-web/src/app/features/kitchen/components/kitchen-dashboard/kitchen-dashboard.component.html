@@ -1,57 +1,97 @@
 <div class="kitchen-page">
   <header class="page-header">
     <div>
-      <h1>Kitchen</h1>
-      <p class="subtitle">Manage menu items and keep pending orders moving.</p>
+      <h1 class="page-title">
+        <i class="pi pi-building"></i>
+        Kitchen Dashboard
+      </h1>
+      <p class="page-subtitle">Manage menu items and keep pending orders moving.</p>
     </div>
-    <button class="refresh-btn" type="button" (click)="refresh()">Refresh</button>
+    <button class="refresh-btn" type="button" (click)="refresh()">
+      <i class="pi pi-refresh"></i>
+      Refresh
+    </button>
   </header>
 
   <section class="panel">
     <div class="panel-header">
-      <div>
-        <h2>Pending Orders</h2>
-        <p class="subtitle">Mark orders as completed when ready.</p>
-      </div>
+      <h2 class="section-title">
+        <i class="pi pi-clock"></i>
+        Pending Orders
+      </h2>
       <div class="status-pill" [class.error]="ordersError()">
-        @if (ordersLoading()) { Loading... }
-        @else if (ordersError()) { {{ ordersError() }} }
-        @else { {{ pendingOrders().length }} pending }
+        @if (ordersLoading()) { 
+          <i class="pi pi-spin pi-spinner"></i> Loading...
+        }
+        @else if (ordersError()) { 
+          <i class="pi pi-exclamation-triangle"></i> {{ ordersError() }}
+        }
+        @else { 
+          <i class="pi pi-shopping-cart"></i> {{ pendingOrders().length }} pending
+        }
       </div>
     </div>
 
     @if (ordersLoading()) {
-      <div class="empty">Loading pending orders...</div>
+      <div class="empty">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>Loading pending orders...</p>
+      </div>
     } @else if (ordersError()) {
-      <div class="empty error">{{ ordersError() }}</div>
+      <div class="empty error">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>{{ ordersError() }}</p>
+      </div>
     } @else if (pendingOrders().length === 0) {
-      <div class="empty">No pending orders right now.</div>
+      <div class="empty">
+        <i class="pi pi-inbox"></i>
+        <p>No pending orders right now.</p>
+      </div>
     } @else {
       <div class="orders-grid">
         @for (order of pendingOrders(); track order.id) {
           <article class="order-card">
             <header class="order-card__head">
-              <div>
-                <div class="order-number">#{{ order.orderNumber || order.id }}</div>
-                <div class="order-total">Total: {{ order.total | number:'1.2-2' }}</div>
+              <div class="order-info">
+                <div class="order-number">
+                  <i class="pi pi-hashtag"></i>
+                  {{ order.orderNumber || order.id }}
+                </div>
+                <div class="order-total">
+                  <i class="pi pi-dollar"></i>
+                  {{ order.total | number:'1.2-2' }}
+                </div>
               </div>
               <button class="complete-btn" type="button" (click)="markOrderComplete(order.id)">
+                <i class="pi pi-check-circle"></i>
                 Complete
               </button>
             </header>
             <ul class="order-items">
               @for (item of order.items; track item.id) {
                 <li>
-                  <div class="item-name">{{ item.menuItemName }}</div>
-                  <div class="item-meta">x{{ item.quantity }} · {{ item.subtotal | number:'1.2-2' }}</div>
+                  <div class="item-name">
+                    <i class="pi pi-circle-fill"></i>
+                    {{ item.menuItemName }}
+                  </div>
+                  <div class="item-meta">
+                    <span class="quantity">x{{ item.quantity }}</span>
+                    <span class="price">${{ item.subtotal | number:'1.2-2' }}</span>
+                  </div>
                   @if (item.specialInstructions) {
-                    <div class="item-notes">{{ item.specialInstructions }}</div>
+                    <div class="item-notes">
+                      <i class="pi pi-info-circle"></i>
+                      {{ item.specialInstructions }}
+                    </div>
                   }
                 </li>
               }
             </ul>
             @if (order.deliveryInstructions) {
-              <div class="order-note">{{ order.deliveryInstructions }}</div>
+              <div class="order-note">
+                <i class="pi pi-map-marker"></i>
+                {{ order.deliveryInstructions }}
+              </div>
             }
           </article>
         }
@@ -61,103 +101,91 @@
 
   <section class="panel">
     <div class="panel-header">
-      <div>
-        <h2>{{ editingId() ? 'Edit Menu Item' : 'Add Menu Item' }}</h2>
-        <p class="subtitle">Create new dishes or update existing ones.</p>
-      </div>
-      @if (editingId()) {
-        <button class="ghost" type="button" (click)="cancelEdit()">Cancel edit</button>
-      }
-    </div>
-
-    <form class="menu-form" [formGroup]="form" (ngSubmit)="submitForm()">
-      <div class="form-grid">
-        <label>
-          <span>Name</span>
-          <input formControlName="name" type="text" placeholder="e.g. Veggie Burrito" />
-        </label>
-        <label>
-          <span>Category</span>
-          <select formControlName="categoryId">
-            <option [value]="null">Select a category...</option>
-            @for (cat of categories(); track cat.id) {
-              <option [value]="cat.id">{{ cat.name }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          <span>Price</span>
-          <input formControlName="price" type="number" min="0" step="0.01" />
-        </label>
-        <label>
-          <span>Prep Time (min)</span>
-          <input formControlName="preparationTimeMinutes" type="number" min="0" step="1" />
-        </label>
-        <label>
-          <span>Calories</span>
-          <input formControlName="calories" type="number" min="0" step="1" />
-        </label>
-        <label class="full">
-          <span>Description</span>
-          <textarea formControlName="description" rows="2" placeholder="Optional description"></textarea>
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" formControlName="isAvailable" />
-          <span>Available</span>
-        </label>
-      </div>
-
-      <div class="form-actions">
-        <button class="primary" type="submit" [disabled]="form.invalid || menuLoading()">
-          {{ editingId() ? 'Save Changes' : 'Add Item' }}
+      <h2 class="section-title">
+        <i class="pi pi-list"></i>
+        Menu Items
+      </h2>
+      <div class="header-actions">
+        <button class="add-item-btn" type="button" (click)="openCreateModal()">
+          <i class="pi pi-plus-circle"></i>
+          Add Item
         </button>
-        <button class="ghost" type="button" (click)="refresh()">Reload menu</button>
-      </div>
-      @if (menuError()) {
-        <div class="form-error">{{ menuError() }}</div>
-      }
-    </form>
-  </section>
-
-  <section class="panel">
-    <div class="panel-header">
-      <div>
-        <h2>Menu Items</h2>
-        <p class="subtitle">Tap an item to edit or remove.</p>
-      </div>
-      <div class="status-pill" [class.error]="menuError()">
-        @if (menuLoading()) { Loading... }
-        @else if (menuError()) { {{ menuError() }} }
-        @else { {{ menuItems().length }} items }
+        <div class="status-pill" [class.error]="menuError()">
+          @if (menuLoading()) { 
+            <i class="pi pi-spin pi-spinner"></i> Loading...
+          }
+          @else if (menuError()) { 
+            <i class="pi pi-exclamation-triangle"></i> {{ menuError() }}
+          }
+          @else { 
+            <i class="pi pi-book"></i> {{ menuItems().length }} items
+          }
+        </div>
       </div>
     </div>
 
     @if (menuLoading()) {
-      <div class="empty">Loading menu...</div>
+      <div class="empty">
+        <i class="pi pi-spin pi-spinner"></i>
+        <p>Loading menu...</p>
+      </div>
     } @else if (menuError()) {
-      <div class="empty error">{{ menuError() }}</div>
+      <div class="empty error">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>{{ menuError() }}</p>
+      </div>
     } @else if (menuItems().length === 0) {
-      <div class="empty">No menu items yet.</div>
+      <div class="empty">
+        <i class="pi pi-inbox"></i>
+        <p>No menu items yet.</p>
+      </div>
     } @else {
       <div class="menu-grid">
         @for (item of menuItems(); track item.id) {
-          <article class="menu-card" (click)="editItem(item)">
+          <article class="menu-card">
             <header>
-              <h3>{{ item.name }}</h3>
-              <span class="badge" [class.offline]="!item.isAvailable">{{ item.isAvailable ? 'Available' : 'Unavailable' }}</span>
+              <h3>
+                <i class="pi pi-shopping-bag"></i>
+                {{ item.name }}
+              </h3>
+              <span class="badge" [class.offline]="!item.isAvailable">
+                <i class="pi" [class.pi-check-circle]="item.isAvailable" [class.pi-times-circle]="!item.isAvailable"></i>
+                {{ item.isAvailable ? 'Available' : 'Unavailable' }}
+              </span>
             </header>
             <p class="description">{{ item.description || 'No description' }}</p>
             <div class="meta">
-              <span>${{ item.price | number:'1.2-2' }}</span>
-              @if (item.preparationTimeMinutes) {<span>{{ item.preparationTimeMinutes }} min</span>}
+              <span class="price">
+                <i class="pi pi-dollar"></i>
+                {{ item.price | number:'1.2-2' }}
+              </span>
+              @if (item.preparationTimeMinutes) {
+                <span class="prep-time">
+                  <i class="pi pi-clock"></i>
+                  {{ item.preparationTimeMinutes }} min
+                </span>
+              }
             </div>
             <div class="actions">
-              <button class="ghost" type="button" (click)="editItem(item); $event.stopPropagation();">Edit</button>
-              <button class="danger" type="button" (click)="deleteItem(item.id); $event.stopPropagation();">Delete</button>
+              <button class="ghost" type="button" (click)="openEditModal(item)">
+                <i class="pi pi-pencil"></i>
+                Edit
+              </button>
+              <button class="danger" type="button" (click)="deleteItem(item.id)">
+                <i class="pi pi-trash"></i>
+                Delete
+              </button>
             </div>
           </article>
         }
       </div>
     }
   </section>
+
+  <!-- Menu Item Form Modal -->
+  <app-menu-item-form-modal
+    [visible]="showFormModal()"
+    [menuItem]="editingItem()"
+    (close)="closeFormModal()"
+  />
 </div>
