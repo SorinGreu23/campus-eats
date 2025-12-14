@@ -17,18 +17,18 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         _validator = validator;
     }
 
-    public async Task<IResult> Handle(CreateItemRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        CreateItemRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors
-                .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(e => e.ErrorMessage).ToArray()
-                );
-            
+            var errors = validationResult
+                .Errors.GroupBy(e => e.PropertyName)
+                .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
             return Results.BadRequest(new { errors });
         }
 
@@ -44,7 +44,7 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
             IsAvailable = request.IsAvailable,
             Calories = request.Calories,
             CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
+            UpdatedAt = DateTimeOffset.UtcNow,
         };
 
         // Add allergens
@@ -52,11 +52,9 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         {
             foreach (var allergenId in request.AllergenIds)
             {
-                menuItem.MenuItemAllergens.Add(new MenuItemAllergen
-                {
-                    MenuItemId = menuItem.Id,
-                    AllergenId = allergenId
-                });
+                menuItem.MenuItemAllergens.Add(
+                    new MenuItemAllergen { MenuItemId = menuItem.Id, AllergenId = allergenId }
+                );
             }
         }
 
@@ -65,11 +63,13 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         {
             foreach (var restrictionId in request.DietaryRestrictionIds)
             {
-                menuItem.MenuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction
-                {
-                    MenuItemId = menuItem.Id,
-                    DietaryRestrictionId = restrictionId
-                });
+                menuItem.MenuItemDietaryRestrictions.Add(
+                    new MenuItemDietaryRestriction
+                    {
+                        MenuItemId = menuItem.Id,
+                        DietaryRestrictionId = restrictionId,
+                    }
+                );
             }
         }
 
@@ -95,4 +95,3 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         return Results.Created($"/api/menuitems/{response.Id}", response);
     }
 }
-

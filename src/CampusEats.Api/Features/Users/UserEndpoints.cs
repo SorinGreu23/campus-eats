@@ -12,41 +12,73 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/users/register", async (RegisterRequest request, IMediator mediator) =>
-                await mediator.Send(request))
+        app.MapPost(
+                "/api/users/register",
+                async (RegisterRequest request, IMediator mediator) => await mediator.Send(request)
+            )
             .WithName("RegisterUser")
             .WithTags("Users")
             .WithOpenApi();
 
-        app.MapPost("/api/users/login", async (LoginRequest request, IMediator mediator) =>
-                await mediator.Send(request))
+        app.MapPost(
+                "/api/users/login",
+                async (LoginRequest request, IMediator mediator) => await mediator.Send(request)
+            )
             .WithName("LoginUser")
             .WithTags("Users")
             .WithOpenApi();
 
-        app.MapGet("/api/users", async (IMediator mediator) =>
-                await mediator.Send(new GetUsersQuery()))
+        app.MapGet(
+                "/api/users",
+                async (IMediator mediator) => await mediator.Send(new GetUsersQuery())
+            )
             .WithName("GetUsers")
             .WithTags("Users")
+            .WithDescription("Lists all users. Admins only.")
+            .RequireAuthorization(policy => policy.RequireRole("Admin"))
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .WithOpenApi();
 
-        app.MapGet("/api/users/{id}", async (string id, IMediator mediator) =>
-                await mediator.Send(new GetUserRequest(id)))
+        app.MapGet(
+                "/api/users/{id}",
+                async (string id, IMediator mediator) => await mediator.Send(new GetUserRequest(id))
+            )
             .WithName("GetUser")
             .WithTags("Users")
             .WithOpenApi();
 
-        app.MapPut("/api/users/{id}", async (string id, UpdateUserRequest request, IMediator mediator) =>
-                await mediator.Send(request with { Id = id }))
+        app.MapPut(
+                "/api/users/{id}",
+                async (string id, UpdateUserRequest request, IMediator mediator) =>
+                    await mediator.Send(request)
+            )
             .WithName("UpdateUser")
             .WithTags("Users")
+            .WithDescription("Updates a user. Only the account owner or an admin can update.")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-        app.MapDelete("/api/users/{id}", async (string id, IMediator mediator) =>
-                await mediator.Send(new DeleteUserRequest(id)))
+        app.MapDelete(
+                "/api/users/{id}",
+                async (string id, IMediator mediator) =>
+                    await mediator.Send(new DeleteUserRequest(id))
+            )
             .WithName("DeleteUser")
             .WithTags("Users")
+            .WithDescription(
+                "Deletes a user account. Only the account owner or an admin can delete the account."
+            )
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
     }
 }
-

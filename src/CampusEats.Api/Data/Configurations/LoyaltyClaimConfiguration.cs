@@ -15,12 +15,14 @@ public class LoyaltyClaimConfiguration : IEntityTypeConfiguration<LoyaltyClaim>
         builder.Property(x => x.ClaimedAt).IsRequired();
         builder.Property(x => x.Notes).HasMaxLength(500);
 
-        builder.HasOne(x => x.LoyaltyAccount)
+        builder
+            .HasOne(x => x.LoyaltyAccount)
             .WithMany()
             .HasForeignKey(x => x.LoyaltyAccountId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.LoyaltyReward)
+        builder
+            .HasOne(x => x.LoyaltyReward)
             .WithMany()
             .HasForeignKey(x => x.RewardId)
             .OnDelete(DeleteBehavior.NoAction);

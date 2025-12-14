@@ -6,4 +6,3 @@ public class GetOrdersByUserRequest : IRequest<IResult>
 {
     public string UserId { get; set; } = string.Empty;
 }
-

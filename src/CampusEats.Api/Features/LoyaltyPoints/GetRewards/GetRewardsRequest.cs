@@ -18,4 +18,3 @@ public class RewardResponse
     public DateTimeOffset? ValidUntil { get; set; }
     public string? MinimumTier { get; set; }
 }
-

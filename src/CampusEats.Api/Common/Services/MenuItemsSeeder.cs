@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Common.Services;
 
@@ -21,12 +21,14 @@ public static class MenuItemsSeeder
         // Ensure allergens and dietary restrictions exist
         if (!await context.Allergens.AnyAsync() || !await context.DietaryRestrictions.AnyAsync())
         {
-            await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(context);
+            await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(
+                context
+            );
         }
 
         // Check if menu items with associations already exist
-        var existingItemsWithAssociations = await context.MenuItems
-            .Include(m => m.MenuItemAllergens)
+        var existingItemsWithAssociations = await context
+            .MenuItems.Include(m => m.MenuItemAllergens)
             .Include(m => m.MenuItemDietaryRestrictions)
             .AnyAsync(m => m.MenuItemAllergens.Any() || m.MenuItemDietaryRestrictions.Any());
 
@@ -82,7 +84,7 @@ public static class MenuItemsSeeder
             IsAvailable = true,
             Calories = 750,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
         };
 
         var grilledChickenWrap = new MenuItem
@@ -97,7 +99,7 @@ public static class MenuItemsSeeder
             IsAvailable = true,
             Calories = 420,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
         };
 
         var veggieSaladBowl = new MenuItem
@@ -112,7 +114,7 @@ public static class MenuItemsSeeder
             IsAvailable = true,
             Calories = 320,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
         };
 
         var spicyRamen = new MenuItem
@@ -127,7 +129,7 @@ public static class MenuItemsSeeder
             IsAvailable = true,
             Calories = 610,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
         };
 
         var chocolateBrownie = new MenuItem
@@ -142,7 +144,7 @@ public static class MenuItemsSeeder
             IsAvailable = true,
             Calories = 450,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
         };
 
         var items = new List<MenuItem>
@@ -151,7 +153,7 @@ public static class MenuItemsSeeder
             grilledChickenWrap,
             veggieSaladBowl,
             spicyRamen,
-            chocolateBrownie
+            chocolateBrownie,
         };
 
         context.MenuItems.AddRange(items);
@@ -162,39 +164,105 @@ public static class MenuItemsSeeder
 
         // Classic Cheeseburger: Milk/Dairy, Wheat/Gluten, Eggs, Soy
         if (milkAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = classicCheeseburger.Id, AllergenId = milkAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = classicCheeseburger.Id,
+                    AllergenId = milkAllergen.Id,
+                }
+            );
         if (wheatAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = classicCheeseburger.Id, AllergenId = wheatAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = classicCheeseburger.Id,
+                    AllergenId = wheatAllergen.Id,
+                }
+            );
         if (eggsAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = classicCheeseburger.Id, AllergenId = eggsAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = classicCheeseburger.Id,
+                    AllergenId = eggsAllergen.Id,
+                }
+            );
         if (soyAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = classicCheeseburger.Id, AllergenId = soyAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = classicCheeseburger.Id,
+                    AllergenId = soyAllergen.Id,
+                }
+            );
 
         // Grilled Chicken Wrap: Wheat/Gluten, Soy
         if (wheatAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = grilledChickenWrap.Id, AllergenId = wheatAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = grilledChickenWrap.Id,
+                    AllergenId = wheatAllergen.Id,
+                }
+            );
         if (soyAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = grilledChickenWrap.Id, AllergenId = soyAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = grilledChickenWrap.Id,
+                    AllergenId = soyAllergen.Id,
+                }
+            );
 
         // Veggie Salad Bowl: Sesame
         if (sesameAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = veggieSaladBowl.Id, AllergenId = sesameAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = veggieSaladBowl.Id,
+                    AllergenId = sesameAllergen.Id,
+                }
+            );
 
         // Spicy Ramen: Wheat/Gluten, Eggs, Soy
         if (wheatAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = wheatAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = wheatAllergen.Id }
+            );
         if (eggsAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = eggsAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = eggsAllergen.Id }
+            );
         if (soyAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = soyAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen { MenuItemId = spicyRamen.Id, AllergenId = soyAllergen.Id }
+            );
 
         // Chocolate Brownie: Milk/Dairy, Wheat/Gluten, Eggs
         if (milkAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = chocolateBrownie.Id, AllergenId = milkAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = chocolateBrownie.Id,
+                    AllergenId = milkAllergen.Id,
+                }
+            );
         if (wheatAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = chocolateBrownie.Id, AllergenId = wheatAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = chocolateBrownie.Id,
+                    AllergenId = wheatAllergen.Id,
+                }
+            );
         if (eggsAllergen != null)
-            menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = chocolateBrownie.Id, AllergenId = eggsAllergen.Id });
+            menuItemAllergens.Add(
+                new MenuItemAllergen
+                {
+                    MenuItemId = chocolateBrownie.Id,
+                    AllergenId = eggsAllergen.Id,
+                }
+            );
 
         context.MenuItemAllergens.AddRange(menuItemAllergens);
 
@@ -203,35 +271,86 @@ public static class MenuItemsSeeder
 
         // Classic Cheeseburger: Carnivore
         if (carnivore != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = classicCheeseburger.Id, DietaryRestrictionId = carnivore.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = classicCheeseburger.Id,
+                    DietaryRestrictionId = carnivore.Id,
+                }
+            );
 
         // Grilled Chicken Wrap: Carnivore
         if (carnivore != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = grilledChickenWrap.Id, DietaryRestrictionId = carnivore.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = grilledChickenWrap.Id,
+                    DietaryRestrictionId = carnivore.Id,
+                }
+            );
 
         // Veggie Salad Bowl: Vegetarian, Vegan, Gluten-Free, Lactose-Free
         if (vegetarian != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = veggieSaladBowl.Id, DietaryRestrictionId = vegetarian.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = veggieSaladBowl.Id,
+                    DietaryRestrictionId = vegetarian.Id,
+                }
+            );
         if (vegan != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = veggieSaladBowl.Id, DietaryRestrictionId = vegan.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = veggieSaladBowl.Id,
+                    DietaryRestrictionId = vegan.Id,
+                }
+            );
         if (glutenFree != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = veggieSaladBowl.Id, DietaryRestrictionId = glutenFree.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = veggieSaladBowl.Id,
+                    DietaryRestrictionId = glutenFree.Id,
+                }
+            );
         if (lactoseFree != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = veggieSaladBowl.Id, DietaryRestrictionId = lactoseFree.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = veggieSaladBowl.Id,
+                    DietaryRestrictionId = lactoseFree.Id,
+                }
+            );
 
         // Spicy Ramen: Vegetarian (if no meat in broth - adjust based on recipe)
         if (vegetarian != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = spicyRamen.Id, DietaryRestrictionId = vegetarian.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = spicyRamen.Id,
+                    DietaryRestrictionId = vegetarian.Id,
+                }
+            );
 
         // Chocolate Brownie: Vegetarian
         if (vegetarian != null)
-            menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = chocolateBrownie.Id, DietaryRestrictionId = vegetarian.Id });
+            menuItemDietaryRestrictions.Add(
+                new MenuItemDietaryRestriction
+                {
+                    MenuItemId = chocolateBrownie.Id,
+                    DietaryRestrictionId = vegetarian.Id,
+                }
+            );
 
         context.MenuItemDietaryRestrictions.AddRange(menuItemDietaryRestrictions);
         await context.SaveChangesAsync();
     }
 
-    private static async Task AddAssociationsToExistingItems(CampusDbContext context, List<MenuItem> existingItems)
+    private static async Task AddAssociationsToExistingItems(
+        CampusDbContext context,
+        List<MenuItem> existingItems
+    )
     {
         // Load allergens
         var allergens = await context.Allergens.ToListAsync();
@@ -255,73 +374,161 @@ public static class MenuItemsSeeder
         foreach (var item in existingItems)
         {
             // Associate allergens and dietary restrictions based on item name/type
-            if (item.Name.Contains("Burger", StringComparison.OrdinalIgnoreCase) || 
-                item.Name.Contains("Cheeseburger", StringComparison.OrdinalIgnoreCase))
+            if (
+                item.Name.Contains("Burger", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Cheeseburger", StringComparison.OrdinalIgnoreCase)
+            )
             {
                 // Burgers: Milk/Dairy, Wheat/Gluten, Eggs, Soy, Carnivore
                 if (milkAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = milkAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = milkAllergen.Id }
+                    );
                 if (wheatAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id }
+                    );
                 if (eggsAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id }
+                    );
                 if (soyAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id }
+                    );
                 if (carnivore != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = carnivore.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = carnivore.Id,
+                        }
+                    );
             }
-            else if (item.Name.Contains("Chicken", StringComparison.OrdinalIgnoreCase) || 
-                     item.Name.Contains("Wrap", StringComparison.OrdinalIgnoreCase))
+            else if (
+                item.Name.Contains("Chicken", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Wrap", StringComparison.OrdinalIgnoreCase)
+            )
             {
                 // Chicken/Wraps: Wheat/Gluten, Soy, Carnivore
                 if (wheatAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id }
+                    );
                 if (soyAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id }
+                    );
                 if (carnivore != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = carnivore.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = carnivore.Id,
+                        }
+                    );
             }
-            else if (item.Name.Contains("Veggie", StringComparison.OrdinalIgnoreCase) || 
-                     item.Name.Contains("Salad", StringComparison.OrdinalIgnoreCase))
+            else if (
+                item.Name.Contains("Veggie", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Salad", StringComparison.OrdinalIgnoreCase)
+            )
             {
                 // Veggie/Salads: Sesame, Vegetarian, Vegan, Gluten-Free, Lactose-Free
                 if (sesameAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = sesameAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen
+                        {
+                            MenuItemId = item.Id,
+                            AllergenId = sesameAllergen.Id,
+                        }
+                    );
                 if (vegetarian != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = vegetarian.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = vegetarian.Id,
+                        }
+                    );
                 if (vegan != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = vegan.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = vegan.Id,
+                        }
+                    );
                 if (glutenFree != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = glutenFree.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = glutenFree.Id,
+                        }
+                    );
                 if (lactoseFree != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = lactoseFree.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = lactoseFree.Id,
+                        }
+                    );
             }
-            else if (item.Name.Contains("Ramen", StringComparison.OrdinalIgnoreCase) || 
-                     item.Name.Contains("Noodles", StringComparison.OrdinalIgnoreCase))
+            else if (
+                item.Name.Contains("Ramen", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Noodles", StringComparison.OrdinalIgnoreCase)
+            )
             {
                 // Ramen/Noodles: Wheat/Gluten, Eggs, Soy, Vegetarian
                 if (wheatAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id }
+                    );
                 if (eggsAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id }
+                    );
                 if (soyAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = soyAllergen.Id }
+                    );
                 if (vegetarian != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = vegetarian.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = vegetarian.Id,
+                        }
+                    );
             }
-            else if (item.Name.Contains("Brownie", StringComparison.OrdinalIgnoreCase) || 
-                     item.Name.Contains("Dessert", StringComparison.OrdinalIgnoreCase) ||
-                     item.Name.Contains("Chocolate", StringComparison.OrdinalIgnoreCase))
+            else if (
+                item.Name.Contains("Brownie", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Dessert", StringComparison.OrdinalIgnoreCase)
+                || item.Name.Contains("Chocolate", StringComparison.OrdinalIgnoreCase)
+            )
             {
                 // Desserts: Milk/Dairy, Wheat/Gluten, Eggs, Vegetarian
                 if (milkAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = milkAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = milkAllergen.Id }
+                    );
                 if (wheatAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = wheatAllergen.Id }
+                    );
                 if (eggsAllergen != null)
-                    menuItemAllergens.Add(new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id });
+                    menuItemAllergens.Add(
+                        new MenuItemAllergen { MenuItemId = item.Id, AllergenId = eggsAllergen.Id }
+                    );
                 if (vegetarian != null)
-                    menuItemDietaryRestrictions.Add(new MenuItemDietaryRestriction { MenuItemId = item.Id, DietaryRestrictionId = vegetarian.Id });
+                    menuItemDietaryRestrictions.Add(
+                        new MenuItemDietaryRestriction
+                        {
+                            MenuItemId = item.Id,
+                            DietaryRestrictionId = vegetarian.Id,
+                        }
+                    );
             }
         }
 
@@ -329,7 +536,7 @@ public static class MenuItemsSeeder
             context.MenuItemAllergens.AddRange(menuItemAllergens);
         if (menuItemDietaryRestrictions.Any())
             context.MenuItemDietaryRestrictions.AddRange(menuItemDietaryRestrictions);
-        
+
         await context.SaveChangesAsync();
     }
 }

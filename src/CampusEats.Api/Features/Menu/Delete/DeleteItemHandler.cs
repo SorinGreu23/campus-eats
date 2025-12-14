@@ -14,10 +14,15 @@ public class DeleteItemHandler : IRequestHandler<DeleteItemRequest, IResult>
         _context = context;
     }
 
-    public async Task<IResult> Handle(DeleteItemRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        DeleteItemRequest request,
+        CancellationToken cancellationToken
+    )
     {
-        var menuItem = await _context.MenuItems
-            .FirstOrDefaultAsync(m => m.Id == request.Id, cancellationToken);
+        var menuItem = await _context.MenuItems.FirstOrDefaultAsync(
+            m => m.Id == request.Id,
+            cancellationToken
+        );
 
         if (menuItem == null)
         {
@@ -26,8 +31,7 @@ public class DeleteItemHandler : IRequestHandler<DeleteItemRequest, IResult>
 
         _context.MenuItems.Remove(menuItem);
         await _context.SaveChangesAsync(cancellationToken);
-        
+
         return Results.NoContent();
     }
 }
-

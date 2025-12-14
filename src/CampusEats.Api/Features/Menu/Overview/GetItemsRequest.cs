@@ -14,4 +14,3 @@ public record GetItemsRequest(
     Guid[]? DietaryRestrictionIds = null,
     bool? IsAvailable = null
 ) : IRequest<IResult>;
-

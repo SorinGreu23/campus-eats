@@ -10,7 +10,6 @@ public class Allergen
     public string? Description { get; set; }
     public string? Icon { get; set; }
 
-    public ICollection<MenuItemAllergen> MenuItemAllergens { get; set; } = new List<MenuItemAllergen>();
+    public ICollection<MenuItemAllergen> MenuItemAllergens { get; set; } =
+        new List<MenuItemAllergen>();
 }
-
-

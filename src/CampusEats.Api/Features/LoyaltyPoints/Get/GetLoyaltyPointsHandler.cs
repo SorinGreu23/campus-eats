@@ -15,10 +15,15 @@ public class GetLoyaltyPointsHandler : IRequestHandler<GetLoyaltyPointsRequest, 
         _context = context;
     }
 
-    public async Task<IResult> Handle(GetLoyaltyPointsRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        GetLoyaltyPointsRequest request,
+        CancellationToken cancellationToken
+    )
     {
-        var loyaltyAccount = await _context.LoyaltyAccounts
-            .FirstOrDefaultAsync(la => la.UserId == request.UserId, cancellationToken);
+        var loyaltyAccount = await _context.LoyaltyAccounts.FirstOrDefaultAsync(
+            la => la.UserId == request.UserId,
+            cancellationToken
+        );
 
         if (loyaltyAccount == null)
         {
@@ -29,7 +34,7 @@ public class GetLoyaltyPointsHandler : IRequestHandler<GetLoyaltyPointsRequest, 
                 UserId = request.UserId,
                 PointsBalance = 0,
                 LifetimePoints = 0,
-                Tier = "Bronze"
+                Tier = "Bronze",
             };
             _context.LoyaltyAccounts.Add(loyaltyAccount);
             await _context.SaveChangesAsync(cancellationToken);
@@ -41,7 +46,7 @@ public class GetLoyaltyPointsHandler : IRequestHandler<GetLoyaltyPointsRequest, 
             UserId = loyaltyAccount.UserId!,
             PointsBalance = loyaltyAccount.PointsBalance,
             LifetimePoints = loyaltyAccount.LifetimePoints,
-            Tier = loyaltyAccount.Tier ?? "Bronze"
+            Tier = loyaltyAccount.Tier ?? "Bronze",
         };
 
         return Results.Ok(response);

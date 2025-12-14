@@ -21,4 +21,3 @@ public class PendingOrderItemDto
     public decimal Subtotal { get; set; }
     public string? SpecialInstructions { get; set; }
 }
-

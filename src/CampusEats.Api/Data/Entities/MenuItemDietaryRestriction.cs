@@ -1,4 +1,5 @@
 ﻿namespace CampusEats.Api.Data.Entities;
+
 public class MenuItemDietaryRestriction
 {
     public Guid MenuItemId { get; set; }

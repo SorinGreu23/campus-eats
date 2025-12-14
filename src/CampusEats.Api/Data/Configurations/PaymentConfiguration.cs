@@ -1,6 +1,6 @@
+using CampusEats.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using CampusEats.Api.Data.Entities;
 
 namespace CampusEats.Api.Data.Configurations;
 

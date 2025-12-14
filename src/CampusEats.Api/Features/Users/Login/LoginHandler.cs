@@ -1,4 +1,5 @@
 using CampusEats.Api.Common;
+using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
@@ -13,15 +14,19 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IValidator<LoginRequest> _validator;
+    private readonly ITokenService _tokenService;
 
     public LoginHandler(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IValidator<LoginRequest> validator)
+        IValidator<LoginRequest> validator,
+        ITokenService tokenService
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _validator = validator;
+        _tokenService = tokenService;
     }
 
     public async Task<IResult> Handle(LoginRequest request, CancellationToken cancellationToken)
@@ -29,7 +34,9 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(
+                string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))
+            );
         }
 
         var appUser = await _userManager.FindByEmailAsync(request.Email);
@@ -43,23 +50,27 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         {
             return Results.BadRequest("Account is inactive");
         }
-        
+
         var roles = await _userManager.GetRolesAsync(appUser);
         var userRole = roles.FirstOrDefault();
-        
+
         if (userRole == null)
         {
             return Results.BadRequest("User has no role assigned.");
         }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, lockoutOnFailure: false);
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            appUser,
+            request.Password,
+            lockoutOnFailure: false
+        );
 
         if (!result.Succeeded)
         {
             return Results.BadRequest("Invalid email or password");
         }
 
-        var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        var token = _tokenService.CreateToken(appUser, roles);
 
         var response = new LoginResponse(
             appUser.Id,

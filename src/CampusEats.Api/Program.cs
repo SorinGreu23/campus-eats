@@ -2,17 +2,17 @@ using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Common.Services;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
-using CampusEats.Api.Features.LoyaltyPoints;
-using CampusEats.Api.Features.Users;
-using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Allergens;
 using CampusEats.Api.Features.DietaryRestrictions;
+using CampusEats.Api.Features.LoyaltyPoints;
+using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Orders;
+using CampusEats.Api.Features.Users;
+using DotNetEnv;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using DotNetEnv;
 
 // Load .env file - check local directory first, then solution root
 var localEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
@@ -32,7 +32,37 @@ else
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(
+        "Bearer",
+        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Enter your JWT token in the format: Bearer {token}",
+        }
+    );
+    options.AddSecurityRequirement(
+        new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
+});
 builder.Services.AddOpenApi();
 
 var dbHost = Environment.GetEnvironmentVariable("DB_Host");
@@ -41,32 +71,32 @@ var dbName = Environment.GetEnvironmentVariable("DB_Name");
 var dbUser = Environment.GetEnvironmentVariable("DB_User");
 var dbPassword = Environment.GetEnvironmentVariable("DB_Password");
 
-var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
+var connectionString =
+    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-builder.Services.AddDbContext<CampusDbContext>(opt =>
-    opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<CampusDbContext>(opt => opt.UseNpgsql(connectionString));
 
-builder.Services.AddDbContext<IdentityDbContext>(opt =>
-    opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<IdentityDbContext>(opt => opt.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowClientApp", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+    options.AddPolicy(
+        "AllowClientApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        }
+    );
 });
 
 var app = builder.Build();
@@ -74,7 +104,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
-    
+
     try
     {
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
@@ -86,7 +116,7 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"Seeder warning: {ex.Message}");
     }
-    
+
     var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await identityDb.Database.MigrateAsync();
 }
