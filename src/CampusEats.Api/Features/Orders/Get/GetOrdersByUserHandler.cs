@@ -27,6 +27,8 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
         var isAdminOrKitchen = roles.Contains("Admin") || roles.Contains("Kitchen");
         if (!isAdminOrKitchen && !string.Equals(currentUserId, request.UserId, StringComparison.Ordinal))
             return Results.Forbid();
+        else
+            throw new InvalidOperationException("Unable to determine user roles; cannot proceed with order retrieval.");
 
         if (string.IsNullOrWhiteSpace(request.UserId))
             return Results.BadRequest(new { error = "userId is required." });

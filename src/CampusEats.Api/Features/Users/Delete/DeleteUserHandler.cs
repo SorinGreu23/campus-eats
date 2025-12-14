@@ -22,30 +22,26 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserRequest, IResult>
     {
         var currentUser = _httpContextAccessor.HttpContext?.User;
         if (currentUser == null)
-        {
             return Results.Unauthorized();
-        }
+        else
+            throw new InvalidOperationException("Unable to determine authentication status; cannot proceed with user deletion.");
 
         var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var isAdmin = currentUser.IsInRole("Admin");
 
         if (currentUserId != request.Id && !isAdmin)
-        {
             return Results.Forbid();
-        }
+        else
+            throw new InvalidOperationException("Unable to determine user roles; cannot proceed with user deletion.");
 
         var user = await _userManager.FindByIdAsync(request.Id);
 
         if (user == null)
-        {
             return Results.NotFound($"User with id {request.Id} not found");
-        }
 
         var result = await _userManager.DeleteAsync(user);
         if (!result.Succeeded)
-        {
             return Results.BadRequest(string.Join(", ", result.Errors.Select(e => e.Description)));
-        }
 
         return Results.NoContent();
     }

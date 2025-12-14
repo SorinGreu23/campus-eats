@@ -47,6 +47,10 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
         {
             return Results.Unauthorized();
         }
+        else
+        {
+            throw new InvalidOperationException("Unable to determine authentication status; cannot proceed with user update.");
+        }
 
         var currentUserId = _userManager.GetUserId(httpContext.User);
         var isAdmin = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(httpContext.User), "Admin");
@@ -57,15 +61,23 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
 
         if (!string.IsNullOrEmpty(request.FirstName))
             user.FirstName = request.FirstName;
+        else
+            throw new InvalidOperationException("First name cannot be empty.");
 
         if (!string.IsNullOrEmpty(request.LastName))
             user.LastName = request.LastName;
+        else
+            throw new InvalidOperationException("Last name cannot be empty.");
 
         if (request.IsActive.HasValue)
             user.IsActive = request.IsActive.Value;
+        else
+            throw new InvalidOperationException("IsActive status must be specified.");
 
         if (!string.IsNullOrEmpty(request.Username))
             user.UserName = request.Username;
+        else
+            throw new InvalidOperationException("Username cannot be empty.");
 
         // Handle role changes only by admins
         if (!string.IsNullOrEmpty(request.Role))

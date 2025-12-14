@@ -80,7 +80,7 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
             if (!roleResult.Succeeded)
             {
                 await _userManager.DeleteAsync(applicationUser);
-                return Results.BadRequest($"Failed to assign role: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                return Results.BadRequest($"Failed to create user: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
             }
 
             // Add role claim
