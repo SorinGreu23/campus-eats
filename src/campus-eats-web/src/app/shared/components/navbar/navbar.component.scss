@@ -175,6 +175,12 @@
           transform: translateX(2px);
         }
       }
+
+      .user-menu-separator {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 0.2rem 0.25rem;
+      }
     }
 
   .cart-button-wrapper {

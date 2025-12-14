@@ -11,9 +11,6 @@
       <a routerLink="/menu" routerLinkActive="active" class="nav-link">
         <span>Menu</span>
       </a>
-      <a routerLink="/orders" routerLinkActive="active" class="nav-link">
-        <span>Orders</span>
-      </a>
       <a routerLink="/kitchen" routerLinkActive="active" class="nav-link">
         <span>Kitchen</span>
       </a>
@@ -45,6 +42,11 @@
         </div>
         @if (showUserMenu()) {
           <div class="user-menu">
+            <button class="user-menu-item" routerLink="/orders" (click)="toggleUserMenu()">
+              <i class="pi pi-list"></i>
+              <span>My Orders</span>
+            </button>
+            <div class="user-menu-separator"></div>
             <button class="user-menu-item" (click)="logout()">
               <i class="pi pi-sign-out"></i>
               <span>Logout</span>
