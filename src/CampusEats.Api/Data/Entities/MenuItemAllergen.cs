@@ -1,4 +1,5 @@
 ﻿namespace CampusEats.Api.Data.Entities;
+
 public class MenuItemAllergen
 {
     public Guid MenuItemId { get; set; }

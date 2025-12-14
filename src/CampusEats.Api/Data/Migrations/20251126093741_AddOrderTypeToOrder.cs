@@ -13,27 +13,28 @@ namespace CampusEats.Api.Data.Migrations
             migrationBuilder.RenameColumn(
                 name: "SpecialInstructions",
                 table: "orders",
-                newName: "DeliveryInstructions");
+                newName: "DeliveryInstructions"
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "order_type",
                 table: "orders",
                 type: "character varying(32)",
                 maxLength: 32,
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "order_type",
-                table: "orders");
+            migrationBuilder.DropColumn(name: "order_type", table: "orders");
 
             migrationBuilder.RenameColumn(
                 name: "DeliveryInstructions",
                 table: "orders",
-                newName: "SpecialInstructions");
+                newName: "SpecialInstructions"
+            );
         }
     }
 }

@@ -16,8 +16,4 @@ public record UpdateItemRequest(
     List<Guid>? DietaryRestrictionIds
 );
 
-public record UpdateItemCommand(
-    Guid Id,
-    UpdateItemRequest Request
-) : IRequest<IResult>;
-
+public record UpdateItemCommand(Guid Id, UpdateItemRequest Request) : IRequest<IResult>;

@@ -1,6 +1,6 @@
+using CampusEats.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using CampusEats.Api.Data.Entities;
 
 namespace CampusEats.Api.Data.Configurations;
 
@@ -15,7 +15,8 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
         builder.Property(x => x.Reason);
         builder.Property(x => x.PerformedBy);
 
-        builder.HasOne(x => x.InventoryItem)
+        builder
+            .HasOne(x => x.InventoryItem)
             .WithMany()
             .HasForeignKey(x => x.InventoryItemId)
             .OnDelete(DeleteBehavior.SetNull);

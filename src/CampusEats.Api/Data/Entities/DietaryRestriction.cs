@@ -9,5 +9,6 @@ public class DietaryRestriction
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string? Icon { get; set; }
-    public ICollection<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; } = new List<MenuItemDietaryRestriction>();
+    public ICollection<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; } =
+        new List<MenuItemDietaryRestriction>();
 }

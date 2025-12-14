@@ -9,10 +9,10 @@ public static class LoyaltyRewardsSeeder
     public static async Task SeedLoyaltyRewards(CampusDbContext context)
     {
         // Check if rewards need to be updated with tier information
-        var rewardsWithoutTier = await context.LoyaltyRewards
-            .Where(r => r.MinimumTier == null)
+        var rewardsWithoutTier = await context
+            .LoyaltyRewards.Where(r => r.MinimumTier == null)
             .ToListAsync();
-        
+
         if (rewardsWithoutTier.Any())
         {
             // Clear old rewards without tier info and reseed
@@ -36,7 +36,7 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Bronze",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
             },
             new LoyaltyReward
             {
@@ -48,7 +48,7 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Bronze",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
             },
             new LoyaltyReward
             {
@@ -60,7 +60,7 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Silver",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
             },
             new LoyaltyReward
             {
@@ -72,7 +72,7 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Bronze",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
             },
             new LoyaltyReward
             {
@@ -84,7 +84,7 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Gold",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
             },
             new LoyaltyReward
             {
@@ -96,12 +96,11 @@ public static class LoyaltyRewardsSeeder
                 IsActive = true,
                 MinimumTier = "Platinum",
                 ValidFrom = DateTimeOffset.UtcNow,
-                ValidUntil = DateTimeOffset.UtcNow.AddYears(1)
-            }
+                ValidUntil = DateTimeOffset.UtcNow.AddYears(1),
+            },
         };
 
         context.LoyaltyRewards.AddRange(rewards);
         await context.SaveChangesAsync();
     }
 }
-

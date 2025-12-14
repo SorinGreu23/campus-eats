@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -12,7 +12,8 @@ namespace CampusEats.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             // Drop foreign key if it exists (may have been removed by Identity migration)
-            migrationBuilder.Sql(@"
+            migrationBuilder.Sql(
+                @"
                 DO $$ 
                 BEGIN
                     IF EXISTS (
@@ -22,7 +23,8 @@ namespace CampusEats.Api.Migrations
                         ALTER TABLE orders DROP CONSTRAINT ""FK_orders_User_UserId"";
                     END IF;
                 END $$;
-            ");
+            "
+            );
 
             // Drop User table if it exists (may have been removed by Identity migration)
             migrationBuilder.Sql(@"DROP TABLE IF EXISTS ""User"";");
@@ -47,7 +49,10 @@ namespace CampusEats.Api.Migrations
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnd = table.Column<DateTimeOffset>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                     NormalizedEmail = table.Column<string>(type: "text", nullable: true),
                     NormalizedUserName = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<string>(type: "text", nullable: true),
@@ -57,17 +62,19 @@ namespace CampusEats.Api.Migrations
                     Role = table.Column<string>(type: "text", nullable: true),
                     SecurityStamp = table.Column<string>(type: "text", nullable: true),
                     TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    UserName = table.Column<string>(type: "text", nullable: false)
+                    UserName = table.Column<string>(type: "text", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_orders_UserId",
                 table: "orders",
-                column: "UserId");
+                column: "UserId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_orders_User_UserId",
@@ -75,7 +82,8 @@ namespace CampusEats.Api.Migrations
                 column: "UserId",
                 principalTable: "User",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.SetNull
+            );
         }
     }
 }

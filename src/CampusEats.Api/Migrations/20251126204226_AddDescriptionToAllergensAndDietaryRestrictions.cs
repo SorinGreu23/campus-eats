@@ -19,7 +19,8 @@ namespace CampusEats.Api.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "character varying(128)",
-                oldMaxLength: 128);
+                oldMaxLength: 128
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "OrderId",
@@ -27,7 +28,8 @@ namespace CampusEats.Api.Migrations
                 type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "uuid"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -35,7 +37,8 @@ namespace CampusEats.Api.Migrations
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
@@ -45,7 +48,8 @@ namespace CampusEats.Api.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "character varying(64)",
-                oldMaxLength: 64);
+                oldMaxLength: 64
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "OrderId",
@@ -53,7 +57,8 @@ namespace CampusEats.Api.Migrations
                 type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "uuid"
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "MenuItemId",
@@ -61,7 +66,8 @@ namespace CampusEats.Api.Migrations
                 type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "uuid"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -69,7 +75,8 @@ namespace CampusEats.Api.Migrations
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Message",
@@ -77,7 +84,8 @@ namespace CampusEats.Api.Migrations
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
@@ -85,7 +93,8 @@ namespace CampusEats.Api.Migrations
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CategoryId",
@@ -93,7 +102,8 @@ namespace CampusEats.Api.Migrations
                 type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "uuid"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -101,7 +111,8 @@ namespace CampusEats.Api.Migrations
                 type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "TransactionType",
@@ -111,7 +122,8 @@ namespace CampusEats.Api.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "character varying(64)",
-                oldMaxLength: 64);
+                oldMaxLength: 64
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "InventoryItemId",
@@ -119,109 +131,146 @@ namespace CampusEats.Api.Migrations
                 type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uuid");
+                oldType: "uuid"
+            );
 
             migrationBuilder.CreateTable(
                 name: "allergens",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Icon = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                    Name = table.Column<string>(
+                        type: "character varying(100)",
+                        maxLength: 100,
+                        nullable: false
+                    ),
+                    Description = table.Column<string>(
+                        type: "character varying(500)",
+                        maxLength: 500,
+                        nullable: true
+                    ),
+                    Icon = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_allergens", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "dietary_restrictions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Icon = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                    Name = table.Column<string>(
+                        type: "character varying(100)",
+                        maxLength: 100,
+                        nullable: false
+                    ),
+                    Description = table.Column<string>(
+                        type: "character varying(500)",
+                        maxLength: 500,
+                        nullable: true
+                    ),
+                    Icon = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_dietary_restrictions", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "menu_item_allergens",
                 columns: table => new
                 {
                     MenuItemId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AllergenId = table.Column<Guid>(type: "uuid", nullable: false)
+                    AllergenId = table.Column<Guid>(type: "uuid", nullable: false),
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_menu_item_allergens", x => new { x.MenuItemId, x.AllergenId });
+                    table.PrimaryKey(
+                        "PK_menu_item_allergens",
+                        x => new { x.MenuItemId, x.AllergenId }
+                    );
                     table.ForeignKey(
                         name: "FK_menu_item_allergens_allergens_AllergenId",
                         column: x => x.AllergenId,
                         principalTable: "allergens",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "FK_menu_item_allergens_menu_items_MenuItemId",
                         column: x => x.MenuItemId,
                         principalTable: "menu_items",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "menu_item_dietary_restrictions",
                 columns: table => new
                 {
                     MenuItemId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DietaryRestrictionId = table.Column<Guid>(type: "uuid", nullable: false)
+                    DietaryRestrictionId = table.Column<Guid>(type: "uuid", nullable: false),
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_menu_item_dietary_restrictions", x => new { x.MenuItemId, x.DietaryRestrictionId });
+                    table.PrimaryKey(
+                        "PK_menu_item_dietary_restrictions",
+                        x => new { x.MenuItemId, x.DietaryRestrictionId }
+                    );
                     table.ForeignKey(
                         name: "FK_menu_item_dietary_restrictions_dietary_restrictions_Dietary~",
                         column: x => x.DietaryRestrictionId,
                         principalTable: "dietary_restrictions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "FK_menu_item_dietary_restrictions_menu_items_MenuItemId",
                         column: x => x.MenuItemId,
                         principalTable: "menu_items",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_menu_item_allergens_AllergenId",
                 table: "menu_item_allergens",
-                column: "AllergenId");
+                column: "AllergenId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_menu_item_dietary_restrictions_DietaryRestrictionId",
                 table: "menu_item_dietary_restrictions",
-                column: "DietaryRestrictionId");
+                column: "DietaryRestrictionId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "menu_item_allergens");
+            migrationBuilder.DropTable(name: "menu_item_allergens");
 
-            migrationBuilder.DropTable(
-                name: "menu_item_dietary_restrictions");
+            migrationBuilder.DropTable(name: "menu_item_dietary_restrictions");
 
-            migrationBuilder.DropTable(
-                name: "allergens");
+            migrationBuilder.DropTable(name: "allergens");
 
-            migrationBuilder.DropTable(
-                name: "dietary_restrictions");
+            migrationBuilder.DropTable(name: "dietary_restrictions");
 
             migrationBuilder.AlterColumn<string>(
                 name: "PaymentMethod",
@@ -233,7 +282,8 @@ namespace CampusEats.Api.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(128)",
                 oldMaxLength: 128,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "OrderId",
@@ -243,7 +293,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -253,7 +304,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Status",
@@ -265,7 +317,8 @@ namespace CampusEats.Api.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(64)",
                 oldMaxLength: 64,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "OrderId",
@@ -275,7 +328,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "MenuItemId",
@@ -285,7 +339,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -295,7 +350,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Message",
@@ -305,7 +361,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
@@ -315,7 +372,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CategoryId",
@@ -325,7 +383,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -335,7 +394,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "TransactionType",
@@ -347,7 +407,8 @@ namespace CampusEats.Api.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(64)",
                 oldMaxLength: 64,
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "InventoryItemId",
@@ -357,7 +418,8 @@ namespace CampusEats.Api.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
     }
 }

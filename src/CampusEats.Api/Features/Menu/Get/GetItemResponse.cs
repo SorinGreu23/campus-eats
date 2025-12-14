@@ -15,4 +15,3 @@ public record GetItemResponse(
     List<AllergenDto>? Allergens,
     List<DietaryRestrictionDto>? DietaryRestrictions
 );
-
