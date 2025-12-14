@@ -9,16 +9,23 @@ public static class MenuEndpoints
     {
         var group = app.MapGroup("/api/menuitems").WithTags("MenuItems");
 
-        group
-            .MapGet(
-                "/",
-                async ([FromServices] IMediator mediator) =>
-                {
-                    return await mediator.Send(new GetItemsRequest());
-                }
-            )
-            .WithName("GetMenuItems")
-            .Produces<List<GetItemsResponse>>();
+        group.MapGet("/", async (
+            [FromQuery] Guid? categoryId,
+            [FromQuery] Guid[]? dietaryRestrictionIds,
+            [FromQuery] bool? isAvailable,
+            [FromServices] IMediator mediator) =>
+        {
+            return await mediator.Send(new GetItemsRequest(categoryId, dietaryRestrictionIds, isAvailable));
+        })
+        .WithName("GetMenuItems")
+        .Produces<List<GetItemsResponse>>()
+        .WithOpenApi(operation =>
+        {
+            operation.Summary = "Get all menu items with optional filtering";
+            operation.Description = "Retrieve menu items filtered by category, dietary restrictions, and availability. " +
+                                  "Multiple dietary restrictions will be combined with AND logic (item must have ALL specified restrictions).";
+            return operation;
+        });
 
         group
             .MapGet(
