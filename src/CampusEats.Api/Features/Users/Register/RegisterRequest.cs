@@ -1,5 +1,5 @@
-﻿using MediatR;
-using CampusEats.Api.Common;
+﻿using CampusEats.Api.Common;
+using MediatR;
 
 namespace CampusEats.Api.Features.Users.Create;
 

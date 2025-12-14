@@ -1,9 +1,9 @@
-﻿﻿using CampusEats.Api.Data.Entities;
+﻿using CampusEats.Api.Common;
+using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using CampusEats.Api.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace CampusEats.Api.Features.Users.Update;
 
@@ -13,19 +13,28 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
     private readonly IValidator<UpdateUserRequest> _validator;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UpdateUserHandler(UserManager<ApplicationUser> userManager, IValidator<UpdateUserRequest> validator, IHttpContextAccessor httpContextAccessor)
+    public UpdateUserHandler(
+        UserManager<ApplicationUser> userManager,
+        IValidator<UpdateUserRequest> validator,
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _userManager = userManager;
         _validator = validator;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IResult> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        UpdateUserRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(
+                string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))
+            );
         }
 
         var httpContext = _httpContextAccessor.HttpContext;
@@ -49,11 +58,16 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
         }
         else
         {
-            throw new InvalidOperationException("Unable to determine authentication status; cannot proceed with user update.");
+            throw new InvalidOperationException(
+                "Unable to determine authentication status; cannot proceed with user update."
+            );
         }
 
         var currentUserId = _userManager.GetUserId(httpContext.User);
-        var isAdmin = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(httpContext.User), "Admin");
+        var isAdmin = await _userManager.IsInRoleAsync(
+            await _userManager.GetUserAsync(httpContext.User),
+            "Admin"
+        );
         if (currentUserId != routeId && !isAdmin)
         {
             return Results.Forbid();
@@ -90,7 +104,9 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
                 await _userManager.RemoveFromRolesAsync(user, roles);
             var roleResult = await _userManager.AddToRoleAsync(user, request.Role);
             if (!roleResult.Succeeded)
-                return Results.BadRequest(string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                return Results.BadRequest(
+                    string.Join(", ", roleResult.Errors.Select(e => e.Description))
+                );
         }
 
         // Password change: allow admins to reset; owners require CurrentPassword
@@ -101,18 +117,30 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
                 // Admin reset: remove + add new password
                 var removed = await _userManager.RemovePasswordAsync(user);
                 if (!removed.Succeeded)
-                    return Results.BadRequest(string.Join(", ", removed.Errors.Select(e => e.Description)));
+                    return Results.BadRequest(
+                        string.Join(", ", removed.Errors.Select(e => e.Description))
+                    );
                 var added = await _userManager.AddPasswordAsync(user, request.NewPassword);
                 if (!added.Succeeded)
-                    return Results.BadRequest(string.Join(", ", added.Errors.Select(e => e.Description)));
+                    return Results.BadRequest(
+                        string.Join(", ", added.Errors.Select(e => e.Description))
+                    );
             }
             else
             {
                 if (string.IsNullOrEmpty(request.CurrentPassword))
-                    return Results.BadRequest("Current password is required to change your password.");
-                var changed = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+                    return Results.BadRequest(
+                        "Current password is required to change your password."
+                    );
+                var changed = await _userManager.ChangePasswordAsync(
+                    user,
+                    request.CurrentPassword,
+                    request.NewPassword
+                );
                 if (!changed.Succeeded)
-                    return Results.BadRequest(string.Join(", ", changed.Errors.Select(e => e.Description)));
+                    return Results.BadRequest(
+                        string.Join(", ", changed.Errors.Select(e => e.Description))
+                    );
             }
         }
 

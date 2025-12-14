@@ -5,9 +5,8 @@ namespace CampusEats.Api.Data;
 
 public class CampusDbContext : DbContext
 {
-    public CampusDbContext(DbContextOptions<CampusDbContext> options) : base(options)
-    {
-    }
+    public CampusDbContext(DbContextOptions<CampusDbContext> options)
+        : base(options) { }
 
     public DbSet<MenuItem> MenuItems { get; set; }
     public DbSet<Category> Categories { get; set; }

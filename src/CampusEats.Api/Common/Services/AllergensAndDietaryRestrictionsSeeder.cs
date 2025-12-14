@@ -29,64 +29,64 @@ public static class AllergensAndDietaryRestrictionsSeeder
                 Id = Guid.NewGuid(),
                 Name = "Peanuts",
                 Description = "Contains or may contain peanuts",
-                Icon = "🥜"
+                Icon = "🥜",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Tree Nuts",
                 Description = "Contains or may contain tree nuts (almonds, walnuts, cashews, etc.)",
-                Icon = "🌰"
+                Icon = "🌰",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Milk/Dairy",
                 Description = "Contains milk or dairy products",
-                Icon = "🥛"
+                Icon = "🥛",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Eggs",
                 Description = "Contains eggs or egg products",
-                Icon = "🥚"
+                Icon = "🥚",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Soy",
                 Description = "Contains soy or soy products",
-                Icon = "🫘"
+                Icon = "🫘",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Wheat/Gluten",
                 Description = "Contains wheat, gluten, or gluten-containing grains",
-                Icon = "🌾"
+                Icon = "🌾",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Fish",
                 Description = "Contains fish or fish products",
-                Icon = "🐟"
+                Icon = "🐟",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Shellfish",
                 Description = "Contains shellfish (shrimp, crab, lobster, etc.)",
-                Icon = "🦐"
+                Icon = "🦐",
             },
             new Allergen
             {
                 Id = Guid.NewGuid(),
                 Name = "Sesame",
                 Description = "Contains sesame seeds or sesame oil",
-                Icon = "🫑"
-            }
+                Icon = "🫑",
+            },
         };
 
         context.Allergens.AddRange(allergens);
@@ -107,71 +107,71 @@ public static class AllergensAndDietaryRestrictionsSeeder
                 Id = Guid.NewGuid(),
                 Name = "Vegetarian",
                 Description = "Does not contain meat or fish",
-                Icon = "🥗"
+                Icon = "🥗",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Vegan",
                 Description = "Does not contain any animal products (meat, dairy, eggs, honey)",
-                Icon = "🌱"
+                Icon = "🌱",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Carnivore",
                 Description = "Contains meat or animal products",
-                Icon = "🥩"
+                Icon = "🥩",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Pescatarian",
                 Description = "Contains fish but no other meat",
-                Icon = "🐟"
+                Icon = "🐟",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Keto",
                 Description = "Low-carb, high-fat diet friendly",
-                Icon = "🥑"
+                Icon = "🥑",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Paleo",
                 Description = "Based on foods presumed to be available to paleolithic humans",
-                Icon = "🍖"
+                Icon = "🍖",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Gluten-Free",
                 Description = "Does not contain gluten",
-                Icon = "🌾"
+                Icon = "🌾",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Halal",
                 Description = "Prepared according to Islamic law",
-                Icon = "☪️"
+                Icon = "☪️",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Kosher",
                 Description = "Prepared according to Jewish dietary law",
-                Icon = "✡️"
+                Icon = "✡️",
             },
             new DietaryRestriction
             {
                 Id = Guid.NewGuid(),
                 Name = "Lactose-Free",
                 Description = "Does not contain lactose or dairy products",
-                Icon = "🚫🥛"
-            }
+                Icon = "🚫🥛",
+            },
         };
 
         context.DietaryRestrictions.AddRange(dietaryRestrictions);

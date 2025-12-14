@@ -20,7 +20,8 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IValidator<LoginRequest> validator,
-        ITokenService tokenService)
+        ITokenService tokenService
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -33,7 +34,9 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return Results.BadRequest(string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Results.BadRequest(
+                string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))
+            );
         }
 
         var appUser = await _userManager.FindByEmailAsync(request.Email);
@@ -47,16 +50,20 @@ public class LoginHandler : IRequestHandler<LoginRequest, IResult>
         {
             return Results.BadRequest("Account is inactive");
         }
-        
+
         var roles = await _userManager.GetRolesAsync(appUser);
         var userRole = roles.FirstOrDefault();
-        
+
         if (userRole == null)
         {
             return Results.BadRequest("User has no role assigned.");
         }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(appUser, request.Password, lockoutOnFailure: false);
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            appUser,
+            request.Password,
+            lockoutOnFailure: false
+        );
 
         if (!result.Succeeded)
         {

@@ -14,31 +14,37 @@ public class GetRewardsHandler : IRequestHandler<GetRewardsRequest, IResult>
         _context = context;
     }
 
-    public async Task<IResult> Handle(GetRewardsRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        GetRewardsRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var now = DateTimeOffset.UtcNow;
-        
-        var rewardsList = await _context.LoyaltyRewards
-            .Where(r => r.IsActive && 
-                       (r.ValidFrom == null || r.ValidFrom <= now) &&
-                       (r.ValidUntil == null || r.ValidUntil >= now))
+
+        var rewardsList = await _context
+            .LoyaltyRewards.Where(r =>
+                r.IsActive
+                && (r.ValidFrom == null || r.ValidFrom <= now)
+                && (r.ValidUntil == null || r.ValidUntil >= now)
+            )
             .ToListAsync(cancellationToken);
 
-        var rewards = rewardsList.Select(r => new RewardResponse
-        {
-            Id = r.Id,
-            Name = r.Name,
-            Description = r.Description,
-            PointsCost = r.PointsCost,
-            DiscountValue = r.DiscountValue,
-            MenuItemId = r.MenuItemId,
-            IsActive = r.IsActive,
-            ValidFrom = r.ValidFrom,
-            ValidUntil = r.ValidUntil,
-            MinimumTier = r.MinimumTier
-        }).ToList();
+        var rewards = rewardsList
+            .Select(r => new RewardResponse
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Description = r.Description,
+                PointsCost = r.PointsCost,
+                DiscountValue = r.DiscountValue,
+                MenuItemId = r.MenuItemId,
+                IsActive = r.IsActive,
+                ValidFrom = r.ValidFrom,
+                ValidUntil = r.ValidUntil,
+                MinimumTier = r.MinimumTier,
+            })
+            .ToList();
 
         return Results.Ok(rewards);
     }
 }
-

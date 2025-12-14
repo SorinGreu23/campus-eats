@@ -11,22 +11,23 @@ public class UpdateOrderStatusValidator : AbstractValidator<UpdateOrderStatusReq
     [
         OrderStatus.Preparing,
         OrderStatus.Ready,
-        OrderStatus.Completed
+        OrderStatus.Completed,
     ];
 
     public UpdateOrderStatusValidator()
     {
-        RuleFor(x => x.OrderId)
-            .NotEmpty();
+        RuleFor(x => x.OrderId).NotEmpty();
 
         RuleFor(x => x.Status)
             .NotEmpty()
             .Must(BeValidStatus)
-            .WithMessage($"Status must be one of {string.Join(", ", AllowedStatuses.Select(s => s.ToString()))}.");
+            .WithMessage(
+                $"Status must be one of {string.Join(", ", AllowedStatuses.Select(s => s.ToString()))}."
+            );
     }
 
     private static bool BeValidStatus(string? status) =>
-        status is not null &&
-        Enum.TryParse(status, true, out OrderStatus parsed) &&
-        AllowedStatuses.Contains(parsed);
+        status is not null
+        && Enum.TryParse(status, true, out OrderStatus parsed)
+        && AllowedStatuses.Contains(parsed);
 }

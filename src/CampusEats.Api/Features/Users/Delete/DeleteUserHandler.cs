@@ -12,19 +12,27 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserRequest, IResult>
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DeleteUserHandler(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
+    public DeleteUserHandler(
+        UserManager<ApplicationUser> userManager,
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IResult> Handle(DeleteUserRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        DeleteUserRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var currentUser = _httpContextAccessor.HttpContext?.User;
         if (currentUser == null)
             return Results.Unauthorized();
         else
-            throw new InvalidOperationException("Unable to determine authentication status; cannot proceed with user deletion.");
+            throw new InvalidOperationException(
+                "Unable to determine authentication status; cannot proceed with user deletion."
+            );
 
         var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var isAdmin = currentUser.IsInRole("Admin");
@@ -32,7 +40,9 @@ public class DeleteUserHandler : IRequestHandler<DeleteUserRequest, IResult>
         if (currentUserId != request.Id && !isAdmin)
             return Results.Forbid();
         else
-            throw new InvalidOperationException("Unable to determine user roles; cannot proceed with user deletion.");
+            throw new InvalidOperationException(
+                "Unable to determine user roles; cannot proceed with user deletion."
+            );
 
         var user = await _userManager.FindByIdAsync(request.Id);
 

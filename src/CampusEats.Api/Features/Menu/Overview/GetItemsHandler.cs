@@ -16,8 +16,8 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
 
     public async Task<IResult> Handle(GetItemsRequest request, CancellationToken cancellationToken)
     {
-        var items = await _context.MenuItems
-            .Include(m => m.Category)
+        var items = await _context
+            .MenuItems.Include(m => m.Category)
             .Include(m => m.MenuItemAllergens)
                 .ThenInclude(mia => mia.Allergen)
             .Include(m => m.MenuItemDietaryRestrictions)
@@ -35,21 +35,22 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
                 m.CreatedAt,
                 m.UpdatedAt,
                 m.MenuItemAllergens.Select(mia => new AllergenDto(
-                    mia.Allergen.Id,
-                    mia.Allergen.Name,
-                    mia.Allergen.Description,
-                    mia.Allergen.Icon
-                )).ToList(),
+                        mia.Allergen.Id,
+                        mia.Allergen.Name,
+                        mia.Allergen.Description,
+                        mia.Allergen.Icon
+                    ))
+                    .ToList(),
                 m.MenuItemDietaryRestrictions.Select(midr => new DietaryRestrictionDto(
-                    midr.DietaryRestriction.Id,
-                    midr.DietaryRestriction.Name,
-                    midr.DietaryRestriction.Description,
-                    midr.DietaryRestriction.Icon
-                )).ToList()
+                        midr.DietaryRestriction.Id,
+                        midr.DietaryRestriction.Name,
+                        midr.DietaryRestriction.Description,
+                        midr.DietaryRestriction.Icon
+                    ))
+                    .ToList()
             ))
             .ToListAsync(cancellationToken);
 
         return Results.Ok(items);
     }
 }
-

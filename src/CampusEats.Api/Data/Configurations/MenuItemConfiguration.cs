@@ -1,6 +1,6 @@
+using CampusEats.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using CampusEats.Api.Data.Entities;
 
 namespace CampusEats.Api.Data.Configurations;
 
@@ -20,7 +20,8 @@ public class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         builder.Ignore(x => x.CreatedAt);
         builder.Ignore(x => x.UpdatedAt);
 
-        builder.HasOne(x => x.Category)
+        builder
+            .HasOne(x => x.Category)
             .WithMany()
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);

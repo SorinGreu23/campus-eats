@@ -14,13 +14,17 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IR
         _context = context;
     }
 
-    public async Task<IResult> Handle(GetPendingOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        GetPendingOrdersQuery request,
+        CancellationToken cancellationToken
+    )
     {
-        var pendingStatuses = new[] { OrderStatus.Pending, OrderStatus.Preparing }
-            .Select(s => s.ToString());
-        
-        var orders = await _context.Orders
-            .Where(o => pendingStatuses.Contains(o.Status))
+        var pendingStatuses = new[] { OrderStatus.Pending, OrderStatus.Preparing }.Select(s =>
+            s.ToString()
+        );
+
+        var orders = await _context
+            .Orders.Where(o => pendingStatuses.Contains(o.Status))
             .OrderBy(o => o.CreatedAt)
             .Include(o => o.Items)
                 .ThenInclude(oi => oi.MenuItem)
@@ -39,12 +43,11 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IR
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice,
                     Subtotal = oi.Subtotal,
-                    SpecialInstructions = oi.SpecialInstructions
-                })
+                    SpecialInstructions = oi.SpecialInstructions,
+                }),
             })
             .ToListAsync(cancellationToken);
 
         return Results.Ok(orders);
     }
 }
-

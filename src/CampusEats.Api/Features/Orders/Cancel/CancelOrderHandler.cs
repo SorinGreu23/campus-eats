@@ -1,7 +1,7 @@
 using CampusEats.Api.Data;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Orders.Cancel;
 
@@ -16,7 +16,10 @@ public class CancelOrderHandler : IRequestHandler<CancelOrderRequest, IResult>
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IResult> Handle(CancelOrderRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        CancelOrderRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
@@ -25,26 +28,41 @@ public class CancelOrderHandler : IRequestHandler<CancelOrderRequest, IResult>
         if (request.OrderId == Guid.Empty)
             return Results.BadRequest(new { error = "orderId is required." });
 
-        var order = await _db.Orders
-            .Include(o => o.Items)
+        var order = await _db
+            .Orders.Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
 
         if (order == null)
             return Results.NotFound(new { error = "Order not found." });
 
-        var currentUserId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var roles = httpContext.User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
+        var currentUserId = httpContext
+            .User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
+            ?.Value;
+        var roles = httpContext
+            .User.FindAll(System.Security.Claims.ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
         var isAdminOrKitchen = roles.Contains("Admin") || roles.Contains("Kitchen");
-        var isOwner = !string.IsNullOrEmpty(currentUserId) && string.Equals(order.UserId, currentUserId, StringComparison.Ordinal);
+        var isOwner =
+            !string.IsNullOrEmpty(currentUserId)
+            && string.Equals(order.UserId, currentUserId, StringComparison.Ordinal);
         if (!isAdminOrKitchen && !isOwner)
             return Results.Forbid();
         else
-            throw new InvalidOperationException("Unable to determine user roles; cannot proceed with order cancellation.");
-        
-        if (!string.IsNullOrWhiteSpace(order.Status) && order.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(
+                "Unable to determine user roles; cannot proceed with order cancellation."
+            );
+
+        if (
+            !string.IsNullOrWhiteSpace(order.Status)
+            && order.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase)
+        )
             return Results.BadRequest(new { error = "Order is already cancelled." });
 
-        if (!string.IsNullOrWhiteSpace(order.Status) && order.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+        if (
+            !string.IsNullOrWhiteSpace(order.Status)
+            && order.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase)
+        )
             return Results.BadRequest(new { error = "Completed orders cannot be cancelled." });
 
         order.Status = "Cancelled";
@@ -64,10 +82,9 @@ public class CancelOrderHandler : IRequestHandler<CancelOrderRequest, IResult>
             order.Discount,
             order.Total,
             order.CancelledAt,
-            order.CancellationReason
+            order.CancellationReason,
         };
 
         return Results.Ok(response);
     }
 }
-

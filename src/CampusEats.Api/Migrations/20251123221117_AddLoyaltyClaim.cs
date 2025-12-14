@@ -18,8 +18,15 @@ namespace CampusEats.Api.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     LoyaltyAccountId = table.Column<Guid>(type: "uuid", nullable: false),
                     RewardId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ClaimedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Notes = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
+                    ClaimedAt = table.Column<DateTimeOffset>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    Notes = table.Column<string>(
+                        type: "character varying(500)",
+                        maxLength: 500,
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -29,30 +36,34 @@ namespace CampusEats.Api.Migrations
                         column: x => x.LoyaltyAccountId,
                         principalTable: "loyalty_accounts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "FK_LoyaltyClaim_loyalty_rewards_RewardId",
                         column: x => x.RewardId,
                         principalTable: "loyalty_rewards",
-                        principalColumn: "Id");
-                });
+                        principalColumn: "Id"
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_LoyaltyClaim_LoyaltyAccountId",
                 table: "LoyaltyClaim",
-                column: "LoyaltyAccountId");
+                column: "LoyaltyAccountId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_LoyaltyClaim_RewardId",
                 table: "LoyaltyClaim",
-                column: "RewardId");
+                column: "RewardId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "LoyaltyClaim");
+            migrationBuilder.DropTable(name: "LoyaltyClaim");
         }
     }
 }

@@ -15,15 +15,14 @@ namespace CampusEats.Api.Migrations
                 table: "loyalty_rewards",
                 type: "character varying(50)",
                 maxLength: 50,
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "MinimumTier",
-                table: "loyalty_rewards");
+            migrationBuilder.DropColumn(name: "MinimumTier", table: "loyalty_rewards");
         }
     }
 }

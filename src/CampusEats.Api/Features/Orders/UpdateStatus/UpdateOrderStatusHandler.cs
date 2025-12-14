@@ -11,13 +11,19 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
     private readonly CampusDbContext _context;
     private readonly IValidator<UpdateOrderStatusRequest> _validator;
 
-    public UpdateOrderStatusHandler(CampusDbContext context, IValidator<UpdateOrderStatusRequest> validator)
+    public UpdateOrderStatusHandler(
+        CampusDbContext context,
+        IValidator<UpdateOrderStatusRequest> validator
+    )
     {
         _context = context;
         _validator = validator;
     }
 
-    public async Task<IResult> Handle(UpdateOrderStatusRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(
+        UpdateOrderStatusRequest request,
+        CancellationToken cancellationToken
+    )
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -25,8 +31,10 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
             return Results.BadRequest(validationResult.Errors.Select(e => e.ErrorMessage).ToList());
         }
 
-        var order = await _context.Orders
-            .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
+        var order = await _context.Orders.FirstOrDefaultAsync(
+            o => o.Id == request.OrderId,
+            cancellationToken
+        );
 
         if (order == null)
         {
@@ -39,17 +47,19 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
         {
             return Results.BadRequest("Invalid order status value.");
         }
-        
+
         if (!IsValidStatusTransition(currentStatus, newStatus))
         {
-            return Results.BadRequest($"Invalid status transition from {currentStatus} to {newStatus}.");
+            return Results.BadRequest(
+                $"Invalid status transition from {currentStatus} to {newStatus}."
+            );
         }
 
         if (newStatus == OrderStatus.Completed)
         {
             order.CompletedAt = DateTimeOffset.UtcNow;
         }
-        
+
         order.Status = request.Status;
         order.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -65,8 +75,7 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
             OrderStatus.Pending => newStatus == OrderStatus.Preparing,
             OrderStatus.Preparing => newStatus == OrderStatus.Ready,
             OrderStatus.Ready => newStatus == OrderStatus.Completed,
-            _ => false
+            _ => false,
         };
     }
 }
-

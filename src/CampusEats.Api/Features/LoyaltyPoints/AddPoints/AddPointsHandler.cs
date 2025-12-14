@@ -23,8 +23,10 @@ public class AddPointsHandler : IRequestHandler<AddPointsRequest, IResult>
         }
 
         // Get or create loyalty account
-        var loyaltyAccount = await _context.LoyaltyAccounts
-            .FirstOrDefaultAsync(la => la.UserId == request.UserId, cancellationToken);
+        var loyaltyAccount = await _context.LoyaltyAccounts.FirstOrDefaultAsync(
+            la => la.UserId == request.UserId,
+            cancellationToken
+        );
 
         if (loyaltyAccount == null)
         {
@@ -34,7 +36,7 @@ public class AddPointsHandler : IRequestHandler<AddPointsRequest, IResult>
                 UserId = request.UserId,
                 PointsBalance = 0,
                 LifetimePoints = 0,
-                Tier = "Bronze"
+                Tier = "Bronze",
             };
             _context.LoyaltyAccounts.Add(loyaltyAccount);
         }
@@ -54,7 +56,7 @@ public class AddPointsHandler : IRequestHandler<AddPointsRequest, IResult>
             PointsAdded = request.Points,
             NewPointsBalance = loyaltyAccount.PointsBalance,
             LifetimePoints = loyaltyAccount.LifetimePoints,
-            Tier = loyaltyAccount.Tier
+            Tier = loyaltyAccount.Tier,
         };
 
         return Results.Ok(response);
@@ -67,8 +69,7 @@ public class AddPointsHandler : IRequestHandler<AddPointsRequest, IResult>
             >= 10000 => "Platinum",
             >= 5000 => "Gold",
             >= 1000 => "Silver",
-            _ => "Bronze"
+            _ => "Bronze",
         };
     }
 }
-
