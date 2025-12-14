@@ -5,6 +5,5 @@ public record GetUserResponse(
     string FirstName,
     string LastName,
     string UserName,
-    string Role,
-    string Token
+    string Role
 );
