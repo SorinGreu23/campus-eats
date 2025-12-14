@@ -1,5 +1,6 @@
 import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -23,6 +24,7 @@ import { CartService } from '../../services/cart.service';
 })
 export class CartComponent {
   cartService = inject(CartService);
+  private router = inject(Router);
   visible = signal(false);
 
   showCart(): void {
@@ -48,8 +50,7 @@ export class CartComponent {
   }
 
   checkout(): void {
-    // TODO: Implement checkout logic
-    console.log('Proceeding to checkout...');
     this.hideCart();
+    this.router.navigate(['/checkout']);
   }
 }

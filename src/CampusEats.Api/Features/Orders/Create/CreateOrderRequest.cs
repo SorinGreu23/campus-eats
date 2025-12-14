@@ -5,11 +5,9 @@ namespace CampusEats.Api.Features.Orders.Create;
 
 public class CreateOrderRequest : IRequest<IResult>
 {
-    public required string UserId { get; set; }
+    public string? UserId { get; set; }
     public string? DeliveryInstructions { get; set; }
-    
     public string? OrderType { get; set; }
-    
     public ICollection<CreateOrderItemRequest>? Items { get; set; }
 }
 

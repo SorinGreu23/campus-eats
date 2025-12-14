@@ -49,6 +49,17 @@ builder.Services.AddDbContext<CampusDbContext>(opt =>
 builder.Services.AddDbContext<IdentityDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClientApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "http://localhost:4202")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAuthorization();
 
@@ -59,15 +70,7 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowClientApp", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+
 
 var app = builder.Build();
 

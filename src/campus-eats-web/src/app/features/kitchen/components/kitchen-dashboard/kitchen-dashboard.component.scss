@@ -143,6 +143,8 @@
     transform: translateY(1px);
     box-shadow: 0 2px 0px #15803d, 0 4px 10px rgba(0, 0, 0, 0.2);
   }
+  max-width: 100%;
+  flex: 0 0 auto;
 }
 
 .refresh-btn,
@@ -246,12 +248,14 @@
   gap: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 3px dashed #fbbf24;
+  flex-wrap: wrap;
 }
-
 .order-info {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .order-number {
@@ -423,6 +427,9 @@
     color: #16a34a;
 
     i {
+      color: #16a34a;
+      font-size: 0.95rem;
+    }
   }
 }
 
@@ -495,30 +502,5 @@
   .orders-grid,
   .menu-grid {
     grid-template-columns: 1fr;
-  }
-}
-  .panel {
-    padding: 1.25rem;
-  }
-
-  .panel-header .section-title {
-    font-size: 1.5rem;
-  }
-
-  .orders-grid,
-  .menu-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions {
-    flex-direction: column;
-
-    button {
-      width: 100%;
-    }
   }
 }

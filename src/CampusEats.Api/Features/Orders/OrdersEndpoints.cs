@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using CampusEats.Api.Data.Entities;
-using CampusEats.Api.Features.Kitchen;
 using CampusEats.Api.Features.Orders.Create;
 using CampusEats.Api.Features.Orders.Get;
 using CampusEats.Api.Features.Orders.Cancel;
@@ -30,43 +29,33 @@ public static class OrdersEndpoints
             .WithTags("Orders")
             .RequireAuthorization();
 
-        group.MapPost("/", async ([FromBody] CreateOrderRequest request, [FromServices] IMediator mediator) =>
-                await mediator.Send(request)
-            )
-            .WithName("CreateOrder")
-            .Produces(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
-
-        group.MapGet("/user/{userId}", async ([FromRoute] string userId, [FromServices] IMediator mediator) =>
+        group.MapPost("/", async (
+            HttpContext httpContext,
+            [FromBody] CreateOrderRequest request, 
+            [FromServices] IMediator mediator,
+            [FromServices] UserManager<ApplicationUser> userManager) =>
+        {
+            var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                var req = new GetOrdersByUserRequest { UserId = userId };
-                return await mediator.Send(req);
-            })
-            .WithName("GetOrdersByUser")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+                return Results.Unauthorized();
+            }
 
-        app.MapGet("/pending", async (IMediator mediator) =>
-                await mediator.Send(new GetPendingOrdersQuery()))
-            .WithName("GetPendingOrders")
-            .WithTags("Kitchen")
-            .WithDescription("Returns all orders that are in Pending or Preparing status")
-            .Produces<List<PendingOrderDto>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest);
-
-        group.MapPatch("/{orderId:guid}/cancel", async ([FromRoute] Guid orderId, [FromBody] CancelOrderRequest? body,
-                [FromServices] IMediator mediator) =>
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
             {
-                var req = new CancelOrderRequest { Reason = body?.Reason };
-                return await mediator.Send(req);
-            })
-            .WithName("CancelOrder")
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+                return Results.NotFound(new { error = "User not found." });
+            }
+
+            // Set the userId from the authenticated user
+            request.UserId = userId;
+            return await mediator.Send(request);
+        })
+        .WithName("CreateOrder")
+        .Produces(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .WithOpenApi();
         
         group.MapGet("/user/me", async (
             HttpContext httpContext,
