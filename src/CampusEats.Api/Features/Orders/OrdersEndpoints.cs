@@ -1,9 +1,14 @@
+using System.Security.Claims;
+using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Kitchen;
 using CampusEats.Api.Features.Orders.Create;
 using CampusEats.Api.Features.Orders.Get;
 using CampusEats.Api.Features.Orders.Cancel;
+using CampusEats.Api.Features.Orders.Complete;
+using CampusEats.Api.Features.Orders.Pending;
 using CampusEats.Api.Features.Orders.UpdateStatus;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CampusEats.Api.Features.Orders;
@@ -13,10 +18,8 @@ public static class OrdersEndpoints
     public static IEndpointRouteBuilder MapOrdersEndpoints(this IEndpointRouteBuilder app)
     {
         // Public kitchen-facing endpoint for pending orders (no auth enforced)
-        app.MapGet("/api/orders/pending", async ([FromServices] IMediator mediator) =>
-        {
-            return await mediator.Send(new GetPendingOrdersRequest());
-        })
+        app.MapGet("/api/orders/pending", async ([FromServices] IMediator mediator) => 
+            await mediator.Send(new GetPendingOrdersRequest()))
         .WithTags("Orders")
         .WithName("GetPendingOrders")
         .AllowAnonymous()

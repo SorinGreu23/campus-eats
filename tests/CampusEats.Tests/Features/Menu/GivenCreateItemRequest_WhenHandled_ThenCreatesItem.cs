@@ -229,7 +229,7 @@ public class CreateItemHandlerTests
         // Assert
         result.ShouldBeOfType<Created<CreateItemResponse>>();
         var createdResult = (Created<CreateItemResponse>)result;
-        createdResult.Value.CategoryId.ShouldBe(categoryId);
+        createdResult.Value!.CategoryId.ShouldBe(categoryId);
         
         var savedItem = await context.MenuItems.FirstOrDefaultAsync();
         savedItem.ShouldNotBeNull();
