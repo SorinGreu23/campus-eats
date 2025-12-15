@@ -6,6 +6,7 @@
 # dotenv files
 .env
 .idea
+.sonarqube
 
 # User-specific files
 *.rsuser
