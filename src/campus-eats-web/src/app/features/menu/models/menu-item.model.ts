@@ -1,21 +1,27 @@
 export interface MenuItem {
   id: string;
   name: string;
-  description?: string;
   price: number;
-  categoryId?: string;
+  categoryName?: string;
   imageUrl?: string;
   preparationTimeMinutes?: number;
   isAvailable: boolean;
   calories?: number;
-  category?: Category;
-  allergens?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  description: string;
+  allergens?: MenuAllergen[];
   dietaryTags?: string[];
+}
+
+export interface MenuAllergen {
+  name: string;
+  icon?: string;
+  description?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
-  displayOrder?: number;
   isActive: boolean;
 }

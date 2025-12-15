@@ -4,6 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
+import { finalize, switchMap } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { AuthStateService } from '../../../../shared/services/auth-state.service';
 
 function matchPassword(group: AbstractControl): ValidationErrors | null {
   const pwd = group.get('password')?.value;
@@ -21,22 +24,56 @@ function matchPassword(group: AbstractControl): ValidationErrors | null {
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private authState = inject(AuthStateService);
 
   form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
+    firstName: ['', [Validators.required, Validators.minLength(2)]],
+    lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.pattern(/^(?=.{8,100}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).*$/)]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: matchPassword });
 
   submitting = false;
+  error: string | null = null;
 
-  async onSubmit() {
-    if (this.form.invalid) return;
+  onSubmit() {
+    if (this.form.invalid || this.submitting) return;
     this.submitting = true;
-    setTimeout(() => {
-      this.submitting = false;
-      this.router.navigateByUrl('/menu');
-    }, 800);
+    this.error = null;
+
+    const { firstName, lastName, email, password } = this.form.getRawValue() as {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+    };
+
+    const payload = {
+      firstName,
+      lastName,
+      email,
+      password,
+      role: 'Student',
+      userName: email
+    };
+
+    this.authService.register(payload).pipe(
+      switchMap(() => this.authService.login({ email, password })),
+      finalize(() => {
+        this.submitting = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        const displayName = `${response.firstName} ${response.lastName}`.trim();
+        this.authState.setSession(displayName, response.role, response.token);
+        this.router.navigateByUrl('/menu');
+      },
+      error: (err: unknown) => {
+        const message = typeof (err as any)?.error === 'string' ? (err as any).error : 'Registration failed. Please try again.';
+        this.error = message;
+      }
+    });
   }
 }

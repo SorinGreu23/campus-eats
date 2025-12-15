@@ -121,4 +121,16 @@
   }
 }
 
+.error-banner {
+  margin-top: .75rem;
+  padding: .75rem 1rem;
+  background: #fee2e2;
+  border: 2px solid #fca5a5;
+  color: #b91c1c;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: 'Fredoka', sans-serif;
+  box-shadow: 0 4px 0 #fca5a5;
+}
+
 @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }

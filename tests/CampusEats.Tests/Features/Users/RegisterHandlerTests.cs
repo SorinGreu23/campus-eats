@@ -1,5 +1,6 @@
 using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Users.Create;
+using CampusEats.Api.Features.Users.Register;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;

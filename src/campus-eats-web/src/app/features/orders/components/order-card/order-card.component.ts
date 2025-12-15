@@ -18,7 +18,8 @@ export class OrderCardComponent {
   OrderStatus = OrderStatus;
 
   statusConfig = computed(() => {
-    const status = this.order().status;
+    const status = this.order().status as OrderStatus | undefined;
+    if (!status) return { color: 'info', icon: 'pi-info-circle', label: 'Unknown' };
     const configs = {
       [OrderStatus.Pending]: { color: 'warning', icon: 'pi-clock', label: 'Pending' },
       [OrderStatus.Confirmed]: { color: 'info', icon: 'pi-check', label: 'Confirmed' },
@@ -48,22 +49,17 @@ export class OrderCardComponent {
 
   formattedDate = computed(() => {
     const date = this.order().placedAt;
+    if (!date) return '';
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
+    if (diffDays === 0) return `Today at ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   });
 
   canCancel = computed(() => {
-    const status = this.order().status;
+    const status = this.order().status as OrderStatus | undefined;
     return status === OrderStatus.Pending || status === OrderStatus.Confirmed;
   });
 

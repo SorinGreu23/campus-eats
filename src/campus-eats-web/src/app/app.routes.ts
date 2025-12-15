@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { kitchenOnlyGuard, nonKitchenGuard } from './shared/guards';
 
 export const routes: Routes = [
   {
@@ -12,7 +13,17 @@ export const routes: Routes = [
   },
   {
     path: 'orders',
-    loadComponent: () => import('./features/orders/components/order-list/order-list.component').then(m => m.OrderListComponent)
+    loadComponent: () => import('./features/orders/components/order-list/order-list.component').then(m => m.OrderListComponent),
+    canMatch: [nonKitchenGuard]
+  },
+  {
+    path: 'checkout',
+    loadComponent: () => import('./features/checkout/components/checkout-page/checkout-page.component').then(m => m.CheckoutPageComponent)
+  },
+  {
+    path: 'kitchen',
+    loadComponent: () => import('./features/kitchen/components/kitchen-dashboard/kitchen-dashboard.component').then(m => m.KitchenDashboardComponent),
+    canMatch: [kitchenOnlyGuard]
   },
   {
     path: 'loyalty',

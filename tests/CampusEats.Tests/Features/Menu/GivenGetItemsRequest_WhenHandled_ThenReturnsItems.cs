@@ -183,10 +183,10 @@ public class GetItemsHandlerTests
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(1);
         okResult.Value[0].Allergens.ShouldNotBeNull();
-        okResult.Value[0].Allergens.Count.ShouldBe(1);
-        okResult.Value[0].Allergens[0].Name.ShouldBe("Nuts");
+        okResult.Value[0].Allergens!.Count.ShouldBe(1);
+        okResult.Value[0].Allergens![0].Name.ShouldBe("Nuts");
         okResult.Value[0].DietaryRestrictions.ShouldNotBeNull();
-        okResult.Value[0].DietaryRestrictions.Count.ShouldBe(1);
-        okResult.Value[0].DietaryRestrictions[0].Name.ShouldBe("Vegetarian");
+        okResult.Value[0].DietaryRestrictions!.Count.ShouldBe(1);
+        okResult.Value[0].DietaryRestrictions![0].Name.ShouldBe("Vegetarian");
     }
 }

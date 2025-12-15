@@ -6,7 +6,8 @@ import { MenuItem } from '../../features/menu/models/menu-item.model';
   providedIn: 'root'
 })
 export class CartService {
-  private cartItems = signal<CartItem[]>([]);
+  private readonly STORAGE_KEY = 'campus_eats_cart';
+  private cartItems = signal<CartItem[]>(this.loadFromStorage());
 
   // Computed signals for derived state
   items = this.cartItems.asReadonly();
@@ -21,9 +22,9 @@ export class CartService {
     )
   );
 
-  tax = computed(() => this.subtotal() * 0.08); // 8% tax
+  tax = computed(() => Math.round(this.subtotal() * 0.21 * 100) / 100); // 21% tax to match backend
   
-  total = computed(() => this.subtotal() + this.tax());
+  total = computed(() => Math.round((this.subtotal() + this.tax()) * 100) / 100);
 
   addItem(menuItem: MenuItem, quantity: number = 1): void {
     const currentItems = this.cartItems();
@@ -39,11 +40,16 @@ export class CartService {
           ...newItems[existingItemIndex],
           quantity: newItems[existingItemIndex].quantity + quantity
         };
+        this.saveToStorage(newItems);
         return newItems;
       });
     } else {
       // Add new item
-      this.cartItems.update(items => [...items, { menuItem, quantity }]);
+      this.cartItems.update(items => {
+        const newItems = [...items, { menuItem, quantity }];
+        this.saveToStorage(newItems);
+        return newItems;
+      });
     }
   }
 
@@ -53,23 +59,45 @@ export class CartService {
       return;
     }
 
-    this.cartItems.update(items =>
-      items.map(item =>
+    this.cartItems.update(items => {
+      const newItems = items.map(item =>
         item.menuItem.id === menuItemId
           ? { ...item, quantity }
           : item
-      )
-    );
+      );
+      this.saveToStorage(newItems);
+      return newItems;
+    });
   }
 
   removeItem(menuItemId: string): void {
-    this.cartItems.update(items =>
-      items.filter(item => item.menuItem.id !== menuItemId)
-    );
+    this.cartItems.update(items => {
+      const newItems = items.filter(item => item.menuItem.id !== menuItemId);
+      this.saveToStorage(newItems);
+      return newItems;
+    });
   }
 
   clearCart(): void {
     this.cartItems.set([]);
+    this.saveToStorage([]);
+  }
+
+  private loadFromStorage(): CartItem[] {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveToStorage(items: CartItem[]): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Ignore storage errors
+    }
   }
 
   // Initialize with some mock data for testing

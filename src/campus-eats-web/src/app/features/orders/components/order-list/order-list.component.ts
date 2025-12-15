@@ -18,6 +18,8 @@ export class OrderListComponent implements OnInit {
 
   activeOrders = this.orderService.activeOrders;
   completedOrders = this.orderService.completedOrders;
+  loading = this.orderService.loading;
+  error = this.orderService.error;
   showCompleted = signal(false);
   
   // Filter signals
@@ -46,7 +48,7 @@ export class OrderListComponent implements OnInit {
     const query = this.searchQuery().toLowerCase();
     if (query) {
       orders = orders.filter(order => 
-        order.orderNumber.toLowerCase().includes(query) ||
+        (order.orderNumber?.toLowerCase().includes(query) ?? false) ||
         order.items.some(item => item.menuItemName.toLowerCase().includes(query))
       );
     }
@@ -61,7 +63,7 @@ export class OrderListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.orderService.initializeMockData();
+    this.orderService.loadOrders();
   }
 
   toggleView(): void {

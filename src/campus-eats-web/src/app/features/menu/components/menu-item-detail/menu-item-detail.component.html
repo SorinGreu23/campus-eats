@@ -54,10 +54,10 @@
               <span>{{ item.preparationTimeMinutes }} min prep time</span>
             </div>
           }
-          @if (item.category) {
+          @if (item.categoryName) {
             <div class="meta-item">
               <i class="pi pi-tag"></i>
-              <span>{{ item.category }}</span>
+              <span>{{ item.categoryName }}</span>
             </div>
           }
         </div>
@@ -70,8 +70,11 @@
               Allergens
             </h3>
             <div class="allergen-tags">
-              @for (allergen of item.allergens; track allergen) {
-                <span class="allergen-tag">{{ allergen }}</span>
+              @for (allergen of item.allergens; track allergen.name) {
+                <span class="allergen-tag">
+                  {{ allergen.name }}
+                  <span class="allergen-icon">{{ allergen.icon || '⚠️' }}</span>
+                </span>
               }
             </div>
           </div>

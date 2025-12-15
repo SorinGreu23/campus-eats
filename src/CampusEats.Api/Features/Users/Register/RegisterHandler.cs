@@ -1,16 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using CampusEats.Api.Common;
-using CampusEats.Api.Data;
+﻿using System.Security.Claims;
 using CampusEats.Api.Data.Entities;
+using CampusEats.Api.Features.Users.Create;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace CampusEats.Api.Features.Users.Create;
+namespace CampusEats.Api.Features.Users.Register;
 
 public class RegisterHandler : IRequestHandler<RegisterRequest, IResult>
 {

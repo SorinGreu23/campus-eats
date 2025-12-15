@@ -175,6 +175,10 @@
 
   .allergen-tags,
   .dietary-tags {
+
+    .allergen-icon {
+      font-size: 1rem;
+    }
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;

@@ -26,11 +26,14 @@
   align-items: center;
   gap: 1rem;
   border-bottom: 4px solid #fbbf24;
+  flex-wrap: wrap;
 
   .order-info {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    flex: 1 1 auto;
+    min-width: 0;
 
     .order-number {
       font-size: 1.25rem;
@@ -38,6 +41,9 @@
       color: white;
       margin: 0;
       font-family: 'Pacifico', cursive;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .order-date {
@@ -57,6 +63,9 @@
     font-size: 0.9rem;
     text-transform: uppercase;
     border: 2px solid white;
+    flex-shrink: 0;
+    max-width: 100%;
+    white-space: nowrap;
 
     i {
       font-size: 1rem;

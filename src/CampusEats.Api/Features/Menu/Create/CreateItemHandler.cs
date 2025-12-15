@@ -3,6 +3,7 @@ using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Menu;
 
@@ -32,13 +33,29 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
             return Results.BadRequest(new { errors });
         }
 
+        // Ensure a category is present to satisfy DB NOT NULL constraint
+        var categoryId = request.CategoryId;
+        if (!categoryId.HasValue)
+        {
+            var fallbackCategory = await _context.Categories
+                .OrderBy(c => c.DisplayOrder ?? int.MaxValue)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (fallbackCategory == null)
+            {
+                return Results.BadRequest(new { error = "Category is required but no categories exist." });
+            }
+
+            categoryId = fallbackCategory.Id;
+        }
+
         var menuItem = new MenuItem
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
             Description = request.Description,
             Price = request.Price,
-            CategoryId = request.CategoryId,
+            CategoryId = categoryId,
             ImageUrl = request.ImageUrl,
             PreparationTimeMinutes = request.PreparationTimeMinutes,
             IsAvailable = request.IsAvailable,

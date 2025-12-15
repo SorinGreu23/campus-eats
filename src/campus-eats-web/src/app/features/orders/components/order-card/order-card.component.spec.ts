@@ -11,12 +11,12 @@ describe('OrderCardComponent', () => {
     orderNumber: 'ORD-2025-001',
     userId: 'user1',
     status: OrderStatus.Preparing,
-    deliveryMethod: DeliveryMethod.Pickup,
+    orderType: DeliveryMethod.Pickup,
     paymentStatus: PaymentStatus.Paid,
     subtotal: 25.98,
-    taxAmount: 2.08,
-    deliveryFee: 0,
-    totalAmount: 28.06,
+    tax: 2.08,
+    discount: 0,
+    total: 28.06,
     placedAt: new Date(),
     items: []
   };

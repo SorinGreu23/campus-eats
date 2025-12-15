@@ -1,235 +1,212 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MenuItem, Category } from '../models/menu-item.model';
+import { AuthStateService } from '../../../shared/services/auth-state.service';
+
+type ApiCategoryDto = {
+  id: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+};
+
+type ApiAllergenDto = {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+};
+
+type ApiDietaryRestrictionDto = {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+};
+
+type ApiMenuItemDto = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  categoryName?: string;
+  imageUrl?: string;
+  preparationTimeMinutes?: number;
+  isAvailable: boolean;
+  calories?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  allergens?: ApiAllergenDto[];
+  dietaryRestrictions?: ApiDietaryRestrictionDto[];
+};
+
+type ApiUpsertMenuItemDto = {
+  name: string;
+  description?: string;
+  price: number;
+  categoryId?: string | null;
+  imageUrl?: string | null;
+  preparationTimeMinutes?: number | null;
+  isAvailable: boolean;
+  calories?: number | null;
+  allergenIds?: string[];
+  dietaryRestrictionIds?: string[];
+};
+
+// TODO: move to environment configuration when available
+const API_BASE_URL = 'http://localhost:5001/api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-  private mockCategories: Category[] = [
-    {
-      id: '1',
-      name: 'Burgers',
-      displayOrder: 1,
-      isActive: true
-    },
-    {
-      id: '2',
-      name: 'Pizza',
-      displayOrder: 2,
-      isActive: true
-    },
-    {
-      id: '3',
-      name: 'Salads',
-      displayOrder: 3,
-      isActive: true
-    },
-    {
-      id: '4',
-      name: 'Beverages',
-      displayOrder: 4,
-      isActive: true
-    },
-    {
-      id: '5',
-      name: 'Desserts',
-      displayOrder: 5,
-      isActive: true
-    }
-  ];
+  private http = inject(HttpClient);
+  private authState = inject(AuthStateService);
 
-  private mockMenuItems: MenuItem[] = [
-    {
-      id: '1',
-      name: 'Classic Burger',
-      description: 'Juicy beef patty with lettuce, tomato, onion, pickles, and our special sauce',
-      price: 8.99,
-      categoryId: '1',
-      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 15,
-      isAvailable: true,
-      calories: 650
-    },
-    {
-      id: '2',
-      name: 'Bacon Cheeseburger',
-      description: 'Double beef patty with crispy bacon, melted cheddar, and BBQ sauce',
-      price: 11.99,
-      categoryId: '1',
-      imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 18,
-      isAvailable: true,
-      calories: 850
-    },
-    {
-      id: '3',
-      name: 'Veggie Burger',
-      description: 'Plant-based patty with avocado, sprouts, and chipotle mayo',
-      price: 9.99,
-      categoryId: '1',
-      imageUrl: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 12,
-      isAvailable: true,
-      calories: 450
-    },
-    {
-      id: '4',
-      name: 'Margherita Pizza',
-      description: 'Fresh mozzarella, tomato sauce, basil, and olive oil',
-      price: 12.99,
-      categoryId: '2',
-      imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 20,
-      isAvailable: true,
-      calories: 720
-    },
-    {
-      id: '5',
-      name: 'Pepperoni Pizza',
-      description: 'Classic pepperoni with extra cheese and our signature tomato sauce',
-      price: 14.99,
-      categoryId: '2',
-      imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 22,
-      isAvailable: true,
-      calories: 890
-    },
-    {
-      id: '6',
-      name: 'Veggie Supreme Pizza',
-      description: 'Bell peppers, mushrooms, onions, olives, and tomatoes',
-      price: 13.99,
-      categoryId: '2',
-      imageUrl: 'https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 20,
-      isAvailable: true,
-      calories: 680
-    },
-    {
-      id: '7',
-      name: 'Caesar Salad',
-      description: 'Crisp romaine lettuce, parmesan, croutons, and Caesar dressing',
-      price: 7.99,
-      categoryId: '3',
-      imageUrl: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 8,
-      isAvailable: true,
-      calories: 320
-    },
-    {
-      id: '8',
-      name: 'Greek Salad',
-      description: 'Tomatoes, cucumbers, olives, feta cheese, and olive oil',
-      price: 8.99,
-      categoryId: '3',
-      imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 10,
-      isAvailable: true,
-      calories: 280
-    },
-    {
-      id: '9',
-      name: 'Cobb Salad',
-      description: 'Mixed greens, chicken, bacon, egg, avocado, and blue cheese',
-      price: 10.99,
-      categoryId: '3',
-      imageUrl: 'https://images.unsplash.com/photo-1607532941433-304659e8198a?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 12,
-      isAvailable: true,
-      calories: 520
-    },
-    {
-      id: '10',
-      name: 'Coca-Cola',
-      description: 'Classic refreshing cola beverage',
-      price: 2.49,
-      categoryId: '4',
-      imageUrl: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 2,
-      isAvailable: true,
-      calories: 140
-    },
-    {
-      id: '11',
-      name: 'Fresh Lemonade',
-      description: 'Homemade lemonade with fresh lemons and mint',
-      price: 3.99,
-      categoryId: '4',
-      imageUrl: 'https://images.unsplash.com/photo-1574689685526-a9281777ee89?fit=crop&w=400&w=300',
-      preparationTimeMinutes: 5,
-      isAvailable: true,
-      calories: 120
-    },
-    {
-      id: '12',
-      name: 'Iced Coffee',
-      description: 'Cold brew coffee with ice and your choice of milk',
-      price: 4.49,
-      categoryId: '4',
-      imageUrl: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 3,
-      isAvailable: true,
-      calories: 80
-    },
-    {
-      id: '13',
-      name: 'Chocolate Brownie',
-      description: 'Warm chocolate brownie with vanilla ice cream',
-      price: 5.99,
-      categoryId: '5',
-      imageUrl: 'https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 8,
-      isAvailable: true,
-      calories: 480
-    },
-    {
-      id: '14',
-      name: 'Cheesecake',
-      description: 'New York style cheesecake with berry compote',
-      price: 6.99,
-      categoryId: '5',
-      imageUrl: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?fit=crop&h=300&w=400',
-      preparationTimeMinutes: 5,
-      isAvailable: true,
-      calories: 420
-    },
-    {
-      id: '15',
-      name: 'Apple Pie',
-      description: 'Classic apple pie with cinnamon and a flaky crust',
-      price: 5.49,
-      categoryId: '5',
-      imageUrl: 'https://images.unsplash.com/photo-1535920527002-b35e96722eb9?w=400&h=300&fit=crop',
-      preparationTimeMinutes: 6,
-      isAvailable: true,
-      calories: 350
-    }
-  ];
+  menuItems = signal<MenuItem[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
+  
+  apiCategories = signal<ApiCategoryDto[]>([]);
 
-  categories = signal<Category[]>(this.mockCategories);
-  menuItems = signal<MenuItem[]>(this.mockMenuItems);
-  selectedCategory = signal<string | null>(null);
+  categories = computed<Category[]>(() => {
+    return this.apiCategories().map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      isActive: cat.isActive
+    }));
+  });
 
-  constructor() {}
-
-  getCategories() {
-    return this.categories();
+  constructor() {
+    this.loadCategories();
   }
 
-  getMenuItems(categoryId?: string) {
-    if (categoryId) {
-      return this.menuItems().filter(item => item.categoryId === categoryId);
-    }
-    return this.menuItems();
+  loadCategories(): void {
+    this.http.get<ApiCategoryDto[]>(`${API_BASE_URL}/categories`).subscribe({
+      next: (response) => {
+        this.apiCategories.set(response);
+      },
+      error: (err) => {
+        console.error('Failed to load categories:', err);
+      }
+    });
   }
 
-  getMenuItemById(id: string) {
+  loadMenuItems(force = false): void {
+    if (this.loading()) return;
+    if (!force && this.menuItems().length > 0) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.http.get<ApiMenuItemDto[]>(`${API_BASE_URL}/menuitems`).subscribe({
+      next: (response) => {
+        const mapped = response.map(this.mapMenuItemFromApi);
+        this.menuItems.set(mapped);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.title || 'Unable to load menu items';
+        this.error.set(message);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  getMenuItemById(id: string): MenuItem | undefined {
     return this.menuItems().find(item => item.id === id);
   }
 
-  selectCategory(categoryId: string | null) {
-    this.selectedCategory.set(categoryId);
+  createMenuItem(payload: ApiUpsertMenuItemDto): void {
+    const token = this.authState.token();
+    if (!token) {
+      this.error.set('Please log in to manage menu items.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.http.post(`${API_BASE_URL}/menuitems`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.loadMenuItems(true);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.error || err?.error?.title || 'Unable to create menu item';
+        this.error.set(message);
+        this.loading.set(false);
+      }
+    });
   }
 
-  // TODO: Replace with actual API calls when backend is ready
+  updateMenuItem(id: string, payload: ApiUpsertMenuItemDto): void {
+    const token = this.authState.token();
+    if (!token) {
+      this.error.set('Please log in to manage menu items.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.http.put(`${API_BASE_URL}/menuitems/${id}`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.loadMenuItems(true);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.error || err?.error?.title || 'Unable to update menu item';
+        this.error.set(message);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  deleteMenuItem(id: string): void {
+    const token = this.authState.token();
+    if (!token) {
+      this.error.set('Please log in to manage menu items.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.http.delete(`${API_BASE_URL}/menuitems/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.menuItems.update(items => items.filter(item => item.id !== id));
+        this.loading.set(false);
+      },
+      error: (err) => {
+        const message = err?.error?.error || err?.error?.title || 'Unable to delete menu item';
+        this.error.set(message);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private mapMenuItemFromApi = (apiItem: ApiMenuItemDto): MenuItem => ({
+    id: apiItem.id,
+    name: apiItem.name,
+    description: apiItem.description ?? '',
+    price: Number(apiItem.price),
+    categoryName: apiItem.categoryName,
+    imageUrl: apiItem.imageUrl,
+    preparationTimeMinutes: apiItem.preparationTimeMinutes ?? undefined,
+    isAvailable: apiItem.isAvailable,
+    calories: apiItem.calories ?? undefined,
+    createdAt: apiItem.createdAt,
+    updatedAt: apiItem.updatedAt,
+    allergens: (apiItem.allergens || [])
+      .filter(a => !!a.name)
+      .map(a => ({ name: a.name, icon: a.icon, description: a.description })),
+    dietaryTags: (apiItem.dietaryRestrictions || []).map(d => d.name).filter(Boolean)
+  });
 }

@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using CampusEats.Api.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,7 +45,7 @@ public static class IdentityServiceExtensions
                     ValidateIssuer = true,
                     ValidateAudience = false,
                     NameClaimType = JwtRegisteredClaimNames.GivenName,
-                    RoleClaimType = "role",
+                    RoleClaimType = ClaimTypes.Role,
                 };
             });
 

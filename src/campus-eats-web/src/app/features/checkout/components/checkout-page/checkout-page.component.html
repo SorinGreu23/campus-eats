@@ -1,0 +1,119 @@
+<div class="checkout-page">
+  <div class="checkout-container">
+    <header class="page-header">
+      <button pButton icon="pi pi-arrow-left" class="p-button-text back-btn" (click)="goBack()"></button>
+      <h1 class="page-title">Checkout</h1>
+    </header>
+
+    <div class="checkout-content">
+      <!-- Order Summary Section -->
+      <section class="order-summary-section">
+        <h2 class="section-title">Order Summary</h2>
+        
+        <div class="order-items">
+          @for (item of cartItems(); track item.menuItem.id) {
+            <div class="order-item">
+              <div class="item-info">
+                <div class="item-image-wrapper">
+                  <img 
+                    [src]="item.menuItem.imageUrl || 'https://via.placeholder.com/60x60?text=No+Image'" 
+                    [alt]="item.menuItem.name"
+                    class="item-image"
+                  />
+                </div>
+                <div class="item-details">
+                  <h3 class="item-name">{{ item.menuItem.name }}</h3>
+                  <p class="item-description">{{ item.menuItem.description }}</p>
+                  <div class="item-meta">
+                    <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                    <span class="item-price">{{ item.menuItem.price | number:'1.2-2' }} RON each</span>
+                  </div>
+                </div>
+              </div>
+              <div class="item-total">
+                {{ (item.menuItem.price * item.quantity) | number:'1.2-2' }} RON
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="order-totals">
+          <div class="total-row">
+            <span class="total-label">Subtotal:</span>
+            <span class="total-value">{{ subtotal() | number:'1.2-2' }} RON</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">Tax (21%):</span>
+            <span class="total-value">{{ tax() | number:'1.2-2' }} RON</span>
+          </div>
+          <div class="total-row grand-total">
+            <span class="total-label">Total:</span>
+            <span class="total-value">{{ total() | number:'1.2-2' }} RON</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Delivery Options Section -->
+      <section class="delivery-section">
+        <h2 class="section-title">Delivery Options</h2>
+        
+        <form [formGroup]="checkoutForm" (ngSubmit)="submitOrder()" class="checkout-form">
+          <div class="form-group">
+            <label class="form-label">Order Type</label>
+            <div class="radio-group">
+              @for (type of orderTypes; track type.value) {
+                <div
+                  class="radio-option"
+                  [ngClass]="{ selected: checkoutForm.get('orderType')?.value === type.value }"
+                >
+                  <p-radioButton 
+                    [value]="type.value" 
+                    formControlName="orderType"
+                    [inputId]="type.value"
+                  ></p-radioButton>
+                  <label [for]="type.value" class="radio-label">
+                    <i [class]="type.value === 'Pickup' ? 'pi pi-shopping-bag' : 'pi pi-truck'"></i>
+                    {{ type.label }}
+                  </label>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="deliveryInstructions" class="form-label">
+              Delivery Instructions (Optional)
+            </label>
+            <textarea
+              id="deliveryInstructions"
+              formControlName="deliveryInstructions"
+              placeholder="E.g., Ring the doorbell, Leave at the door, etc."
+              rows="3"
+              class="delivery-textarea"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              pButton
+              type="button"
+              label="Back to Menu"
+              icon="pi pi-arrow-left"
+              class="p-button-outlined back-button"
+              (click)="goBack()"
+            ></button>
+            <button
+              pButton
+              type="submit"
+              label="Place Order"
+              icon="pi pi-check"
+              class="place-order-btn"
+              [disabled]="checkoutForm.invalid || isSubmitting()"
+              [loading]="isSubmitting()"
+            ></button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>

@@ -21,6 +21,10 @@
       </div>
 
       <button pButton type="submit" label="Login" [disabled]="form.invalid || submitting" class="auth-btn"></button>
+
+      @if (error) {
+        <p class="error-banner">{{ error }}</p>
+      }
     </form>
 
     <div class="auth-links">
