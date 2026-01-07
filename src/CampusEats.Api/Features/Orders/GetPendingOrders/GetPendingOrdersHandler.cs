@@ -40,6 +40,7 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IR
                 {
                     Id = oi.Id,
                     MenuItemName = oi.MenuItem!.Name,
+                    MenuItemImageUrl = oi.MenuItem!.ImageUrl,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice,
                     Subtotal = oi.Subtotal,

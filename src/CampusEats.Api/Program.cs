@@ -110,6 +110,7 @@ using (var scope = app.Services.CreateScope())
         await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
         await CategoriesSeeder.SeedCategories(campusDb);
         await MenuItemsSeeder.SeedMenuItems(campusDb);
+        await MenuItemImageUpdater.UpdateMenuItemImages(campusDb);
     }
     catch (Exception ex)
     {

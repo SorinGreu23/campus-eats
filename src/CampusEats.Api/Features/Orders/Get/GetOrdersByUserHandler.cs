@@ -82,6 +82,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
                         i.MenuItem.Name,
                         i.MenuItem.Price,
                         i.MenuItem.Description,
+                        i.MenuItem.ImageUrl,
                     },
                 i.Quantity,
                 i.UnitPrice,
