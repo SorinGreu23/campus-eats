@@ -7,6 +7,7 @@ using CampusEats.Api.Features.DietaryRestrictions;
 using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Orders;
+using CampusEats.Api.Features.Payments;
 using CampusEats.Api.Features.Users;
 using DotNetEnv;
 using FluentValidation;
@@ -93,6 +94,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
 
@@ -139,5 +141,6 @@ app.MapMenuEndpoints();
 app.MapAllergenEndpoints();
 app.MapDietaryRestrictionEndpoints();
 app.MapOrdersEndpoints();
+app.MapPaymentsEndpoints();
 
 app.Run();
