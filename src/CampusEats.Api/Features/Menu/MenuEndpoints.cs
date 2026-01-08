@@ -27,11 +27,12 @@ public static class MenuEndpoints
                     [FromQuery] Guid? categoryId,
                     [FromQuery] Guid[]? dietaryRestrictionIds,
                     [FromQuery] bool? isAvailable,
+                    [FromQuery] string? searchTerm,
                     [FromServices] IMediator mediator
                 ) =>
                 {
                     return await mediator.Send(
-                        new GetItemsRequest(categoryId, dietaryRestrictionIds, isAvailable)
+                        new GetItemsRequest(categoryId, dietaryRestrictionIds, isAvailable, searchTerm)
                     );
                 }
             )
@@ -41,8 +42,9 @@ public static class MenuEndpoints
             {
                 operation.Summary = "Get all menu items with optional filtering";
                 operation.Description =
-                    "Retrieve menu items filtered by category, dietary restrictions, and availability. "
-                    + "Multiple dietary restrictions will be combined with AND logic (item must have ALL specified restrictions).";
+                    "Retrieve menu items filtered by category ID, dietary restrictions, availability, and search term. "
+                    + "Multiple dietary restrictions will be combined with AND logic (item must have ALL specified restrictions). "
+                    + "Search term filters by name and description (case-insensitive).";
                 return operation;
             });
 

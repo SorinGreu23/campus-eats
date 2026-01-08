@@ -25,9 +25,12 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IR
 
         var orders = await _context
             .Orders.Where(o => pendingStatuses.Contains(o.Status))
-            .OrderBy(o => o.CreatedAt)
             .Include(o => o.Items)
                 .ThenInclude(oi => oi.MenuItem)
+            .ToListAsync(cancellationToken);
+
+        var pendingOrders = orders
+            .OrderBy(o => o.CreatedAt)
             .Select(o => new PendingOrderDto
             {
                 Id = o.Id,
@@ -40,14 +43,15 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersQuery, IR
                 {
                     Id = oi.Id,
                     MenuItemName = oi.MenuItem!.Name,
+                    MenuItemImageUrl = oi.MenuItem.ImageUrl,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice,
                     Subtotal = oi.Subtotal,
                     SpecialInstructions = oi.SpecialInstructions,
                 }),
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
 
-        return Results.Ok(orders);
+        return Results.Ok(pendingOrders);
     }
 }

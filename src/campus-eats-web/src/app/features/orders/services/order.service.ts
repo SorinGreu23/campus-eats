@@ -11,6 +11,7 @@ type ApiOrderItem = {
     name: string;
     price: number;
     description?: string;
+    imageUrl?: string;
   };
   quantity: number;
   unitPrice: number;
@@ -198,6 +199,7 @@ export class OrderService {
     orderId: undefined,
     menuItemId: api.menuItemId,
     menuItemName: api.menuItem?.name ?? 'Menu item',
+    menuItemImage: api.menuItem?.imageUrl,
     menuItemDescription: api.menuItem?.description,
     quantity: api.quantity,
     unitPrice: Number(api.unitPrice),
