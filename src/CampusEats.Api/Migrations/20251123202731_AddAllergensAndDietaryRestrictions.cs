@@ -11,29 +11,60 @@ namespace CampusEats.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "f_k_inventory_transactions_inventory_items_inventory_item_id",
-                table: "inventory_transactions"
-            );
+            // Drop foreign keys only if they exist
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'f_k_inventory_transactions_inventory_items_inventory_item_id') THEN
+                        ALTER TABLE inventory_transactions DROP CONSTRAINT f_k_inventory_transactions_inventory_items_inventory_item_id;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.DropForeignKey(
-                name: "f_k_menu_items_categories_category_id",
-                table: "menu_items"
-            );
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'f_k_menu_items_categories_category_id') THEN
+                        ALTER TABLE menu_items DROP CONSTRAINT f_k_menu_items_categories_category_id;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.DropForeignKey(
-                name: "f_k_order_items_menu_items_menu_item_id",
-                table: "order_items"
-            );
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'f_k_order_items_menu_items_menu_item_id') THEN
+                        ALTER TABLE order_items DROP CONSTRAINT f_k_order_items_menu_items_menu_item_id;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.DropForeignKey(
-                name: "f_k_order_items_orders_order_id",
-                table: "order_items"
-            );
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'f_k_order_items_orders_order_id') THEN
+                        ALTER TABLE order_items DROP CONSTRAINT f_k_order_items_orders_order_id;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.DropForeignKey(name: "f_k_orders__users_user_id", table: "orders");
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'f_k_orders__users_user_id') THEN
+                        ALTER TABLE orders DROP CONSTRAINT f_k_orders__users_user_id;
+                    END IF;
+                END $$;
+            ");
 
-            migrationBuilder.DropTable(name: "users");
+            migrationBuilder.Sql(@"
+                DO $$ 
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
+                        DROP TABLE users;
+                    END IF;
+                END $$;
+            ");
 
             migrationBuilder.DropPrimaryKey(name: "p_k_payments", table: "payments");
 

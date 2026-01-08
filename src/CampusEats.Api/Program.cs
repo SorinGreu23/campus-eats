@@ -4,6 +4,7 @@ using CampusEats.Api.Data;
 using CampusEats.Api.Data.Extensions;
 using CampusEats.Api.Features.Allergens;
 using CampusEats.Api.Features.DietaryRestrictions;
+using CampusEats.Api.Features.Inventory;
 using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Orders;
@@ -104,12 +105,53 @@ using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
 
+    // Add missing columns if they don't exist
+    try
+    {
+        await campusDb.Database.ExecuteSqlRawAsync(@"
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'inventory_items' AND column_name = 'UpdatedAt'
+                ) THEN
+                    ALTER TABLE inventory_items ADD COLUMN ""UpdatedAt"" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'inventory_transactions' AND column_name = 'CreatedAt'
+                ) THEN
+                    ALTER TABLE inventory_transactions ADD COLUMN ""CreatedAt"" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'inventory_items' AND column_name = 'IsOutOfStock'
+                ) THEN
+                    ALTER TABLE inventory_items ADD COLUMN ""IsOutOfStock"" boolean DEFAULT false;
+                END IF;
+            END $$;
+        ");
+
+        // Update IsOutOfStock flag for all items based on current quantity
+        await campusDb.Database.ExecuteSqlRawAsync(@"
+            UPDATE inventory_items 
+            SET ""IsOutOfStock"" = (""CurrentQuantity"" <= 0);
+        ");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Column addition warning: {ex.Message}");
+    }
+
     try
     {
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
         await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
         await CategoriesSeeder.SeedCategories(campusDb);
         await MenuItemsSeeder.SeedMenuItems(campusDb);
+        await InventorySeeder.SeedInventory(campusDb);
     }
     catch (Exception ex)
     {
@@ -138,6 +180,7 @@ app.MapLoyaltyPointsEndpoints();
 app.MapMenuEndpoints();
 app.MapAllergenEndpoints();
 app.MapDietaryRestrictionEndpoints();
+app.MapInventoryEndpoints();
 app.MapOrdersEndpoints();
 
 app.Run();
