@@ -27,6 +27,10 @@ public class CreateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
+        await context.SaveChangesAsync();
+        
         var validator = Substitute.For<IValidator<CreateItemRequest>>();
         validator.ValidateAsync(Arg.Any<CreateItemRequest>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult());
@@ -105,6 +109,9 @@ public class CreateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
+        
         var allergenId1 = Guid.NewGuid();
         var allergenId2 = Guid.NewGuid();
         
@@ -153,6 +160,9 @@ public class CreateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
+        
         var restrictionId = Guid.NewGuid();
         
         var restriction = new DietaryRestriction { Id = restrictionId, Name = "Vegan" };

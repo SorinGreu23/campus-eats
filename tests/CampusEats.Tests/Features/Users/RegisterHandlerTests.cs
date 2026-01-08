@@ -26,12 +26,12 @@ public class RegisterHandlerTests
 
         var handler = new RegisterHandler(userManager, roleManager, validator);
         var request = new RegisterRequest(
-            "testuser",
             "test@example.com",
+            "Password123!",
             "Test",
             "User",
-            "Password123!",
-            null
+            "User",
+            "testuser"
         );
 
         // Act
@@ -52,12 +52,12 @@ public class RegisterHandlerTests
 
         var handler = new RegisterHandler(userManager, roleManager, validator);
         var request = new RegisterRequest(
-            "testuser",
             "invalid-email",
+            "weak",
             "Test",
             "User",
-            "weak",
-            null
+            "User",
+            "testuser"
         );
 
         // Act
@@ -82,12 +82,12 @@ public class RegisterHandlerTests
 
         var handler = new RegisterHandler(userManager, roleManager, validator);
         var request = new RegisterRequest(
-            "testuser",
             "test@example.com",
+            "Password123!",
             "Test",
             "User",
-            "Password123!",
-            null
+            "User",
+            "testuser"
         );
 
         // Act
