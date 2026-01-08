@@ -9,8 +9,10 @@ namespace CampusEats.Api.Features.Menu;
 /// <param name="CategoryId">Optional category ID to filter menu items</param>
 /// <param name="DietaryRestrictionIds">Optional array of dietary restriction IDs - items must match ALL specified restrictions</param>
 /// <param name="IsAvailable">Optional filter for item availability status</param>
+/// <param name="SearchTerm">Optional search term to filter by name or description (case-insensitive)</param>
 public record GetItemsRequest(
     Guid? CategoryId = null,
     Guid[]? DietaryRestrictionIds = null,
-    bool? IsAvailable = null
+    bool? IsAvailable = null,
+    string? SearchTerm = null
 ) : IRequest<IResult>;
