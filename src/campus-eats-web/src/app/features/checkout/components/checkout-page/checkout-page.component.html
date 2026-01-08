@@ -5,7 +5,9 @@
       <h1 class="page-title">Checkout</h1>
     </header>
 
-    <div class="checkout-content">
+    @if (!showPayment()) {
+      <!-- Order Summary and Checkout Form -->
+      <div class="checkout-content">
       <!-- Order Summary Section -->
       <section class="order-summary-section">
         <h2 class="section-title">Order Summary</h2>
@@ -105,8 +107,8 @@
             <button
               pButton
               type="submit"
-              label="Place Order"
-              icon="pi pi-check"
+              label="Continue to Payment"
+              icon="pi pi-arrow-right"
               class="place-order-btn"
               [disabled]="checkoutForm.invalid || isSubmitting()"
               [loading]="isSubmitting()"
@@ -115,5 +117,49 @@
         </form>
       </section>
     </div>
+    }
+
+    @if (showPayment()) {
+      <!-- Payment Section -->
+      <div class="payment-content">
+        <section class="payment-section">
+          <h2 class="section-title">Payment Details</h2>
+          
+          <div class="payment-summary">
+            <p class="payment-info">
+              <i class="pi pi-info-circle"></i>
+              Complete your payment to confirm your order
+            </p>
+            <div class="payment-total">
+              <span>Total Amount:</span>
+              <strong>{{ total() | number:'1.2-2' }} RON</strong>
+            </div>
+          </div>
+
+          <!-- Stripe Payment Element Container -->
+          <div class="payment-element-container">
+            <div #paymentElement class="payment-element"></div>
+          </div>
+
+          <div class="payment-actions">
+            <button
+              pButton
+              type="button"
+              label="Pay Now"
+              icon="pi pi-credit-card"
+              class="pay-button"
+              [disabled]="isSubmitting()"
+              [loading]="isSubmitting()"
+              (click)="completePayment()"
+            ></button>
+          </div>
+
+          <div class="payment-security">
+            <i class="pi pi-lock"></i>
+            <span>Secure payment powered by Stripe</span>
+          </div>
+        </section>
+      </div>
+    }
   </div>
 </div>
