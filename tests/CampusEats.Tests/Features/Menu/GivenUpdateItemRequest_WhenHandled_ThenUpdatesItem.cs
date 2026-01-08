@@ -27,6 +27,8 @@ public class UpdateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
         var menuItemId = Guid.NewGuid();
         
         var menuItem = new MenuItem
@@ -35,6 +37,7 @@ public class UpdateItemHandlerTests
             Name = "Old Name",
             Description = "Old description",
             Price = 9.99m,
+            CategoryId = category.Id,
             IsAvailable = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -167,6 +170,8 @@ public class UpdateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
         var menuItemId = Guid.NewGuid();
         var oldAllergenId = Guid.NewGuid();
         var newAllergenId = Guid.NewGuid();
@@ -180,6 +185,7 @@ public class UpdateItemHandlerTests
             Id = menuItemId,
             Name = "Test Item",
             Price = 10.99m,
+            CategoryId = category.Id,
             IsAvailable = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -234,6 +240,8 @@ public class UpdateItemHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", DisplayOrder = 1 };
+        context.Categories.Add(category);
         var menuItemId = Guid.NewGuid();
         var oldRestrictionId = Guid.NewGuid();
         var newRestrictionId = Guid.NewGuid();
@@ -247,6 +255,7 @@ public class UpdateItemHandlerTests
             Id = menuItemId,
             Name = "Test Item",
             Price = 10.99m,
+            CategoryId = category.Id,
             IsAvailable = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow

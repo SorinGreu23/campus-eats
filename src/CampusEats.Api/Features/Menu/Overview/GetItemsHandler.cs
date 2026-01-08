@@ -50,12 +50,23 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
             }
         }
 
+        // Filter by search term if specified (name or description)
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var searchLower = request.SearchTerm.ToLower();
+            query = query.Where(m =>
+                m.Name.ToLower().Contains(searchLower) ||
+                (m.Description != null && m.Description.ToLower().Contains(searchLower))
+            );
+        }
+
         var items = await query
             .Select(m => new GetItemsResponse(
                 m.Id,
                 m.Name,
                 m.Description,
                 m.Price,
+                m.CategoryId,
                 m.Category != null ? m.Category.Name : null,
                 m.ImageUrl,
                 m.PreparationTimeMinutes,

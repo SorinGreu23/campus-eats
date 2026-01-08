@@ -58,10 +58,8 @@ public class UpdateUserHandler : IRequestHandler<UpdateUserRequest, IResult>
         }
 
         var currentUserId = _userManager.GetUserId(httpContext.User);
-        var isAdmin = await _userManager.IsInRoleAsync(
-            await _userManager.GetUserAsync(httpContext.User),
-            "Admin"
-        );
+        var currentUser = await _userManager.GetUserAsync(httpContext.User);
+        var isAdmin = currentUser != null && await _userManager.IsInRoleAsync(currentUser, "Admin");
         if (currentUserId != routeId && !isAdmin)
         {
             return Results.Forbid();

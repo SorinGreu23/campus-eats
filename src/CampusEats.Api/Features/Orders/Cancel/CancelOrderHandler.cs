@@ -48,10 +48,6 @@ public class CancelOrderHandler : IRequestHandler<CancelOrderRequest, IResult>
             && string.Equals(order.UserId, currentUserId, StringComparison.Ordinal);
         if (!isAdminOrKitchen && !isOwner)
             return Results.Forbid();
-        else
-            throw new InvalidOperationException(
-                "Unable to determine user roles; cannot proceed with order cancellation."
-            );
 
         if (
             !string.IsNullOrWhiteSpace(order.Status)

@@ -9,7 +9,7 @@ public class PendingOrderDto
     public string? SpecialInstructions { get; set; }
     public DateTimeOffset? PickupTime { get; set; }
     public DateTimeOffset? CreatedAt { get; set; }
-    public IEnumerable<PendingOrderItemDto> Items { get; set; }
+    public IEnumerable<PendingOrderItemDto> Items { get; set; } = new List<PendingOrderItemDto>();
 }
 
 public class PendingOrderItemDto
