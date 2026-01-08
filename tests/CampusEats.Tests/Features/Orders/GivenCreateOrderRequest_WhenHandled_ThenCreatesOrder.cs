@@ -80,7 +80,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -111,14 +111,29 @@ public class CreateOrderHandlerTests
         await using var context = CreateContext();
         var authenticatedUserId = "user123";
         var requestUserId = "user456";
+        var menuItemId = Guid.NewGuid();
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Test Item",
+            Description = "Test",
+            Price = 10.00m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
         var httpContextAccessor = CreateMockHttpContextAccessor(authenticatedUserId);
         var handler = new CreateOrderHandler(context, httpContextAccessor);
         var request = new CreateOrderRequest
         {
             UserId = requestUserId,
+            OrderType = "Pickup",
             Items = new List<CreateOrderItemRequest>
             {
-                new() { MenuItemId = Guid.NewGuid(), Quantity = 1 }
+                new() { MenuItemId = menuItemId, Quantity = 1 }
             }
         };
 
@@ -150,7 +165,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -190,7 +205,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Created<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
         
         var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
         createdOrder.ShouldNotBeNull();
@@ -244,6 +259,7 @@ public class CreateOrderHandlerTests
         var request = new CreateOrderRequest
         {
             UserId = userId,
+            OrderType = "Pickup",
             Items = new List<CreateOrderItemRequest>
             {
                 new() { MenuItemId = menuItem1Id, Quantity = 2 },
@@ -255,7 +271,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Created<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
         
         var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
         createdOrder.ShouldNotBeNull();
@@ -301,7 +317,7 @@ public class CreateOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Created<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
         
         var createdOrder = await context.Orders.FirstOrDefaultAsync();
         createdOrder.ShouldNotBeNull();

@@ -155,6 +155,7 @@ public class RedeemRewardHandlerTests
         // Assert
         result.ShouldBeOfType<BadRequest<string>>();
         var badRequest = (BadRequest<string>)result;
+        badRequest.Value.ShouldNotBeNull();
         badRequest.Value.ShouldContain("Insufficient points");
     }
 
@@ -199,6 +200,7 @@ public class RedeemRewardHandlerTests
         // Assert
         result.ShouldBeOfType<BadRequest<string>>();
         var badRequest = (BadRequest<string>)result;
+        badRequest.Value.ShouldNotBeNull();
         badRequest.Value.ShouldContain("requires Gold tier");
     }
 
@@ -390,6 +392,7 @@ public class RedeemRewardHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<RedeemRewardResponse>>();
         var okResult = (Ok<RedeemRewardResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.NewPointsBalance.ShouldBe(300);
     }
 }

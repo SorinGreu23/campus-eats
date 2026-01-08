@@ -47,7 +47,8 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersRequest, 
                     i.MenuItem.Id,
                     i.MenuItem.Name,
                     i.MenuItem.Price,
-                    i.MenuItem.Description
+                    i.MenuItem.Description,
+                    i.MenuItem.ImageUrl
                 },
                 i.Quantity,
                 i.UnitPrice,

@@ -30,7 +30,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<NotFound<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(NotFound<>));
     }
 
     [Fact]
@@ -61,6 +61,7 @@ public class CompleteOrderHandlerTests
             UserId = "user123",
             Status = "Cancelled",
             OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -77,7 +78,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -93,6 +94,7 @@ public class CompleteOrderHandlerTests
             UserId = "user123",
             Status = "Completed",
             OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -109,7 +111,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -126,6 +128,7 @@ public class CompleteOrderHandlerTests
             UserId = "user123",
             Status = "Pending",
             OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 15.00m,
             Tax = 3.15m,
             Discount = 0m,
@@ -151,7 +154,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var updatedOrder = await context.Orders.FindAsync(orderId);
         updatedOrder.ShouldNotBeNull();
@@ -172,6 +175,7 @@ public class CompleteOrderHandlerTests
             UserId = "user123",
             Status = "InProgress",
             OrderType = "Delivery",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 20.00m,
             Tax = 4.20m,
             Discount = 2.00m,
@@ -187,7 +191,7 @@ public class CompleteOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var updatedOrder = await context.Orders.FindAsync(orderId);
         updatedOrder.ShouldNotBeNull();

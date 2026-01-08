@@ -139,6 +139,7 @@ public class AddPointsHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<AddPointsResponse>>();
         var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.Tier.ShouldBe("Silver");
         okResult.Value.LifetimePoints.ShouldBe(1100);
     }
@@ -169,6 +170,7 @@ public class AddPointsHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<AddPointsResponse>>();
         var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.Tier.ShouldBe("Gold");
         okResult.Value.LifetimePoints.ShouldBe(5100);
     }
@@ -199,6 +201,7 @@ public class AddPointsHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<AddPointsResponse>>();
         var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.Tier.ShouldBe("Platinum");
         okResult.Value.LifetimePoints.ShouldBe(10100);
     }

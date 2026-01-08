@@ -107,6 +107,7 @@ public class GetLoyaltyPointsHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<LoyaltyPointsResponse>>();
         var okResult = (Ok<LoyaltyPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.Tier.ShouldBe("Bronze");
     }
 
@@ -136,6 +137,7 @@ public class GetLoyaltyPointsHandlerTests
         // Assert
         result.ShouldBeOfType<Ok<LoyaltyPointsResponse>>();
         var okResult = (Ok<LoyaltyPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
         okResult.Value.Tier.ShouldBe("Platinum");
         okResult.Value.PointsBalance.ShouldBe(5000);
         okResult.Value.LifetimePoints.ShouldBe(15000);

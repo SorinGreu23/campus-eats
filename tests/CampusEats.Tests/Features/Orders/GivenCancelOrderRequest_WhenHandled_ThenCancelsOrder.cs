@@ -84,7 +84,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<NotFound<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(NotFound<>));
     }
 
     [Fact]
@@ -121,6 +121,7 @@ public class CancelOrderHandlerTests
             UserId = userId,
             Status = "Cancelled",
             OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -143,7 +144,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -159,6 +160,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-002",
             UserId = userId,
             Status = "Completed",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 15.00m,
             Tax = 3.15m,
             Discount = 0m,
@@ -180,7 +183,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<BadRequest<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
     }
 
     [Fact]
@@ -197,6 +200,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-003",
             UserId = orderOwnerId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 20.00m,
             Tax = 4.20m,
             Discount = 0m,
@@ -217,7 +222,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var cancelledOrder = await context.Orders.FindAsync(orderId);
         cancelledOrder.ShouldNotBeNull();
@@ -240,6 +245,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-004",
             UserId = orderOwnerId,
             Status = "InProgress",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 25.00m,
             Tax = 5.25m,
             Discount = 0m,
@@ -260,7 +267,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var cancelledOrder = await context.Orders.FindAsync(orderId);
         cancelledOrder.ShouldNotBeNull();
@@ -281,6 +288,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-005",
             UserId = userId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 12.00m,
             Tax = 2.52m,
             Discount = 0m,
@@ -301,7 +310,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var cancelledOrder = await context.Orders.FindAsync(orderId);
         cancelledOrder.ShouldNotBeNull();
@@ -324,6 +333,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-006",
             UserId = otherUserId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -360,6 +371,8 @@ public class CancelOrderHandlerTests
             OrderNumber = "ORD-007",
             UserId = userId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 8.00m,
             Tax = 1.68m,
             Discount = 0m,
@@ -380,7 +393,7 @@ public class CancelOrderHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var cancelledOrder = await context.Orders.FindAsync(orderId);
         cancelledOrder.ShouldNotBeNull();

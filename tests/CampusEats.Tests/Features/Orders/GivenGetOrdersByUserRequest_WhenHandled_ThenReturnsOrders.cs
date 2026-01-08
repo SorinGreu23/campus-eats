@@ -76,8 +76,8 @@ public class GetOrdersByUserHandlerTests
         // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
-        result.ShouldBeOfType<NotFound<object>>();
+        // Assert - Should return Ok with empty array, not NotFound
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
     }
 
     [Fact]
@@ -93,6 +93,7 @@ public class GetOrdersByUserHandlerTests
             UserId = userId,
             Status = "Pending",
             OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 15.00m,
             Tax = 3.15m,
             Discount = 0m,
@@ -109,7 +110,7 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
     }
 
     [Fact]
@@ -125,6 +126,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = otherUserId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -157,6 +160,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = targetUserId,
             Status = "Completed",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 20.00m,
             Tax = 4.20m,
             Discount = 0m,
@@ -174,7 +179,7 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
     }
 
     [Fact]
@@ -190,6 +195,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = targetUserId,
             Status = "InProgress",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 25.00m,
             Tax = 5.25m,
             Discount = 0m,
@@ -206,7 +213,7 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
     }
 
     [Fact]
@@ -222,6 +229,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = userId,
             Status = "Completed",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -234,6 +243,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-002",
             UserId = userId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 15.00m,
             Tax = 3.15m,
             Discount = 0m,
@@ -254,7 +265,7 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var orders = await context.Orders
             .Where(o => o.UserId == userId)
@@ -288,6 +299,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = userId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 20.00m,
             Tax = 4.20m,
             Discount = 0m,
@@ -318,7 +331,7 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
         
         var orderFromDb = await context.Orders
             .Include(o => o.Items)
@@ -342,6 +355,8 @@ public class GetOrdersByUserHandlerTests
             OrderNumber = "ORD-001",
             UserId = userId,
             Status = "Pending",
+            OrderType = "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
             Subtotal = 10.00m,
             Tax = 2.10m,
             Discount = 0m,
@@ -358,6 +373,6 @@ public class GetOrdersByUserHandlerTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        result.ShouldBeOfType<Ok<object>>();
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Ok<>));
     }
 }

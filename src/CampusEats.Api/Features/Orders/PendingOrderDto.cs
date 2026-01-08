@@ -9,13 +9,14 @@ public class PendingOrderDto
     public string? SpecialInstructions { get; set; }
     public DateTimeOffset? PickupTime { get; set; }
     public DateTimeOffset? CreatedAt { get; set; }
-    public IEnumerable<PendingOrderItemDto> Items { get; set; }
+    public IEnumerable<PendingOrderItemDto> Items { get; set; } = new List<PendingOrderItemDto>();
 }
 
 public class PendingOrderItemDto
 {
     public Guid Id { get; set; }
     public string? MenuItemName { get; set; }
+    public string? MenuItemImageUrl { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal Subtotal { get; set; }
