@@ -8,6 +8,7 @@ using CampusEats.Api.Features.Inventory;
 using CampusEats.Api.Features.LoyaltyPoints;
 using CampusEats.Api.Features.Menu;
 using CampusEats.Api.Features.Orders;
+using CampusEats.Api.Features.Payments;
 using CampusEats.Api.Features.Users;
 using DotNetEnv;
 using FluentValidation;
@@ -75,8 +76,13 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_Password");
 var connectionString =
     $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-builder.Services.AddDbContext<CampusDbContext>(opt => opt.UseNpgsql(connectionString));
-builder.Services.AddDbContext<IdentityDbContext>(opt => opt.UseNpgsql(connectionString));
+builder.Services.AddDbContext<CampusDbContext>(opt => 
+    opt.UseNpgsql(connectionString, 
+        npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public")));
+        
+builder.Services.AddDbContext<IdentityDbContext>(opt => 
+    opt.UseNpgsql(connectionString, 
+        npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistoryIdentity", "public")));
 
 builder.Services.AddCors(options =>
 {
@@ -93,7 +99,16 @@ builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
+// Configure Stripe settings from environment variables
+builder.Configuration["Stripe:SecretKey"] = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY") 
+    ?? builder.Configuration["Stripe:SecretKey"];
+builder.Configuration["Stripe:PublishableKey"] = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY") 
+    ?? builder.Configuration["Stripe:PublishableKey"];
+builder.Configuration["Stripe:WebhookSecret"] = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET") 
+    ?? builder.Configuration["Stripe:WebhookSecret"];
+
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
 
@@ -105,45 +120,31 @@ using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
 
-    // Add missing columns if they don't exist
-    try
+    // Mark existing migrations as applied to avoid recreating tables
+    var appliedMigrations = new[]
     {
-        await campusDb.Database.ExecuteSqlRawAsync(@"
-            DO $$ 
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'inventory_items' AND column_name = 'UpdatedAt'
-                ) THEN
-                    ALTER TABLE inventory_items ADD COLUMN ""UpdatedAt"" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;
-                END IF;
+        "20251110081448_InitialCreate",
+        "20251123104037_InitialCampus",
+        "20251123110224_RemoveOrderUserNavigation",
+        "20251123202731_AddAllergensAndDietaryRestrictions",
+        "20251123215748_AddMinimumTierToLoyaltyReward",
+        "20251123221117_AddLoyaltyClaim",
+        "20251126093741_AddOrderTypeToOrder",
+        "20251126204226_AddDescriptionToAllergensAndDietaryRestrictions",
+        "20260107134457_AddStripePaymentIntegration",
+        "20260107140402_MakeOrderTypeNullable",
+        "20260108194543_AddUpdatedAtColumn"
+    };
 
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'inventory_transactions' AND column_name = 'CreatedAt'
-                ) THEN
-                    ALTER TABLE inventory_transactions ADD COLUMN ""CreatedAt"" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;
-                END IF;
-
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'inventory_items' AND column_name = 'IsOutOfStock'
-                ) THEN
-                    ALTER TABLE inventory_items ADD COLUMN ""IsOutOfStock"" boolean DEFAULT false;
-                END IF;
-            END $$;
-        ");
-
-        // Update IsOutOfStock flag for all items based on current quantity
-        await campusDb.Database.ExecuteSqlRawAsync(@"
-            UPDATE inventory_items 
-            SET ""IsOutOfStock"" = (""CurrentQuantity"" <= 0);
-        ");
-    }
-    catch (Exception ex)
+    foreach (var migration in appliedMigrations)
     {
-        Console.WriteLine($"Column addition warning: {ex.Message}");
+        await campusDb.Database.ExecuteSqlRawAsync(
+            $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
+            $"VALUES ('{migration}', '9.0.10') ON CONFLICT DO NOTHING");
     }
+
+    // Apply new migrations
+    await campusDb.Database.MigrateAsync();
 
     try
     {
@@ -152,6 +153,7 @@ using (var scope = app.Services.CreateScope())
         await CategoriesSeeder.SeedCategories(campusDb);
         await MenuItemsSeeder.SeedMenuItems(campusDb);
         await InventorySeeder.SeedInventory(campusDb);
+        await MenuItemImageUpdater.UpdateMenuItemImages(campusDb);
     }
     catch (Exception ex)
     {
@@ -182,5 +184,6 @@ app.MapAllergenEndpoints();
 app.MapDietaryRestrictionEndpoints();
 app.MapInventoryEndpoints();
 app.MapOrdersEndpoints();
+app.MapPaymentsEndpoints();
 
 app.Run();

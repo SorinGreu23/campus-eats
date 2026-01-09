@@ -11,6 +11,7 @@ type ApiOrderItem = {
     name: string;
     price: number;
     description?: string;
+    imageUrl?: string;
   };
   quantity: number;
   unitPrice: number;
@@ -29,6 +30,7 @@ type ApiOrder = {
   total: number;
   deliveryInstructions?: string;
   pickupTime?: string;
+  placedAt?: string;
   completedAt?: string;
   cancelledAt?: string;
   cancellationReason?: string;
@@ -88,7 +90,9 @@ export class OrderService {
 
     this.http.get<ApiOrder[]>(`${API_BASE_URL}/orders/user/me`, { headers }).subscribe({
       next: (response) => {
+        console.log('Raw API response:', response);
         const mapped = response.map(this.mapOrderFromApi);
+        console.log('Mapped orders:', mapped);
         this.orders.set(mapped);
         this.loading.set(false);
       },
@@ -187,6 +191,7 @@ export class OrderService {
     deliveryInstructions: api.deliveryInstructions,
     pickupTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
     estimatedDeliveryTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
+    placedAt: api.placedAt ? new Date(api.placedAt) : undefined,
     completedAt: api.completedAt ? new Date(api.completedAt) : undefined,
     cancelledAt: api.cancelledAt ? new Date(api.cancelledAt) : undefined,
     cancellationReason: api.cancellationReason,
@@ -196,12 +201,13 @@ export class OrderService {
   private mapOrderItemFromApi = (api: ApiOrderItem): OrderItem => ({
     id: api.id,
     orderId: undefined,
-    menuItemId: api.menuItemId,
-    menuItemName: api.menuItem?.name ?? 'Menu item',
+    menuItemId: api.menuItemId ?? api.menuItem?.id,
+    menuItemName: api.menuItem?.name ?? 'Unknown Item',
+    menuItemImage: api.menuItem?.imageUrl,
     menuItemDescription: api.menuItem?.description,
-    quantity: api.quantity,
-    unitPrice: Number(api.unitPrice),
-    subtotal: Number(api.subtotal),
+    quantity: api.quantity ?? 1,
+    unitPrice: Number(api.unitPrice ?? 0),
+    subtotal: Number(api.subtotal ?? 0),
     specialInstructions: api.specialInstructions
   });
 

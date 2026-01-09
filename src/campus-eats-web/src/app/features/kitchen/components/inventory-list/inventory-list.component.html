@@ -1,0 +1,130 @@
+<div class="inventory-container">
+  <div class="inventory-header">
+    <h2>Inventory Management</h2>
+    <button class="refresh-btn" (click)="refresh()" [disabled]="loading()">
+      <span class="icon">🔄</span> Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading inventory...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-alert">
+      <span class="icon">⚠️</span>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="inventory-grid">
+      @for (item of items(); track item.id) {
+        <div class="inventory-card" [class]="getStockStatusClass(item)">
+          <div class="card-header">
+            <h3>{{ item.name }}</h3>
+            <span class="status-badge" [class]="getStockStatusClass(item)">
+              {{ getStockStatusLabel(item) }}
+            </span>
+          </div>
+          
+          <div class="card-body">
+            <div class="quantity-info">
+              <div class="quantity-row">
+                <span class="label">Current Stock:</span>
+                <span class="value">{{ item.currentQuantity }} {{ item.unit }}</span>
+              </div>
+              <div class="quantity-row">
+                <span class="label">Minimum Required:</span>
+                <span class="value">{{ item.minimumQuantity }} {{ item.unit }}</span>
+              </div>
+            </div>
+
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="(item.currentQuantity / (item.minimumQuantity * 2)) * 100"
+                [class]="getStockStatusClass(item)">
+              </div>
+            </div>
+
+            <div class="last-updated">
+              Last updated: {{ item.updatedAt | date:'short' }}
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button 
+              class="restock-btn" 
+              (click)="openRestockModal(item)"
+              [class.urgent]="item.isLowStock || item.isOutOfStock">
+              <span class="icon">📦</span>
+              {{ item.isOutOfStock ? 'Restock Now' : 'Add Stock' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Restock Modal -->
+  @if (showRestockModal()) {
+    <div class="modal-overlay" (click)="closeRestockModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Restock {{ selectedItem()?.name }}</h3>
+          <button class="close-btn" (click)="closeRestockModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="current-stock-info">
+            <p>Current Stock: <strong>{{ selectedItem()?.currentQuantity }} {{ selectedItem()?.unit }}</strong></p>
+            <p>Minimum Required: <strong>{{ selectedItem()?.minimumQuantity }} {{ selectedItem()?.unit }}</strong></p>
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantity to Add *</label>
+            <div class="input-with-unit">
+              <input 
+                type="number" 
+                id="quantity"
+                min="0"
+                step="0.01"
+                [value]="restockQuantity()"
+                (input)="restockQuantity.set(+$any($event.target).value)"
+                placeholder="Enter quantity">
+              <span class="unit-label">{{ selectedItem()?.unit }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reason">Reason (Optional)</label>
+            <textarea 
+              id="reason"
+              rows="3"
+              [value]="restockReason()"
+              (input)="restockReason.set($any($event.target).value)"
+              placeholder="Enter reason for restocking..."></textarea>
+          </div>
+
+          <div class="new-total">
+            New Total: <strong>{{ (selectedItem()?.currentQuantity || 0) + restockQuantity() }} {{ selectedItem()?.unit }}</strong>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeRestockModal()">Cancel</button>
+          <button 
+            class="submit-btn" 
+            (click)="submitRestock()"
+            [disabled]="restockQuantity() <= 0">
+            Confirm Restock
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

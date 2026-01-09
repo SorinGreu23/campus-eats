@@ -1,6 +1,5 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
-using CampusEats.Api.Data.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -69,7 +68,8 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
             UserId = request.UserId,
             Status = "Pending",
             DeliveryInstructions = request.DeliveryInstructions,
-            OrderType = request.OrderType,
+            OrderType = request.OrderType ?? "Pickup",
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
         // If the client specified Delivery, ensure PickupTime is null

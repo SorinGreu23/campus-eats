@@ -22,10 +22,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.CompletedAt);
         builder.Property(x => x.CancelledAt);
         builder.Property(x => x.CancellationReason);
-
-        // Timestamps are not persisted in current schema; ignore to prevent missing-column errors
-        builder.Ignore(x => x.CreatedAt);
-        builder.Ignore(x => x.UpdatedAt);
+        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.Property(x => x.UpdatedAt);
 
         // User navigation property is ignored - User is managed by IdentityDbContext
         builder.Ignore(x => x.User);

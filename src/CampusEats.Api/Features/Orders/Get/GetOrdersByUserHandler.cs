@@ -34,7 +34,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
             .ToList();
         var isAdminOrKitchen = roles.Contains("Admin") || roles.Contains("Kitchen");
         if (string.IsNullOrWhiteSpace(request.UserId))
-            request.UserId = currentUserId;
+            request.UserId = currentUserId ?? string.Empty;
 
         if (
             !isAdminOrKitchen
@@ -52,9 +52,6 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
             .OrderByDescending(o => o.Id)
             .ToListAsync(cancellationToken);
 
-        if (orders == null || !orders.Any())
-            return Results.NotFound(new { error = "No orders found for the specified user." });
-
         var result = orders.Select(o => new
         {
             o.Id,
@@ -67,6 +64,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
             o.Total,
             o.DeliveryInstructions,
             o.PickupTime,
+            PlacedAt = o.CreatedAt,
             o.CompletedAt,
             o.CancelledAt,
             o.CancellationReason,
@@ -82,6 +80,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
                         i.MenuItem.Name,
                         i.MenuItem.Price,
                         i.MenuItem.Description,
+                        i.MenuItem.ImageUrl,
                     },
                 i.Quantity,
                 i.UnitPrice,

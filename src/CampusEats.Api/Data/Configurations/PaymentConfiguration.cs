@@ -17,5 +17,13 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.CreatedAt);
 
         builder.HasIndex(x => x.OrderId);
+        
+        // Relationships
+        builder.HasOne(p => p.Order)
+            .WithMany(o => o.Payments)
+            .HasForeignKey(p => p.OrderId)
+            .OnDelete(DeleteBehavior.SetNull);
+            
+        builder.Ignore(p => p.User);
     }
 }

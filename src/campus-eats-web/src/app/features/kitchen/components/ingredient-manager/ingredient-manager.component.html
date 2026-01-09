@@ -1,0 +1,182 @@
+<div class="ingredient-manager">
+  <div class="manager-layout">
+    <!-- Left Panel: Menu Items List -->
+    <aside class="menu-items-panel">
+      <h2 class="panel-title">Menu Items</h2>
+      
+      @if (menuItems().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-shopping-bag"></i>
+          <p>No menu items found</p>
+        </div>
+      } @else {
+        <div class="menu-items-list">
+          @for (item of menuItems(); track item.id) {
+            <button
+              class="menu-item-card"
+              [class.selected]="selectedMenuItemId() === item.id"
+              (click)="selectMenuItem(item.id)">
+              <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=60&h=60&fit=crop'" [alt]="item.name" class="item-image">
+              <div class="item-info">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-price">{{ item.price.toFixed(2) }} RON</span>
+              </div>
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    <!-- Right Panel: Ingredients Management -->
+    <main class="ingredients-panel">
+      @if (!selectedMenuItemId()) {
+        <div class="empty-state">
+          <i class="pi pi-arrow-left"></i>
+          <p>Select a menu item to manage ingredients</p>
+        </div>
+      } @else {
+        <div class="panel-header">
+          <div class="selected-item-info">
+            <img 
+              [src]="selectedMenuItem()?.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=60&h=60&fit=crop'" 
+              [alt]="selectedMenuItem()?.name"
+              class="item-image-large">
+            <div>
+              <h2>{{ selectedMenuItem()?.name }}</h2>
+              <p class="item-description">{{ selectedMenuItem()?.description }}</p>
+            </div>
+          </div>
+          <button class="add-ingredient-btn" (click)="openAddModal()">
+            <i class="pi pi-plus"></i>
+            Add Ingredient
+          </button>
+        </div>
+
+        <div class="ingredients-content">
+          @if (ingredients().length === 0) {
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>No ingredients configured</p>
+              <p class="empty-hint">Add ingredients to enable inventory tracking</p>
+            </div>
+          } @else {
+            <div class="ingredients-table">
+              <div class="table-header">
+                <span>Ingredient</span>
+                <span>Required</span>
+                <span>Available</span>
+                <span>Actions</span>
+              </div>
+              @for (ing of ingredients(); track ing.inventoryItemId) {
+                <div class="table-row">
+                  <div class="ingredient-name">
+                    <i class="pi pi-box"></i>
+                    {{ ing.inventoryItem.name }}
+                  </div>
+                  
+                  @if (editingIngredient()?.inventoryItemId === ing.inventoryItemId) {
+                    <div class="quantity-edit">
+                      <input
+                        type="number"
+                        [value]="editingIngredient()?.quantity"
+                        (input)="updateEditQuantity(+$any($event.target).value)"
+                        min="0.01"
+                        step="0.01"
+                        class="quantity-input">
+                      <span class="unit">{{ ing.inventoryItem.unit }}</span>
+                    </div>
+                  } @else {
+                    <div class="quantity-display">
+                      {{ ing.quantityRequired }} {{ ing.inventoryItem.unit }}
+                    </div>
+                  }
+                  
+                  <div class="stock-status" [class.low-stock]="ing.inventoryItem.currentQuantity <= ing.inventoryItem.minimumQuantity">
+                    {{ ing.inventoryItem.currentQuantity }} {{ ing.inventoryItem.unit }}
+                  </div>
+                  
+                  <div class="actions">
+                    @if (editingIngredient()?.inventoryItemId === ing.inventoryItemId) {
+                      <button class="action-btn save-btn" (click)="saveEdit(ing.inventoryItemId)">
+                        <i class="pi pi-check"></i>
+                      </button>
+                      <button class="action-btn cancel-btn" (click)="cancelEdit()">
+                        <i class="pi pi-times"></i>
+                      </button>
+                    } @else {
+                      <button class="action-btn edit-btn" (click)="startEdit(ing.inventoryItemId, ing.quantityRequired)">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="action-btn delete-btn" (click)="deleteIngredient(ing.inventoryItemId)">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </main>
+  </div>
+
+  <!-- Add Ingredient Modal -->
+  @if (showAddModal()) {
+    <div class="modal-overlay" (click)="closeAddModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Add Ingredient</h3>
+          <button class="close-btn" (click)="closeAddModal()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Inventory Item</label>
+            <select 
+              [(ngModel)]="selectedInventoryItemId" 
+              (ngModelChange)="selectedInventoryItemId.set($event)"
+              class="form-control">
+              <option [value]="null">Select an item...</option>
+              @for (item of availableInventoryItems(); track item.id) {
+                <option [value]="item.id">{{ item.name }} ({{ item.currentQuantity }} {{ item.unit }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Quantity Required</label>
+            <div class="quantity-input-group">
+              <input
+                type="number"
+                [(ngModel)]="quantityRequired"
+                (ngModelChange)="quantityRequired.set($event)"
+                min="0.01"
+                step="0.01"
+                class="form-control"
+                placeholder="0.00">
+              @if (selectedInventoryItemId()) {
+                <span class="unit-label">
+                  {{ selectedInventoryItemUnit() }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeAddModal()">Cancel</button>
+          <button 
+            class="save-btn" 
+            (click)="addIngredient()"
+            [disabled]="!selectedInventoryItemId() || quantityRequired() <= 0">
+            Add Ingredient
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
