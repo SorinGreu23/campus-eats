@@ -6,13 +6,11 @@ namespace CampusEats.Api.Common.Services;
 
 public class StripePaymentService : IStripePaymentService
 {
-    private readonly string _secretKey;
-
     public StripePaymentService(IConfiguration configuration)
     {
-        _secretKey = configuration["Stripe:SecretKey"] 
+        var secretKey = configuration["Stripe:SecretKey"] 
             ?? throw new InvalidOperationException("Stripe SecretKey is not configured");
-        StripeConfiguration.ApiKey = _secretKey;
+        StripeConfiguration.ApiKey = secretKey;
     }
 
     public async Task<string> CreatePaymentIntentAsync(

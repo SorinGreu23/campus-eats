@@ -13,7 +13,7 @@ public static class LoyaltyRewardsSeeder
             .LoyaltyRewards.Where(r => r.MinimumTier == null)
             .ToListAsync();
 
-        if (rewardsWithoutTier.Any())
+        if (rewardsWithoutTier.Count != 0)
         {
             // Clear old rewards without tier info and reseed
             context.LoyaltyRewards.RemoveRange(rewardsWithoutTier);
