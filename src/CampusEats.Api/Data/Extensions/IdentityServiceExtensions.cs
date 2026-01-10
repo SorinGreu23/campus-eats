@@ -35,13 +35,18 @@ public static class IdentityServiceExtensions
             })
             .AddJwtBearer(options =>
             {
+                var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+                    ?? throw new InvalidOperationException(
+                        "JWT secret key is missing. Set the JWT_SECRET_KEY environment variable."
+                    );
+                
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Token:Key"]!)
+                        Encoding.UTF8.GetBytes(jwtKey)
                     ),
-                    ValidIssuer = config["Token:Issuer"],
+                    ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "CampusEats.Api",
                     ValidateIssuer = true,
                     ValidateAudience = false,
                     NameClaimType = JwtRegisteredClaimNames.GivenName,

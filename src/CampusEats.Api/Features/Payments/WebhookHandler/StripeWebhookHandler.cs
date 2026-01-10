@@ -7,18 +7,17 @@ namespace CampusEats.Api.Features.Payments.WebhookHandler;
 
 public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResult>
 {
-    private readonly CampusDbContext _db;
-    private readonly IConfiguration _configuration;
+  private const string Key = "orderId";
+  private readonly CampusDbContext _db;
 
-    public StripeWebhookHandler(CampusDbContext db, IConfiguration configuration)
+    public StripeWebhookHandler(CampusDbContext db)
     {
         _db = db;
-        _configuration = configuration;
     }
 
     public async Task<IResult> Handle(StripeWebhookRequest request, CancellationToken cancellationToken)
     {
-        var webhookSecret = _configuration["Stripe:WebhookSecret"];
+        var webhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
         if (string.IsNullOrEmpty(webhookSecret))
         {
             return Results.Problem("Webhook secret is not configured.");
@@ -60,8 +59,8 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
 
     private async Task HandlePaymentIntentSucceeded(PaymentIntent paymentIntent, CancellationToken cancellationToken)
     {
-        var orderId = paymentIntent.Metadata.ContainsKey("orderId") 
-            ? Guid.Parse(paymentIntent.Metadata["orderId"]) 
+        var orderId = paymentIntent.Metadata.ContainsKey(Key) 
+            ? Guid.Parse(paymentIntent.Metadata[Key]) 
             : (Guid?)null;
 
         if (!orderId.HasValue)
@@ -89,8 +88,8 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
 
     private async Task HandlePaymentIntentFailed(PaymentIntent paymentIntent, CancellationToken cancellationToken)
     {
-        var orderId = paymentIntent.Metadata.ContainsKey("orderId") 
-            ? Guid.Parse(paymentIntent.Metadata["orderId"]) 
+        var orderId = paymentIntent.Metadata.ContainsKey(Key) 
+            ? Guid.Parse(paymentIntent.Metadata[Key]) 
             : (Guid?)null;
 
         if (!orderId.HasValue)

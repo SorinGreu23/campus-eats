@@ -1,15 +1,16 @@
 using CampusEats.Api.Common.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Stripe;
 
 namespace CampusEats.Api.Common.Services;
 
 public class StripePaymentService : IStripePaymentService
 {
-    public StripePaymentService(IConfiguration configuration)
+    public StripePaymentService()
     {
-        var secretKey = configuration["Stripe:SecretKey"] 
-            ?? throw new InvalidOperationException("Stripe SecretKey is not configured");
+        var secretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
+            ?? throw new InvalidOperationException(
+                "Stripe secret key is missing. Set the STRIPE_SECRET_KEY environment variable."
+            );
         StripeConfiguration.ApiKey = secretKey;
     }
 
