@@ -144,4 +144,4 @@ app.MapDietaryRestrictionEndpoints();
 app.MapOrdersEndpoints();
 app.MapPaymentsEndpoints();
 
-app.Run();
+await app.RunAsync();

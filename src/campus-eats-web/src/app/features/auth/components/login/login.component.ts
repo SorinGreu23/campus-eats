@@ -16,8 +16,8 @@ import { AuthStateService } from '../../../../shared/services/auth-state.service
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private authService = inject(AuthService);
   private authState = inject(AuthStateService);
 
