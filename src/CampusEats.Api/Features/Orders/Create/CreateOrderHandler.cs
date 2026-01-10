@@ -41,15 +41,57 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
                 new { error = "Invalid items. Each item must reference a MenuItemId." }
             );
 
-        // Load menu items from DB
+        // Load menu items from DB with ingredients
         var menuItems = await _db
-            .MenuItems.Where(m => menuItemIds.Contains(m.Id))
+            .MenuItems
+            .Include(m => m.Ingredients)
+                .ThenInclude(mi => mi.InventoryItem)
+            .Where(m => menuItemIds.Contains(m.Id))
             .ToListAsync(cancellationToken);
         if (menuItems.Count != menuItemIds.Count)
             return Results.BadRequest(new { error = "One or more menu items were not found." });
 
         if (string.IsNullOrWhiteSpace(request.UserId))
             return Results.BadRequest(new { error = "userId is required." });
+
+        // Validate stock availability for all items before creating the order
+        var stockErrors = new List<string>();
+        foreach (var itemReq in request.Items)
+        {
+            if (!itemReq.MenuItemId.HasValue)
+                continue;
+            
+            var menuItem = menuItems.First(m => m.Id == itemReq.MenuItemId.Value);
+            var requestedQuantity = Math.Max(1, itemReq.Quantity);
+            
+            // Check if menu item has ingredients
+            if (menuItem.Ingredients.Any())
+            {
+                foreach (var ingredient in menuItem.Ingredients)
+                {
+                    var requiredQuantity = ingredient.QuantityRequired * requestedQuantity;
+                    var availableQuantity = ingredient.InventoryItem.CurrentQuantity;
+                    
+                    if (availableQuantity < requiredQuantity)
+                    {
+                        stockErrors.Add(
+                            $"Insufficient stock for '{menuItem.Name}': " +
+                            $"requires {requiredQuantity} {ingredient.InventoryItem.Unit} of {ingredient.InventoryItem.Name}, " +
+                            $"but only {availableQuantity} {ingredient.InventoryItem.Unit} available."
+                        );
+                    }
+                }
+            }
+        }
+        
+        if (stockErrors.Any())
+        {
+            return Results.BadRequest(new 
+            { 
+                error = "Insufficient stock for one or more items.",
+                details = stockErrors
+            });
+        }
 
         // Only the owner (authenticated user) can create an order for their account
         var currentUserId = httpContext

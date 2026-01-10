@@ -189,4 +189,153 @@ public class GetItemsHandlerTests
         okResult.Value[0].DietaryRestrictions!.Count.ShouldBe(1);
         okResult.Value[0].DietaryRestrictions![0].Name.ShouldBe("Vegetarian");
     }
+
+    [Fact]
+    public async Task GivenItemWithInsufficientStock_WhenHandleIsCalled_ThenItemIsExcluded()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+        
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Beef Patty",
+            Unit = "kg",
+            CurrentQuantity = 5m,
+            MinimumQuantity = 2m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Burger",
+            Description = "Beef burger",
+            Price = 10.99m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 10m // Requires 10kg but only 5kg available
+        };
+        
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+        
+        var handler = new GetItemsHandler(context);
+        var request = new GetItemsRequest();
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<Ok<List<GetItemsResponse>>>();
+        var okResult = (Ok<List<GetItemsResponse>>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.Count.ShouldBe(0); // Item should be excluded due to insufficient stock
+    }
+
+    [Fact]
+    public async Task GivenItemWithSufficientStock_WhenHandleIsCalled_ThenItemIsIncluded()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+        
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Beef Patty",
+            Unit = "kg",
+            CurrentQuantity = 100m,
+            MinimumQuantity = 10m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Burger",
+            Description = "Beef burger",
+            Price = 10.99m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 0.25m // Requires 0.25kg and 100kg available
+        };
+        
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+        
+        var handler = new GetItemsHandler(context);
+        var request = new GetItemsRequest();
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<Ok<List<GetItemsResponse>>>();
+        var okResult = (Ok<List<GetItemsResponse>>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.Count.ShouldBe(1);
+        okResult.Value[0].Name.ShouldBe("Burger");
+    }
+
+    [Fact]
+    public async Task GivenItemWithNoIngredients_WhenHandleIsCalled_ThenItemIsIncluded()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        
+        var menuItem = new MenuItem
+        {
+            Id = Guid.NewGuid(),
+            Name = "Coffee",
+            Description = "Black coffee (no inventory tracking)",
+            Price = 2.99m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        var handler = new GetItemsHandler(context);
+        var request = new GetItemsRequest();
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<Ok<List<GetItemsResponse>>>();
+        var okResult = (Ok<List<GetItemsResponse>>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.Count.ShouldBe(1);
+        okResult.Value[0].Name.ShouldBe("Coffee");
+    }
 }
