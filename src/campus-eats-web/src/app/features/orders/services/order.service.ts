@@ -117,7 +117,9 @@ export class OrderService {
     this.http.get<ApiOrder[]>(`${API_BASE_URL}/orders/pending`, headers ? { headers } : undefined).subscribe({
       next: (response) => {
         const mapped = response.map(this.mapOrderFromApi);
-        this.kitchenOrders.set(mapped);
+        // Filter to only show orders with Pending status
+        const pendingOnly = mapped.filter(order => order.status === OrderStatus.Pending);
+        this.kitchenOrders.set(pendingOnly);
         this.kitchenLoading.set(false);
       },
       error: (err) => {

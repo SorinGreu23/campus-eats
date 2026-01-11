@@ -17,7 +17,7 @@ public class GetPendingOrdersHandler : IRequestHandler<GetPendingOrdersRequest, 
     public async Task<IResult> Handle(GetPendingOrdersRequest request, CancellationToken cancellationToken)
     {
         var orders = await _db.Orders
-            .Where(o => o.Status != null && o.Status == "Paid")
+            .Where(o => o.Status != null && o.Status == "Pending")
             .Include(o => o.Items)
                 .ThenInclude(i => i.MenuItem)
             .OrderBy(o => o.Id)
