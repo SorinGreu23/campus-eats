@@ -4,11 +4,13 @@ import { MenuService } from '../../../menu/services/menu.service';
 import { OrderService } from '../../../orders/services/order.service';
 import { MenuItem } from '../../../menu/models/menu-item.model';
 import { MenuItemFormModalComponent } from '../menu-item-form-modal/menu-item-form-modal.component';
+import { InventoryListComponent } from '../inventory-list/inventory-list.component';
+import { IngredientManagerComponent } from '../ingredient-manager/ingredient-manager.component';
 
 @Component({
   selector: 'app-kitchen-dashboard',
   standalone: true,
-  imports: [CommonModule, MenuItemFormModalComponent],
+  imports: [CommonModule, MenuItemFormModalComponent, InventoryListComponent, IngredientManagerComponent],
   templateUrl: './kitchen-dashboard.component.html',
   styleUrl: './kitchen-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -29,6 +31,8 @@ export class KitchenDashboardComponent implements OnInit {
 
   showFormModal = signal(false);
   editingItem = signal<MenuItem | null>(null);
+  
+  activeTab = signal<'orders' | 'menu' | 'inventory' | 'ingredients'>('orders');
 
   ngOnInit(): void {
     this.menuService.loadMenuItems();
@@ -63,5 +67,9 @@ export class KitchenDashboardComponent implements OnInit {
   refresh(): void {
     this.menuService.loadMenuItems(true);
     this.orderService.loadPendingOrders(true);
+  }
+  
+  setActiveTab(tab: 'orders' | 'menu' | 'inventory' | 'ingredients'): void {
+    this.activeTab.set(tab);
   }
 }

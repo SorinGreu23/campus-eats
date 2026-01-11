@@ -324,4 +324,321 @@ public class CreateOrderHandlerTests
         createdOrder.OrderType.ShouldBe("Delivery");
         createdOrder.PickupTime.ShouldBeNull();
     }
+
+    [Fact]
+    public async Task GivenInsufficientStock_WhenCreatingOrder_ThenReturnsBadRequest()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Beef Patty",
+            Unit = "kg",
+            CurrentQuantity = 1m, // Only 1kg available
+            MinimumQuantity = 0.5m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Burger",
+            Description = "Beef burger",
+            Price = 10.00m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 0.25m // Requires 0.25kg per burger
+        };
+
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItemId, Quantity = 5 } // Trying to order 5 burgers (needs 1.25kg, but only 1kg available)
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
+        
+        // Verify no order was created
+        var orderCount = await context.Orders.CountAsync();
+        orderCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task GivenSufficientStock_WhenCreatingOrder_ThenCreatesOrder()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Beef Patty",
+            Unit = "kg",
+            CurrentQuantity = 100m, // Plenty available
+            MinimumQuantity = 10m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Burger",
+            Description = "Beef burger",
+            Price = 10.00m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 0.25m // Requires 0.25kg per burger
+        };
+
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItemId, Quantity = 2 } // Ordering 2 burgers (needs 0.5kg, plenty available)
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
+        
+        // Verify order was created
+        var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
+        createdOrder.ShouldNotBeNull();
+        createdOrder.Items.Count.ShouldBe(1);
+        createdOrder.Items.First().Quantity.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task GivenItemWithNoIngredients_WhenCreatingOrder_ThenCreatesOrder()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItemId = Guid.NewGuid();
+
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Coffee",
+            Description = "Black coffee (no inventory tracking)",
+            Price = 2.99m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItemId, Quantity = 10 } // No ingredients, so any quantity is allowed
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
+        
+        // Verify order was created
+        var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
+        createdOrder.ShouldNotBeNull();
+        createdOrder.Items.Count.ShouldBe(1);
+        createdOrder.Items.First().Quantity.ShouldBe(10);
+    }
+
+    [Fact]
+    public async Task GivenExactStockMatch_WhenOrderingOne_ThenCreatesOrder()
+    {
+        // Arrange: 1kg chicken breast available, 1 item requires 1kg
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Chicken Breast",
+            Unit = "kg",
+            CurrentQuantity = 1m, // Exactly 1kg available
+            MinimumQuantity = 0.5m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Chicken Dish",
+            Description = "Grilled chicken",
+            Price = 15.00m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 1m // Requires exactly 1kg per item
+        };
+
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItemId, Quantity = 1 } // Order exactly 1 item
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
+        
+        var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
+        createdOrder.ShouldNotBeNull();
+        createdOrder.Items.Count.ShouldBe(1);
+        createdOrder.Items.First().Quantity.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task GivenExactStockMatch_WhenOrderingTwo_ThenReturnsBadRequest()
+    {
+        // Arrange: 1kg chicken breast available, 1 item requires 1kg, trying to order 2
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItemId = Guid.NewGuid();
+        var inventoryItemId = Guid.NewGuid();
+
+        var inventoryItem = new InventoryItem
+        {
+            Id = inventoryItemId,
+            Name = "Chicken Breast",
+            Unit = "kg",
+            CurrentQuantity = 1m, // Exactly 1kg available
+            MinimumQuantity = 0.5m,
+            IsOutOfStock = false,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Chicken Dish",
+            Description = "Grilled chicken",
+            Price = 15.00m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+
+        var menuItemIngredient = new MenuItemIngredient
+        {
+            MenuItemId = menuItemId,
+            InventoryItemId = inventoryItemId,
+            QuantityRequired = 1m // Requires exactly 1kg per item
+        };
+
+        context.InventoryItems.Add(inventoryItem);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        context.MenuItemIngredients.Add(menuItemIngredient);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItemId, Quantity = 2 } // Try to order 2 items (would need 2kg)
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert - Should be rejected because we need 2kg but only have 1kg
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
+        
+        // Verify no order was created
+        var orderCount = await context.Orders.CountAsync();
+        orderCount.ShouldBe(0);
+    }
 }
