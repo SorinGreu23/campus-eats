@@ -17,7 +17,6 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor("test-user-id", false);
 
         var user = new ApplicationUser
@@ -41,7 +40,7 @@ public class GetUserHandlerTests
         userManager.GetRolesAsync(user)
             .Returns(new List<string> { "Customer" });
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("test-user-id");
 
         // Act
@@ -57,7 +56,6 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor("admin-user-id", true);
 
         var adminUser = new ApplicationUser
@@ -91,7 +89,7 @@ public class GetUserHandlerTests
         userManager.GetRolesAsync(targetUser)
             .Returns(new List<string> { "Customer" });
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("test-user-id");
 
         // Act
@@ -107,10 +105,9 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor(null, false, isAuthenticated: false);
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("test-user-id");
 
         // Act & Assert
@@ -124,7 +121,6 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor("admin-user-id", true);
 
         var adminUser = new ApplicationUser
@@ -146,7 +142,7 @@ public class GetUserHandlerTests
         userManager.FindByIdAsync("nonexistent-id")
             .Returns((ApplicationUser?)null);
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("nonexistent-id");
 
         // Act
@@ -162,7 +158,6 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor("test-user-id", false);
 
         var user = new ApplicationUser
@@ -184,7 +179,7 @@ public class GetUserHandlerTests
         userManager.FindByIdAsync("test-user-id")
             .Returns(user);
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("test-user-id");
 
         // Act
@@ -200,7 +195,6 @@ public class GetUserHandlerTests
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var tokenService = Substitute.For<ITokenService>();
         var httpContextAccessor = CreateMockHttpContextAccessor("test-user-id", false);
 
         var user = new ApplicationUser
@@ -224,7 +218,7 @@ public class GetUserHandlerTests
         userManager.GetRolesAsync(user)
             .Returns(new List<string>());
 
-        var handler = new GetUserHandler(userManager, tokenService, httpContextAccessor);
+        var handler = new GetUserHandler(userManager, httpContextAccessor);
         var request = new GetUserRequest("test-user-id");
 
         // Act
@@ -235,7 +229,7 @@ public class GetUserHandlerTests
         await userManager.Received(1).FindByIdAsync("test-user-id");
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -244,7 +238,7 @@ public class GetUserHandlerTests
         return userManager;
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(string? userId, bool isAdmin, bool isAuthenticated = true)
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(string? userId, bool isAdmin, bool isAuthenticated = true)
     {
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var httpContext = Substitute.For<HttpContext>();

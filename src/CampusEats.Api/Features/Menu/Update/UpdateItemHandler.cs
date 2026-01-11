@@ -2,7 +2,6 @@ using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Menu;
@@ -71,9 +70,9 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
 
         // Update allergens
         menuItem.MenuItemAllergens.Clear();
-        if (command.Request.AllergenIds?.Any() == true)
+        if (command.Request.AllergenIds?.Count > 0)
         {
-            foreach (var allergenId in command.Request.AllergenIds)
+            foreach (var allergenId in command.Request.AllergenIds!)
             {
                 menuItem.MenuItemAllergens.Add(
                     new MenuItemAllergen { MenuItemId = menuItem.Id, AllergenId = allergenId }
@@ -83,9 +82,9 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
 
         // Update dietary restrictions
         menuItem.MenuItemDietaryRestrictions.Clear();
-        if (command.Request.DietaryRestrictionIds?.Any() == true)
+        if (command.Request.DietaryRestrictionIds?.Count > 0)
         {
-            foreach (var restrictionId in command.Request.DietaryRestrictionIds)
+            foreach (var restrictionId in command.Request.DietaryRestrictionIds!)
             {
                 menuItem.MenuItemDietaryRestrictions.Add(
                     new MenuItemDietaryRestriction

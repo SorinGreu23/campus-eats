@@ -199,7 +199,7 @@ public class LoginHandlerTests
         await signInManager.DidNotReceive().CheckPasswordSignInAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>(), Arg.Any<bool>());
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -208,7 +208,7 @@ public class LoginHandlerTests
         return userManager;
     }
 
-    private SignInManager<ApplicationUser> CreateMockSignInManager(UserManager<ApplicationUser> userManager)
+    private static SignInManager<ApplicationUser> CreateMockSignInManager(UserManager<ApplicationUser> userManager)
     {
         var contextAccessor = Substitute.For<Microsoft.AspNetCore.Http.IHttpContextAccessor>();
         var claimsFactory = Substitute.For<IUserClaimsPrincipalFactory<ApplicationUser>>();
@@ -218,7 +218,7 @@ public class LoginHandlerTests
         return signInManager;
     }
 
-    private IValidator<LoginRequest> CreateMockValidator(bool isValid = true)
+    private static IValidator<LoginRequest> CreateMockValidator(bool isValid = true)
     {
         var validator = Substitute.For<IValidator<LoginRequest>>();
         var validationResult = new ValidationResult();

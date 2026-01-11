@@ -1,8 +1,6 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Orders.Create;
@@ -28,7 +26,7 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
         if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
             return Results.Unauthorized();
 
-        if (request.Items == null || !request.Items.Any())
+        if (request.Items == null || request.Items.Count == 0)
             return Results.BadRequest(new { error = "Order must contain at least one item." });
 
         // Collect menu item ids
@@ -36,7 +34,7 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
             .Items.Where(i => i.MenuItemId.HasValue)
             .Select(i => i.MenuItemId!.Value)
             .ToList();
-        if (!menuItemIds.Any())
+        if (menuItemIds.Count == 0)
             return Results.BadRequest(
                 new { error = "Invalid items. Each item must reference a MenuItemId." }
             );

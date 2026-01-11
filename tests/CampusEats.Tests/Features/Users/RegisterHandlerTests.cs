@@ -3,11 +3,9 @@ using CampusEats.Api.Features.Users.Create;
 using CampusEats.Api.Features.Users.Register;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Shouldly;
-using Xunit;
 
 namespace CampusEats.Tests.Features.Users;
 
@@ -307,7 +305,87 @@ public class RegisterHandlerTests
         await userManager.DidNotReceive().AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    [Fact]
+    public async Task GivenDuplicateEmail_WhenRegistering_ThenReturnsBadRequest()
+    {
+        // Arrange
+        var userManager = CreateMockUserManager();
+        var roleManager = CreateMockRoleManager();
+        var validator = CreateMockValidator(isValid: true);
+
+        var errors = new[] 
+        { 
+            new IdentityError 
+            { 
+                Code = "DuplicateEmail",
+                Description = "Email 'test@example.com' is already taken." 
+            } 
+        };
+        
+        userManager.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+            .Returns(IdentityResult.Failed(errors));
+
+        var handler = new RegisterHandler(userManager, roleManager, validator);
+        var request = new RegisterRequest(
+            "test@example.com",
+            "Password123!",
+            "Test",
+            "User",
+            "User",
+            "testuser"
+        );
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        await userManager.Received(1).CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
+        // Verify no user with duplicate email was created
+        await userManager.DidNotReceive().AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task GivenDuplicateUsername_WhenRegistering_ThenReturnsBadRequest()
+    {
+        // Arrange
+        var userManager = CreateMockUserManager();
+        var roleManager = CreateMockRoleManager();
+        var validator = CreateMockValidator(isValid: true);
+
+        var errors = new[] 
+        { 
+            new IdentityError 
+            { 
+                Code = "DuplicateUserName",
+                Description = "Username 'existinguser' is already taken." 
+            } 
+        };
+        
+        userManager.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+            .Returns(IdentityResult.Failed(errors));
+
+        var handler = new RegisterHandler(userManager, roleManager, validator);
+        var request = new RegisterRequest(
+            "newemail@example.com",
+            "Password123!",
+            "Test",
+            "User",
+            "User",
+            "existinguser"
+        );
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        await userManager.Received(1).CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
+        // Verify no roles were assigned since user creation failed
+        await userManager.DidNotReceive().AddToRoleAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>());
+    }
+
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -316,7 +394,7 @@ public class RegisterHandlerTests
         return userManager;
     }
 
-    private RoleManager<IdentityRole> CreateMockRoleManager()
+    private static RoleManager<IdentityRole> CreateMockRoleManager()
     {
         var store = Substitute.For<IRoleStore<IdentityRole>>();
         var roleManager = Substitute.For<RoleManager<IdentityRole>>(
@@ -325,7 +403,7 @@ public class RegisterHandlerTests
         return roleManager;
     }
 
-    private IValidator<RegisterRequest> CreateMockValidator(bool isValid = true)
+    private static IValidator<RegisterRequest> CreateMockValidator(bool isValid = true)
     {
         var validator = Substitute.For<IValidator<RegisterRequest>>();
         var validationResult = new ValidationResult();

@@ -72,8 +72,8 @@
 
   <!-- Restock Modal -->
   @if (showRestockModal()) {
-    <div class="modal-overlay" (click)="closeRestockModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-overlay" (click)="closeRestockModal()" (keydown.escape)="closeRestockModal()">
+      <dialog class="modal-content" open (click)="$event.stopPropagation()" (keydown.escape)="closeRestockModal()">
         <div class="modal-header">
           <h3>Restock {{ selectedItem()?.name }}</h3>
           <button class="close-btn" (click)="closeRestockModal()">×</button>
@@ -124,7 +124,7 @@
             Confirm Restock
           </button>
         </div>
-      </div>
+      </dialog>
     </div>
   }
 </div>

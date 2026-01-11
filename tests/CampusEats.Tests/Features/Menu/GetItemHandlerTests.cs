@@ -1,7 +1,6 @@
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Menu;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
@@ -10,7 +9,7 @@ namespace CampusEats.Tests.Features.Menu;
 
 public class GetItemHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())

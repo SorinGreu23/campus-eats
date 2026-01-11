@@ -213,7 +213,7 @@
       color: #1e293b;
 
       i {
-        color: #10b981;
+        color: #047857;
       }
     }
 
@@ -236,17 +236,17 @@
       }
 
       .unit {
-        color: #64748b;
+        color: #475569;
         font-size: 0.875rem;
       }
     }
 
     .stock-status {
       font-weight: 500;
-      color: #10b981;
+      color: #047857;
 
       &.low-stock {
-        color: #ef4444;
+        color: #dc2626;
       }
     }
 
@@ -289,7 +289,7 @@
 
         &.save-btn {
           background: #d1fae5;
-          color: #10b981;
+          color: #047857;
 
           &:hover {
             background: #a7f3d0;
@@ -298,7 +298,7 @@
 
         &.cancel-btn {
           background: #f1f5f9;
-          color: #64748b;
+          color: #475569;
 
           &:hover {
             background: #e2e8f0;
@@ -379,7 +379,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      color: #64748b;
+      color: #475569;
       transition: all 0.2s;
 
       &:hover {
@@ -422,7 +422,7 @@
 
         .unit-label {
           font-weight: 500;
-          color: #64748b;
+          color: #475569;
         }
       }
     }
@@ -445,7 +445,7 @@
 
       &.cancel-btn {
         background: #f1f5f9;
-        color: #64748b;
+        color: #475569;
 
         &:hover {
           background: #e2e8f0;

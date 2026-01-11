@@ -10,14 +10,16 @@ namespace CampusEats.Api.Features.Users;
 
 public static class UserEndpoints
 {
-    public static void MapUserEndpoints(this IEndpointRouteBuilder app)
+  private const string UsersTag = "Users";
+
+  public static void MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost(
                 "/api/users/register",
                 async (RegisterRequest request, IMediator mediator) => await mediator.Send(request)
             )
             .WithName("RegisterUser")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithOpenApi();
 
         app.MapPost(
@@ -25,7 +27,7 @@ public static class UserEndpoints
                 async (LoginRequest request, IMediator mediator) => await mediator.Send(request)
             )
             .WithName("LoginUser")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithOpenApi();
 
         app.MapGet(
@@ -33,7 +35,7 @@ public static class UserEndpoints
                 async (IMediator mediator) => await mediator.Send(new GetUsersQuery())
             )
             .WithName("GetUsers")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithDescription("Lists all users. Admins only.")
             .RequireAuthorization(policy => policy.RequireRole("Admin"))
             .Produces(StatusCodes.Status200OK)
@@ -46,7 +48,7 @@ public static class UserEndpoints
                 async (string id, IMediator mediator) => await mediator.Send(new GetUserRequest(id))
             )
             .WithName("GetUser")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithOpenApi();
 
         app.MapPut(
@@ -55,7 +57,7 @@ public static class UserEndpoints
                     await mediator.Send(request)
             )
             .WithName("UpdateUser")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithDescription("Updates a user. Only the account owner or an admin can update.")
             .RequireAuthorization()
             .Produces(StatusCodes.Status200OK)
@@ -70,7 +72,7 @@ public static class UserEndpoints
                     await mediator.Send(new DeleteUserRequest(id))
             )
             .WithName("DeleteUser")
-            .WithTags("Users")
+            .WithTags(UsersTag)
             .WithDescription(
                 "Deletes a user account. Only the account owner or an admin can delete the account."
             )

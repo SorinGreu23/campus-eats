@@ -218,7 +218,7 @@ public class UpdateOrderStatusHandlerTests
         }
     }
 
-    private IValidator<UpdateOrderStatusRequest> CreateMockValidator(bool isValid = true)
+    private static IValidator<UpdateOrderStatusRequest> CreateMockValidator(bool isValid = true)
     {
         var validator = Substitute.For<IValidator<UpdateOrderStatusRequest>>();
         if (isValid)

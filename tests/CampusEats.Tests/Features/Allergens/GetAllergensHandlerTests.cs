@@ -10,7 +10,7 @@ namespace CampusEats.Tests.Features.Allergens;
 
 public class GetAllergensHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -114,7 +114,7 @@ public class GetAllergensHandlerTests
         var okResult = (Ok<List<AllergenDto>>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(1);
-        var dto = okResult.Value.First();
+        var dto = okResult.Value[0];
         dto.Name.ShouldBe("Shellfish");
         dto.Description.ShouldBeNull();
         dto.Icon.ShouldBeNull();

@@ -10,13 +10,6 @@ import { Toast } from 'primeng/toast';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements OnInit {
+export class App {
   protected readonly title = signal('campus-eats-web');
-  private cartService = inject(CartService);
-
-  ngOnInit(): void {
-    // Cart is now empty by default - items will be added from the menu
-    // Uncomment the line below to see mock data for testing:
-    // this.cartService.initializeMockData();
-  }
 }
