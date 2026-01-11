@@ -9,8 +9,8 @@ const API_BASE_URL = 'http://localhost:5001/api';
   providedIn: 'root'
 })
 export class MenuItemIngredientService {
-  private http = inject(HttpClient);
-  private authState = inject(AuthStateService);
+  private readonly http = inject(HttpClient);
+  private readonly authState = inject(AuthStateService);
 
   ingredients = signal<MenuItemIngredient[]>([]);
   loading = signal(false);
@@ -39,7 +39,7 @@ export class MenuItemIngredientService {
   addIngredient(menuItemId: string, request: AddIngredientRequest): Promise<void> {
     const token = this.authState.token();
     if (!token) {
-      return Promise.reject('Authentication required');
+      return Promise.reject(new Error('Authentication required'));
     }
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -51,7 +51,7 @@ export class MenuItemIngredientService {
             this.loadIngredients(menuItemId);
             resolve();
           },
-          error: (err) => reject(err?.error?.error || 'Failed to add ingredient')
+          error: (err) => reject(new Error(err?.error?.error || 'Failed to add ingredient'))
         });
     });
   }
@@ -59,7 +59,7 @@ export class MenuItemIngredientService {
   updateIngredient(menuItemId: string, inventoryItemId: string, quantityRequired: number): Promise<void> {
     const token = this.authState.token();
     if (!token) {
-      return Promise.reject('Authentication required');
+      return Promise.reject(new Error('Authentication required'));
     }
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -74,7 +74,7 @@ export class MenuItemIngredientService {
           this.loadIngredients(menuItemId);
           resolve();
         },
-        error: (err) => reject(err?.error?.error || 'Failed to update ingredient')
+        error: (err) => reject(new Error(err?.error?.error || 'Failed to update ingredient'))
       });
     });
   }
@@ -82,7 +82,7 @@ export class MenuItemIngredientService {
   deleteIngredient(menuItemId: string, inventoryItemId: string): Promise<void> {
     const token = this.authState.token();
     if (!token) {
-      return Promise.reject('Authentication required');
+      return Promise.reject(new Error('Authentication required'));
     }
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -96,7 +96,7 @@ export class MenuItemIngredientService {
           this.loadIngredients(menuItemId);
           resolve();
         },
-        error: (err) => reject(err?.error?.error || 'Failed to delete ingredient')
+        error: (err) => reject(new Error(err?.error?.error || 'Failed to delete ingredient'))
       });
     });
   }
