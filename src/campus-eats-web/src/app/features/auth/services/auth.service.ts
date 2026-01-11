@@ -34,12 +34,11 @@ export interface RegisterResponse {
   role: string;
 }
 
-// TODO: move to environment configuration when available
 const API_BASE_URL = 'http://localhost:5001/api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${API_BASE_URL}/users/login`, credentials);

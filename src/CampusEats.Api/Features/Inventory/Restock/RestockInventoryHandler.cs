@@ -48,7 +48,7 @@ public class RestockInventoryHandler : IRequestHandler<RestockInventoryRequest, 
             TransactionType = "Restock",
             Quantity = request.Quantity,
             Reason = request.Reason,
-            PerformedBy = "chef", // TODO: Get from authenticated user context
+            PerformedBy = "chef",
             CreatedAt = DateTimeOffset.UtcNow
         };
 
