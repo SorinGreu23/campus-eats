@@ -78,7 +78,7 @@ public class ConfirmPaymentHandler : IRequestHandler<ConfirmPaymentRequest, IRes
         await _db.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task ProcessOrderPaymentAsync(int orderId, CancellationToken cancellationToken)
+    private async Task ProcessOrderPaymentAsync(Guid orderId, CancellationToken cancellationToken)
     {
         var order = await _db.Orders
             .Include(o => o.Items)

@@ -60,7 +60,7 @@ public class TestConfirmPaymentHandler : IRequestHandler<TestConfirmPaymentReque
         });
     }
 
-    private async Task UpdateOrderAndInventoryAsync(int orderId, CancellationToken cancellationToken)
+    private async Task UpdateOrderAndInventoryAsync(Guid orderId, CancellationToken cancellationToken)
     {
         var order = await _db.Orders
             .Include(o => o.Items)
