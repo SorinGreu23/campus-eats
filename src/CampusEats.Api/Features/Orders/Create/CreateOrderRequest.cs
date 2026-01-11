@@ -9,6 +9,7 @@ public class CreateOrderRequest : IRequest<IResult>
     public string? DeliveryInstructions { get; set; }
     public string? OrderType { get; set; }
     public ICollection<CreateOrderItemRequest>? Items { get; set; }
+    public Guid? LoyaltyRewardId { get; set; }
 }
 
 public class CreateOrderItemRequest

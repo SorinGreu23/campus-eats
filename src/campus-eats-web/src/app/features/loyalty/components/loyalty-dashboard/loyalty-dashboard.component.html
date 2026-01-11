@@ -54,7 +54,7 @@
             @if (userReward.reward) {
               <div class="user-reward-card">
                 <img 
-                  [src]="userReward.reward.imageUrl || 'https://via.placeholder.com/300x200?text=Reward'" 
+                  [src]="getRewardImageUrl(userReward.reward.name)" 
                   [alt]="userReward.reward.name"
                   class="reward-image"
                 />
@@ -67,7 +67,7 @@
                       Expires: {{ userReward.expiresAt | date:'short' }}
                     </p>
                   }
-                  <button class="use-reward-btn">
+                  <button class="use-reward-btn" routerLink="/checkout">
                     <i class="pi pi-check-circle"></i>
                     Use Reward
                   </button>
@@ -78,59 +78,39 @@
         </div>
       </div>
     }
-
-    <!-- Available Rewards -->
-    <div class="rewards-section">
-      <h2 class="section-title">
-        <i class="pi pi-shopping-bag"></i>
-        Available Rewards
-      </h2>
-      <div class="rewards-grid">
-        @for (reward of loyaltyService.rewards(); track reward.id) {
-          <app-reward-card 
-            [reward]="reward"
-            [userPoints]="loyaltyService.pointsBalance()"
-            (redeem)="handleRedeemReward($event)"
-          />
-        }
+  } @else {
+    <!-- Login Prompt or Account Creation -->
+    <div class="login-prompt-card">
+      <div class="prompt-icon">
+        <i class="pi pi-user-plus"></i>
       </div>
-    </div>
-
-    <!-- Transaction History -->
-    <div class="transactions-section">
-      <h2 class="section-title">
-        <i class="pi pi-history"></i>
-        Recent Activity
-      </h2>
-      <div class="transactions-list">
-        @for (transaction of loyaltyService.recentTransactions(); track transaction.id) {
-          <div class="transaction-item" [class]="'type-' + transaction.type.toLowerCase()">
-            <div class="transaction-icon">
-              @switch (transaction.type) {
-                @case (TransactionType.Earned) {
-                  <i class="pi pi-arrow-up"></i>
-                }
-                @case (TransactionType.Redeemed) {
-                  <i class="pi pi-arrow-down"></i>
-                }
-                @case (TransactionType.Bonus) {
-                  <i class="pi pi-star-fill"></i>
-                }
-                @case (TransactionType.Expired) {
-                  <i class="pi pi-times-circle"></i>
-                }
-              }
-            </div>
-            <div class="transaction-info">
-              <span class="transaction-description">{{ transaction.description }}</span>
-              <span class="transaction-date">{{ transaction.createdAt | date:'medium' }}</span>
-            </div>
-            <div class="transaction-points" [class.positive]="transaction.points > 0" [class.negative]="transaction.points < 0">
-              {{ transaction.points > 0 ? '+' : '' }}{{ transaction.points }} pts
-            </div>
-          </div>
-        }
-      </div>
+      <h2>Join Our Rewards Program</h2>
+      <p>Sign in to start earning points and unlock exclusive rewards!</p>
+      @if (!isLoggedIn()) {
+        <button class="login-btn" routerLink="/login">
+          <i class="pi pi-sign-in"></i>
+          Sign In
+        </button>
+      } @else {
+        <p>Setting up your rewards account...</p>
+      }
     </div>
   }
+
+  <!-- Available Rewards -->
+  <div class="rewards-section">
+    <h2 class="section-title">
+      <i class="pi pi-shopping-bag"></i>
+      Available Rewards
+    </h2>
+    <div class="rewards-grid">
+      @for (reward of loyaltyService.rewards(); track reward.id) {
+        <app-reward-card 
+          [reward]="reward"
+          [userPoints]="loyaltyService.pointsBalance()"
+          (redeem)="handleRedeemReward($event)"
+        />
+      }
+    </div>
+  </div>
 </div>

@@ -13,7 +13,9 @@ public class GetStripeConfigHandler : IRequestHandler<GetStripeConfigRequest, IR
 
     public Task<IResult> Handle(GetStripeConfigRequest request, CancellationToken cancellationToken)
     {
-        var publishableKey = _configuration["Stripe:PublishableKey"];
+        // Try to get from environment variable first (from .env file), then from appsettings
+        var publishableKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY") 
+            ?? _configuration["Stripe:PublishableKey"];
 
         if (string.IsNullOrEmpty(publishableKey))
         {

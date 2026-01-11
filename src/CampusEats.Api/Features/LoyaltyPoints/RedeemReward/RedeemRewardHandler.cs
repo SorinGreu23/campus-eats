@@ -81,20 +81,34 @@ public class RedeemRewardHandler : IRequestHandler<RedeemRewardRequest, IResult>
             );
         }
 
-        // Deduct points
-        loyaltyAccount.PointsBalance -= reward.PointsCost;
+        // Check if user already has an unused claim for this reward
+        var existingClaim = await _context.LoyaltyClaims.FirstOrDefaultAsync(
+            c =>
+                c.LoyaltyAccountId == loyaltyAccount.Id
+                && c.RewardId == reward.Id
+                && c.Notes != "Used",
+            cancellationToken
+        );
 
-        // Create claim record
+        if (existingClaim != null)
+        {
+            return Results.BadRequest("You have already claimed this reward.");
+        }
+
+        // DO NOT deduct points yet - points will be deducted when the order is placed
+        // This prevents losing points if the user doesn't complete the order
+
+        // Create claim record (reservation)
         var claim = new CampusEats.Api.Data.Entities.LoyaltyClaim
         {
             Id = Guid.NewGuid(),
             LoyaltyAccountId = loyaltyAccount.Id,
             RewardId = reward.Id,
             ClaimedAt = DateTimeOffset.UtcNow,
-            Notes = request.Reason,
+            Notes = request.Reason ?? "Claimed for future use",
         };
 
-        // Save both changes
+        // Save claim
         _context.LoyaltyClaims.Add(claim);
         await _context.SaveChangesAsync(cancellationToken);
 

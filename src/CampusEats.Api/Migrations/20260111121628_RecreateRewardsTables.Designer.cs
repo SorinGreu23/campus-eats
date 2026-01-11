@@ -3,6 +3,7 @@ using System;
 using CampusEats.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CampusEats.Api.Migrations
 {
     [DbContext(typeof(CampusDbContext))]
-    partial class CampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260111121628_RecreateRewardsTables")]
+    partial class RecreateRewardsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,9 +225,6 @@ namespace CampusEats.Api.Migrations
 
                     b.Property<Guid?>("MenuItemId")
                         .HasColumnType("uuid");
-
-                    b.Property<decimal?>("MinimumOrderAmount")
-                        .HasColumnType("numeric");
 
                     b.Property<string>("MinimumTier")
                         .HasMaxLength(50)

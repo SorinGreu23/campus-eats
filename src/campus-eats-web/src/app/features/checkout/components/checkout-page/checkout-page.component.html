@@ -48,6 +48,15 @@
             <span class="total-label">Tax (21%):</span>
             <span class="total-value">{{ tax() | number:'1.2-2' }} RON</span>
           </div>
+          @if (claimedReward()) {
+            <div class="total-row discount-row">
+              <span class="total-label">
+                <i class="pi pi-gift"></i>
+                Claimed Reward ({{ claimedReward()?.reward?.name }}):
+              </span>
+              <span class="total-value discount">-{{ discount() | number:'1.2-2' }} RON</span>
+            </div>
+          }
           <div class="total-row grand-total">
             <span class="total-label">Total:</span>
             <span class="total-value">{{ total() | number:'1.2-2' }} RON</span>

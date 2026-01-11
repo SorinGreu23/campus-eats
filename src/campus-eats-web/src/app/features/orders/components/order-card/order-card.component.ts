@@ -18,18 +18,19 @@ export class OrderCardComponent {
   OrderStatus = OrderStatus;
 
   statusConfig = computed(() => {
-    const status = this.order().status as OrderStatus | undefined;
+    const status = this.order().status as OrderStatus | string | undefined;
     if (!status) return { color: 'info', icon: 'pi-info-circle', label: 'Unknown' };
-    const configs = {
+    const configs: Record<string, { color: string; icon: string; label: string }> = {
       [OrderStatus.Pending]: { color: 'warning', icon: 'pi-clock', label: 'Pending' },
       [OrderStatus.Confirmed]: { color: 'info', icon: 'pi-check', label: 'Confirmed' },
       [OrderStatus.Preparing]: { color: 'warning', icon: 'pi-spin pi-spinner', label: 'Preparing' },
       [OrderStatus.Ready]: { color: 'success', icon: 'pi-check-circle', label: 'Ready' },
       [OrderStatus.InDelivery]: { color: 'info', icon: 'pi-truck', label: 'On the Way' },
       [OrderStatus.Completed]: { color: 'success', icon: 'pi-check', label: 'Completed' },
-      [OrderStatus.Cancelled]: { color: 'danger', icon: 'pi-times-circle', label: 'Cancelled' }
+      [OrderStatus.Cancelled]: { color: 'danger', icon: 'pi-times-circle', label: 'Cancelled' },
+      'Paid': { color: 'success', icon: 'pi-check', label: 'Paid' }
     };
-    return configs[status];
+    return configs[status] || { color: 'info', icon: 'pi-info-circle', label: status };
   });
 
   timeRemaining = computed(() => {

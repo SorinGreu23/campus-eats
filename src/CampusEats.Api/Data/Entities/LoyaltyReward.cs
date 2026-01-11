@@ -14,4 +14,5 @@ public class LoyaltyReward
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidUntil { get; set; }
     public string? MinimumTier { get; set; } // Bronze, Silver, Gold, Platinum
+    public decimal? MinimumOrderAmount { get; set; } // Minimum order subtotal required to use this reward
 }
