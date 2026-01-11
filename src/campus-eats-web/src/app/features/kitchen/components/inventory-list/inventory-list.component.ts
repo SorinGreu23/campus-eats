@@ -11,7 +11,7 @@ import { InventoryItem } from '../../../../shared/models/inventory.model';
   styleUrl: './inventory-list.component.scss'
 })
 export class InventoryListComponent implements OnInit {
-  private inventoryService = inject(InventoryService);
+  private readonly inventoryService = inject(InventoryService);
 
   items = this.inventoryService.items;
   loading = this.inventoryService.loading;

@@ -80,13 +80,6 @@
     </div>
 
     <div class="card-actions">
-      @if (order().status !== OrderStatus.Completed && order().status !== OrderStatus.Cancelled) {
-        <button class="track-order-btn">
-          <i class="pi pi-map-marker"></i>
-          Track Order
-        </button>
-      }
-      
       @if (canCancel()) {
         <button class="cancel-order-btn" (click)="onCancel()">
           <i class="pi pi-times"></i>

@@ -16,8 +16,8 @@ import { IngredientManagerComponent } from '../ingredient-manager/ingredient-man
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KitchenDashboardComponent implements OnInit {
-  private menuService = inject(MenuService);
-  private orderService = inject(OrderService);
+  private readonly menuService = inject(MenuService);
+  private readonly orderService = inject(OrderService);
 
   menuItems = this.menuService.menuItems;
   menuLoading = this.menuService.loading;

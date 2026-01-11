@@ -21,7 +21,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background: #4CAF50;
+    background: #388E3C;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -30,7 +30,7 @@
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-      background: #45a049;
+      background: #2E7D32;
       transform: translateY(-1px);
     }
 
@@ -127,7 +127,7 @@
 
     &.low-stock {
       background: #fff3e0;
-      color: #e65100;
+      color: #bf360c;
     }
 
     &.out-of-stock {
@@ -201,7 +201,7 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: #2196F3;
+    background: #1565C0;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -376,7 +376,7 @@
     padding: 1rem;
     border-radius: 0.5rem;
     text-align: center;
-    color: #1976D2;
+    color: #0d47a1;
     font-size: 1.1rem;
 
     strong {
@@ -411,11 +411,11 @@
     }
 
     &.submit-btn {
-      background: #4CAF50;
+      background: #388E3C;
       color: white;
 
       &:hover:not(:disabled) {
-        background: #45a049;
+        background: #2E7D32;
         transform: translateY(-1px);
       }
 
