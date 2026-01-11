@@ -24,6 +24,7 @@ export interface Reward {
   name: string;
   description: string;
   pointsCost: number;
+  discountValue?: number;
   imageUrl?: string;
   isActive: boolean;
   category: RewardCategory;

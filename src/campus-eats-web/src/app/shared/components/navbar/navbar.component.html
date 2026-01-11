@@ -16,9 +16,11 @@
           <span>Kitchen</span>
         </a>
       }
-      <a routerLink="/loyalty" routerLinkActive="active" class="nav-link">
-        <span>Rewards</span>
-      </a>
+      @if (!authState.isKitchen()) {
+        <a routerLink="/loyalty" routerLinkActive="active" class="nav-link">
+          <span>Rewards</span>
+        </a>
+      }
     </div>
 
     <div class="navbar-actions">

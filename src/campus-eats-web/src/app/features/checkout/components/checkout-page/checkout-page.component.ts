@@ -9,6 +9,7 @@ import { CartService } from '../../../../shared/services/cart.service';
 import { AuthStateService } from '../../../../shared/services/auth-state.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { PaymentService } from '../../../../shared/services/payment.service';
+import { LoyaltyService } from '../../../loyalty/services/loyalty.service';
 import { StripeElements } from '@stripe/stripe-js';
 
 const API_BASE_URL = 'http://localhost:5001/api';
@@ -23,6 +24,7 @@ interface CreateOrderRequest {
   deliveryInstructions?: string;
   orderType?: string;
   items: CreateOrderItemRequest[];
+  loyaltyRewardId?: string;
 }
 
 @Component({
@@ -48,11 +50,19 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private messageService = inject(MessageService);
   private paymentService = inject(PaymentService);
+  private loyaltyService = inject(LoyaltyService);
 
   cartItems = this.cartService.items;
   subtotal = this.cartService.subtotal;
   tax = computed(() => Math.round(this.subtotal() * 0.21 * 100) / 100);
-  total = computed(() => Math.round((this.subtotal() + this.tax()) * 100) / 100);
+  
+  // Automatically use claimed rewards
+  claimedReward = computed(() => {
+    const myRewards = this.loyaltyService.myRewards();
+    return myRewards.length > 0 ? myRewards[0] : null;
+  });
+  discount = computed(() => this.claimedReward()?.reward?.discountValue ?? 0);
+  total = computed(() => Math.max(0, Math.round((this.subtotal() + this.tax() - this.discount()) * 100) / 100));
 
   isSubmitting = signal(false);
   showPayment = signal(false);
@@ -112,7 +122,8 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
         menuItemId: item.menuItem.id,
         quantity: item.quantity,
         specialInstructions: undefined
-      }))
+      })),
+      loyaltyRewardId: this.claimedReward()?.rewardId
     };
 
     this.isSubmitting.set(true);
@@ -151,6 +162,16 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
           this.isSubmitting.set(false);
 
           setTimeout(async () => {
+            if (!this.paymentElementRef || !this.paymentElementRef.nativeElement) {
+              console.error('Payment element ref not found');
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Payment Error',
+                detail: 'Payment element not found'
+              });
+              return;
+            }
+
             const elements = stripe.elements({
               clientSecret: paymentResponse.clientSecret,
             });
@@ -159,18 +180,20 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
             paymentElement.mount(this.paymentElementRef.nativeElement);
 
             this.stripeElements = elements;
-          }, 100);
+          }, 500);
         },
         error: (err) => {
+          console.error('Payment initialization error:', err);
           this.messageService.add({
             severity: 'error',
             summary: 'Payment Error',
-            detail: 'Failed to initialize payment'
+            detail: err?.error?.detail || 'Failed to initialize payment'
           });
           this.isSubmitting.set(false);
         }
       });
     } catch (error) {
+      console.error('Stripe initialization error:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Payment Error',

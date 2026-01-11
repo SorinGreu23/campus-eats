@@ -24,22 +24,30 @@ public class GetClaimsHandler : IRequestHandler<GetClaimsRequest, IResult>
             return Results.Ok(new List<ClaimResponse>());
 
         var claims = await _context
-            .LoyaltyClaims.Where(c => c.LoyaltyAccountId == account.Id)
+            .LoyaltyClaims
+            .Include(c => c.LoyaltyReward)
+            .Where(c => c.LoyaltyAccountId == account.Id)
             .OrderByDescending(c => c.ClaimedAt)
-            .Join(
-                _context.LoyaltyRewards,
-                c => c.RewardId,
-                r => r.Id,
-                (c, r) =>
-                    new ClaimResponse
-                    {
-                        ClaimId = c.Id,
-                        RewardId = r.Id,
-                        RewardName = r.Name,
-                        ClaimedAt = c.ClaimedAt,
-                        Notes = c.Notes,
-                    }
-            )
+            .Select(c => new ClaimResponse
+            {
+                Id = c.Id,
+                UserId = request.UserId,
+                RewardId = c.RewardId,
+                Reward = c.LoyaltyReward == null ? null : new RewardDto
+                {
+                    Id = c.LoyaltyReward.Id,
+                    Name = c.LoyaltyReward.Name,
+                    Description = c.LoyaltyReward.Description,
+                    PointsCost = c.LoyaltyReward.PointsCost,
+                    DiscountValue = c.LoyaltyReward.DiscountValue,
+                    IsActive = c.LoyaltyReward.IsActive
+                },
+                RedeemedAt = c.ClaimedAt,
+                ExpiresAt = null,
+                IsUsed = c.Notes == "Used",
+                UsedAt = c.Notes == "Used" ? c.ClaimedAt : null,
+                OrderId = null
+            })
             .ToListAsync(cancellationToken);
 
         return Results.Ok(claims);

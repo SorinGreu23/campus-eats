@@ -30,6 +30,7 @@ type ApiOrder = {
   total: number;
   deliveryInstructions?: string;
   pickupTime?: string;
+  createdAt?: string;
   placedAt?: string;
   completedAt?: string;
   cancelledAt?: string;
@@ -191,7 +192,7 @@ export class OrderService {
     deliveryInstructions: api.deliveryInstructions,
     pickupTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
     estimatedDeliveryTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
-    placedAt: api.placedAt ? new Date(api.placedAt) : undefined,
+    placedAt: api.createdAt ? new Date(api.createdAt) : (api.completedAt ? new Date(api.completedAt) : new Date()),
     completedAt: api.completedAt ? new Date(api.completedAt) : undefined,
     cancelledAt: api.cancelledAt ? new Date(api.cancelledAt) : undefined,
     cancellationReason: api.cancellationReason,

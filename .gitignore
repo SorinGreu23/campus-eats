@@ -56,3 +56,8 @@ nunit-*.xml
 
 .env
 .idea
+
+# SonarQube Scanner
+.sonar/
+.sonarqube/
+.scannerwork/
