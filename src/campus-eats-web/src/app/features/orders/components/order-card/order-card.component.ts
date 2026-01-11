@@ -18,7 +18,7 @@ export class OrderCardComponent {
   OrderStatus = OrderStatus;
 
   statusConfig = computed(() => {
-    const status = this.order().status as OrderStatus | undefined;
+    const status = this.order().status as OrderStatus | string | undefined;
     if (!status) return { color: 'info', icon: 'pi-info-circle', label: 'Unknown' };
     const configs: Record<string, { color: string; icon: string; label: string }> = {
       [OrderStatus.Pending]: { color: 'warning', icon: 'pi-clock', label: 'Pending' },
@@ -30,7 +30,7 @@ export class OrderCardComponent {
       [OrderStatus.Cancelled]: { color: 'danger', icon: 'pi-times-circle', label: 'Cancelled' },
       'Paid': { color: 'success', icon: 'pi-check', label: 'Paid' }
     };
-    return configs[status as string] || { color: 'info', icon: 'pi-info-circle', label: status as string };
+    return configs[status] || { color: 'info', icon: 'pi-info-circle', label: status };
   });
 
   timeRemaining = computed(() => {

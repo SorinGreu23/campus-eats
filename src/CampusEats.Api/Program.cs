@@ -148,6 +148,13 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
+        // Ensure database is migrated first
+        await campusDb.Database.MigrateAsync();
+        
+        // FORCE delete all rewards to reseed (use raw SQL to bypass EF tracking)
+        await campusDb.Database.ExecuteSqlRawAsync("TRUNCATE TABLE loyalty_rewards CASCADE");
+        Console.WriteLine("Deleted all old rewards. Reseeding with RON-based names...");
+        
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
         await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);
         await CategoriesSeeder.SeedCategories(campusDb);

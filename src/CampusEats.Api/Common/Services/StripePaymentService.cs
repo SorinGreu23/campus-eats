@@ -10,7 +10,9 @@ public class StripePaymentService : IStripePaymentService
 
     public StripePaymentService(IConfiguration configuration)
     {
-        _secretKey = configuration["Stripe:SecretKey"] 
+        // Try to get from environment variable first (from .env file), then from appsettings
+        _secretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY") 
+            ?? configuration["Stripe:SecretKey"] 
             ?? throw new InvalidOperationException("Stripe SecretKey is not configured");
         StripeConfiguration.ApiKey = _secretKey;
     }

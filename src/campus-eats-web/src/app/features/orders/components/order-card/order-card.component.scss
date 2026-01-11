@@ -26,7 +26,8 @@
   align-items: center;
   gap: 1rem;
   border-bottom: 4px solid #fbbf24;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-height: 85px;
 
   .order-info {
     display: flex;

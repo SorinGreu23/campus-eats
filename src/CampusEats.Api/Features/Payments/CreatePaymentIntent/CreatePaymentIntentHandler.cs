@@ -47,10 +47,19 @@ public class CreatePaymentIntentHandler : IRequestHandler<CreatePaymentIntentReq
         if (order.Status != "Pending")
             return Results.BadRequest(new { error = "Order is not in a valid state for payment." });
 
+        // Ensure order total meets Stripe minimum charge amount (0.50 RON)
+        if (order.Total < 0.50m)
+        {
+            return Results.BadRequest(new 
+            { 
+                error = $"Order total must be at least 0.50 RON to process payment. Current total is {order.Total:F2} RON. The applied reward discount is too large for this order."
+            });
+        }
+
         // Create payment intent in Stripe
         var clientSecret = await _stripeService.CreatePaymentIntentAsync(
             order.Total,
-            "usd",
+            "ron",
             userId,
             order.Id,
             cancellationToken

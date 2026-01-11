@@ -14,6 +14,7 @@ public class Order
     public decimal Tax { get; set; }
     public decimal Discount { get; set; }
     public decimal Total { get; set; }
+    public Guid? LoyaltyRewardId { get; set; }
     public string? DeliveryInstructions { get; set; }
     public DateTimeOffset? PickupTime { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }

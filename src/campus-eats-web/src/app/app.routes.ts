@@ -27,7 +27,8 @@ export const routes: Routes = [
   },
   {
     path: 'loyalty',
-    loadComponent: () => import('./features/loyalty/components/loyalty-dashboard/loyalty-dashboard.component').then(m => m.LoyaltyDashboardComponent)
+    loadComponent: () => import('./features/loyalty/components/loyalty-dashboard/loyalty-dashboard.component').then(m => m.LoyaltyDashboardComponent),
+    canMatch: [nonKitchenGuard]
   },
   {
     path: 'login',

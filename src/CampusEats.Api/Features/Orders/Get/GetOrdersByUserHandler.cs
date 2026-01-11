@@ -68,6 +68,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
             o.CompletedAt,
             o.CancelledAt,
             o.CancellationReason,
+            CreatedAt = o.CreatedAt,
             Items = o.Items.Select(i => new
             {
                 i.Id,
