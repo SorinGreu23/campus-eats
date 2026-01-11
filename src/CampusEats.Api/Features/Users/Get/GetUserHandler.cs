@@ -3,26 +3,21 @@ using CampusEats.Api.Common.Interfaces;
 using CampusEats.Api.Data;
 using CampusEats.Api.Data.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Features.Users.Get;
 
 public class GetUserHandler : IRequestHandler<GetUserRequest, IResult>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ITokenService _tokenService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public GetUserHandler(
         UserManager<ApplicationUser> userManager,
-        ITokenService tokenService,
         IHttpContextAccessor httpContextAccessor
     )
     {
         _userManager = userManager;
-        _tokenService = tokenService;
         _httpContextAccessor = httpContextAccessor;
     }
 

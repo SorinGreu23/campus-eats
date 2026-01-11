@@ -59,8 +59,8 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
 
     private async Task HandlePaymentIntentSucceeded(PaymentIntent paymentIntent, CancellationToken cancellationToken)
     {
-        var orderId = paymentIntent.Metadata.ContainsKey(Key) 
-            ? Guid.Parse(paymentIntent.Metadata[Key]) 
+        var orderId = paymentIntent.Metadata.TryGetValue(Key, out string? value) 
+            ? Guid.Parse(value) 
             : (Guid?)null;
 
         if (!orderId.HasValue)

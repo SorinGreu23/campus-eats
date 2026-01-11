@@ -6,17 +6,19 @@ namespace CampusEats.Api.Data.Configurations;
 
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
-    public void Configure(EntityTypeBuilder<Order> builder)
+  private const string DecimalPrecisionFormat = "decimal(18,2)";
+
+  public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.ToTable("orders");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.OrderNumber).HasMaxLength(100);
         builder.Property(x => x.Status).HasMaxLength(64);
         builder.Property(x => x.OrderType).HasColumnName("order_type").HasMaxLength(32);
-        builder.Property(x => x.Subtotal).HasColumnType("decimal(18,2)");
-        builder.Property(x => x.Tax).HasColumnType("decimal(18,2)");
-        builder.Property(x => x.Discount).HasColumnType("decimal(18,2)");
-        builder.Property(x => x.Total).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.Subtotal).HasColumnType(DecimalPrecisionFormat);
+        builder.Property(x => x.Tax).HasColumnType(DecimalPrecisionFormat);
+        builder.Property(x => x.Discount).HasColumnType(DecimalPrecisionFormat);
+        builder.Property(x => x.Total).HasColumnType(DecimalPrecisionFormat);
         builder.Property(x => x.DeliveryInstructions);
         builder.Property(x => x.PickupTime);
         builder.Property(x => x.CompletedAt);

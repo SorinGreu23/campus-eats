@@ -24,17 +24,17 @@ public class CampusDbContext : DbContext
     public DbSet<MenuItemAllergen> MenuItemAllergens { get; set; }
     public DbSet<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(modelBuilder);
 
         // Special configuration: Ignore User navigation property - User is managed by IdentityDbContext
-        builder.Entity<Order>(b =>
+        modelBuilder.Entity<Order>(b =>
         {
             b.Ignore(o => o.User);
         });
 
         // Apply all entity configurations from Configuration classes
-        builder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CampusDbContext).Assembly);
     }
 }

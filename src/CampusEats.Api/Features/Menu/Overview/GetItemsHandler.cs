@@ -38,7 +38,7 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
 
         // Filter by dietary restrictions if specified
         // Item must have ALL specified dietary restrictions
-        if (request.DietaryRestrictionIds != null && request.DietaryRestrictionIds.Any())
+        if (request.DietaryRestrictionIds != null && request.DietaryRestrictionIds.Length != 0)
         {
             foreach (var restrictionId in request.DietaryRestrictionIds)
             {
@@ -55,8 +55,8 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
         {
             var searchLower = request.SearchTerm.ToLower();
             query = query.Where(m =>
-                m.Name.ToLower().Contains(searchLower) ||
-                (m.Description != null && m.Description.ToLower().Contains(searchLower))
+                m.Name.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase) ||
+                (m.Description != null && m.Description.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase))
             );
         }
 
