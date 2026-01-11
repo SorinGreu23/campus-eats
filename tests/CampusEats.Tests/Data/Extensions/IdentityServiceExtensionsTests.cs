@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CampusEats.Tests.Data.Extensions;
 
-public class IdentityServiceExtensionsTests : IDisposable
+public sealed class IdentityServiceExtensionsTests : IDisposable
 {
     private readonly string? _originalJwtSecretKey;
     private readonly string? _originalJwtIssuer;

@@ -14,7 +14,7 @@ using Stripe;
 
 namespace CampusEats.Tests.Features.Payments;
 
-public class StripeWebhookHandlerTests : IDisposable
+public sealed class StripeWebhookHandlerTests : IDisposable
 {
     private readonly string? _originalWebhookSecret;
 
@@ -35,20 +35,6 @@ public class StripeWebhookHandlerTests : IDisposable
             .Options;
         return new CampusDbContext(options);
     }
-
-    private static IConfiguration CreateConfig(string? secret = null)
-    {
-        var data = new Dictionary<string, string?>();
-        if (secret != null)
-        {
-            data["Stripe:WebhookSecret"] = secret;
-        }
-
-        return new ConfigurationBuilder()
-            .AddInMemoryCollection(data)
-            .Build();
-    }
-
     private static string CreateSignatureHeader(string payload, string secret, long timestamp)
     {
         var toSign = $"{timestamp}.{payload}";

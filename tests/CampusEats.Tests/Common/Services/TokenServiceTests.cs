@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace CampusEats.Tests.Common.Services;
 
-public class TokenServiceTests : IDisposable
+public sealed class TokenServiceTests : IDisposable
 {
     private readonly string? _originalJwtSecretKey;
     private readonly string? _originalJwtIssuer;
@@ -24,6 +24,7 @@ public class TokenServiceTests : IDisposable
         // Restore original environment variables
         Environment.SetEnvironmentVariable("JWT_SECRET_KEY", _originalJwtSecretKey);
         Environment.SetEnvironmentVariable("JWT_ISSUER", _originalJwtIssuer);
+        GC.SuppressFinalize(this);
     }
 
     [Fact]

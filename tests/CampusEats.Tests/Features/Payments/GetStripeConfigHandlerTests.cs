@@ -35,8 +35,6 @@ public class GetStripeConfigHandlerTests
         
         // Set environment variable
         Environment.SetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY", publishableKey);
-
-        var configurationMock = new Mock<IConfiguration>();
         
         var handler = new GetStripeConfigHandler();
         var request = new GetStripeConfigRequest();

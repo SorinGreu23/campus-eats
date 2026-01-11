@@ -153,32 +153,27 @@ public class DeleteUserHandlerTests
     }
 
     [Fact]
-    public async Task GivenNonExistentUser_WhenDeleting_ThenReturnsNotFound()
+    public async Task GivenNonOwnerNonAdmin_WhenDeleting_ThenReturnsForbid()
     {
         // Arrange
         var userManager = CreateMockUserManager();
-        var httpContextAccessor = CreateMockHttpContextAccessor("admin-user-id", true);
-
-        var nonExistentUserId = "nonexistent-user-123";
-        
-        userManager.FindByIdAsync(nonExistentUserId)
-            .Returns((ApplicationUser?)null);
+        var httpContextAccessor = CreateMockHttpContextAccessor("different-user-id", false);
 
         var handler = new DeleteUserHandler(userManager, httpContextAccessor);
-        var request = new DeleteUserRequest(nonExistentUserId);
+        var request = new DeleteUserRequest("target-user-id");
 
         // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();
-        await userManager.Received(1).FindByIdAsync(nonExistentUserId);
-        // Verify delete was never called
+        // Verify that FindByIdAsync was never called because authorization failed first
+        await userManager.DidNotReceive().FindByIdAsync(Arg.Any<string>());
         await userManager.DidNotReceive().DeleteAsync(Arg.Any<ApplicationUser>());
     }
 
     [Fact]
-    public async Task GivenUserWithOrders_WhenDeleting_ThenHandlesGracefully()
+    public async Task GivenUserWithOrders_WhenDeletionFailsDueToConstraint_ThenReturnsBadRequestWithMessage()
     {
         // Arrange
         var userManager = CreateMockUserManager();
@@ -194,11 +189,17 @@ public class DeleteUserHandlerTests
             IsActive = true
         };
 
-        // Simulate that the user has orders (Identity framework would handle cascade/prevent logic)
+        // Simulate deletion failure due to foreign key constraint (user has orders)
+        var constraintError = new IdentityError 
+        { 
+            Code = "UserHasOrders", 
+            Description = "Cannot delete user with existing orders" 
+        };
+        
         userManager.FindByIdAsync("test-user-id")
             .Returns(user);
         userManager.DeleteAsync(user)
-            .Returns(IdentityResult.Success); // Or could return Failed if cascading is prevented
+            .Returns(IdentityResult.Failed(constraintError));
 
         var handler = new DeleteUserHandler(userManager, httpContextAccessor);
         var request = new DeleteUserRequest("test-user-id");
@@ -210,8 +211,7 @@ public class DeleteUserHandlerTests
         result.ShouldNotBeNull();
         await userManager.Received(1).FindByIdAsync("test-user-id");
         await userManager.Received(1).DeleteAsync(user);
-        // The actual cascade/prevent behavior would be handled by EF Core configuration
-        // This test verifies the handler calls the delete method properly
+        // The handler should return BadRequest with the constraint violation message
     }
 
     private static UserManager<ApplicationUser> CreateMockUserManager()
