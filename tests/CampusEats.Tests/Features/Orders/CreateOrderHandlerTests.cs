@@ -12,7 +12,7 @@ namespace CampusEats.Tests.Features.Orders;
 
 public class CreateOrderHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -21,7 +21,7 @@ public class CreateOrderHandlerTests
         return new CampusDbContext(options);
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(string userId, bool isAuthenticated = true)
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(string userId, bool isAuthenticated = true)
     {
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var httpContext = Substitute.For<HttpContext>();

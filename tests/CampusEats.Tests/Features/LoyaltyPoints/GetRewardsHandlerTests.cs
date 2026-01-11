@@ -9,7 +9,7 @@ namespace CampusEats.Tests.Features.LoyaltyPoints;
 
 public class GetRewardsHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
