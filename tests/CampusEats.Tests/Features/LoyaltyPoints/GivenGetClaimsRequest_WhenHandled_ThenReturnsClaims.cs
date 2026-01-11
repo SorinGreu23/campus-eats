@@ -138,8 +138,8 @@ public class GetClaimsHandlerTests
         var okResult = (Ok<List<ClaimResponse>>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(2);
-        okResult.Value.ShouldContain(c => c.RewardName == "10% Off" && c.Notes == "First claim");
-        okResult.Value.ShouldContain(c => c.RewardName == "Free Drink" && c.Notes == "Second claim");
+        okResult.Value.ShouldContain(c => c.Reward != null && c.Reward.Name == "10% Off");
+        okResult.Value.ShouldContain(c => c.Reward != null && c.Reward.Name == "Free Drink");
     }
 
     [Fact]
@@ -203,12 +203,12 @@ public class GetClaimsHandlerTests
         var okResult = (Ok<List<ClaimResponse>>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(2);
-        okResult.Value[0].Notes.ShouldBe("Recent claim");
-        okResult.Value[1].Notes.ShouldBe("Old claim");
+        okResult.Value[0].RedeemedAt.ShouldBe(newClaim.ClaimedAt);
+        okResult.Value[1].RedeemedAt.ShouldBe(oldClaim.ClaimedAt);
     }
 
     [Fact]
-    public async Task GivenClaimWithNullNotes_WhenGettingClaims_ThenReturnsClaimWithNullNotes()
+    public async Task GivenClaimWithNullNotes_WhenGettingClaims_ThenReturnsClaimSuccessfully()
     {
         // Arrange
         await using var context = CreateContext();
@@ -259,6 +259,6 @@ public class GetClaimsHandlerTests
         var okResult = (Ok<List<ClaimResponse>>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(1);
-        okResult.Value[0].Notes.ShouldBeNull();
+        okResult.Value[0].RewardId.ShouldBe(reward.Id);
     }
 }

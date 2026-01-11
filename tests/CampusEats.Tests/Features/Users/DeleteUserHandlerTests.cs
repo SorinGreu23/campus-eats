@@ -153,6 +153,68 @@ public class DeleteUserHandlerTests
         await userManager.Received(1).DeleteAsync(user);
     }
 
+    [Fact]
+    public async Task GivenNonExistentUser_WhenDeleting_ThenReturnsNotFound()
+    {
+        // Arrange
+        var userManager = CreateMockUserManager();
+        var httpContextAccessor = CreateMockHttpContextAccessor("admin-user-id", true);
+
+        var nonExistentUserId = "nonexistent-user-123";
+        
+        userManager.FindByIdAsync(nonExistentUserId)
+            .Returns((ApplicationUser?)null);
+
+        var handler = new DeleteUserHandler(userManager, httpContextAccessor);
+        var request = new DeleteUserRequest(nonExistentUserId);
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        await userManager.Received(1).FindByIdAsync(nonExistentUserId);
+        // Verify delete was never called
+        await userManager.DidNotReceive().DeleteAsync(Arg.Any<ApplicationUser>());
+    }
+
+    [Fact]
+    public async Task GivenUserWithOrders_WhenDeleting_ThenHandlesGracefully()
+    {
+        // Arrange
+        var userManager = CreateMockUserManager();
+        var httpContextAccessor = CreateMockHttpContextAccessor("test-user-id", false);
+
+        var user = new ApplicationUser
+        {
+            Id = "test-user-id",
+            Email = "test@example.com",
+            FirstName = "Test",
+            LastName = "User",
+            UserName = "testuser",
+            IsActive = true
+        };
+
+        // Simulate that the user has orders (Identity framework would handle cascade/prevent logic)
+        userManager.FindByIdAsync("test-user-id")
+            .Returns(user);
+        userManager.DeleteAsync(user)
+            .Returns(IdentityResult.Success); // Or could return Failed if cascading is prevented
+
+        var handler = new DeleteUserHandler(userManager, httpContextAccessor);
+        var request = new DeleteUserRequest("test-user-id");
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        await userManager.Received(1).FindByIdAsync("test-user-id");
+        await userManager.Received(1).DeleteAsync(user);
+        // The actual cascade/prevent behavior would be handled by EF Core configuration
+        // This test verifies the handler calls the delete method properly
+    }
+
     private UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();

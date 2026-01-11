@@ -641,4 +641,119 @@ public class CreateOrderHandlerTests
         var orderCount = await context.Orders.CountAsync();
         orderCount.ShouldBe(0);
     }
+
+    [Fact]
+    public async Task GivenOrderWithMultipleItems_WhenCreating_ThenCalculatesTotalCorrectly()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "user123";
+        var menuItem1Id = Guid.NewGuid();
+        var menuItem2Id = Guid.NewGuid();
+        var menuItem3Id = Guid.NewGuid();
+        
+        var menuItem1 = new MenuItem
+        {
+            Id = menuItem1Id,
+            Name = "Burger",
+            Description = "Tasty burger",
+            Price = 12.50m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItem2 = new MenuItem
+        {
+            Id = menuItem2Id,
+            Name = "Fries",
+            Description = "Crispy fries",
+            Price = 4.75m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        var menuItem3 = new MenuItem
+        {
+            Id = menuItem3Id,
+            Name = "Soda",
+            Description = "Cold drink",
+            Price = 2.50m,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        context.MenuItems.AddRange(menuItem1, menuItem2, menuItem3);
+        await context.SaveChangesAsync();
+
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            OrderType = "Pickup",
+            Items = new List<CreateOrderItemRequest>
+            {
+                new() { MenuItemId = menuItem1Id, Quantity = 3 },  // 3 * 12.50 = 37.50
+                new() { MenuItemId = menuItem2Id, Quantity = 2 },  // 2 * 4.75 = 9.50
+                new() { MenuItemId = menuItem3Id, Quantity = 4 }   // 4 * 2.50 = 10.00
+            }
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(Created<>));
+        
+        var createdOrder = await context.Orders.Include(o => o.Items).FirstOrDefaultAsync();
+        createdOrder.ShouldNotBeNull();
+        createdOrder.Subtotal.ShouldBe(57.00m); // 37.50 + 9.50 + 10.00
+        createdOrder.Tax.ShouldBe(11.97m); // 57.00 * 0.21
+        createdOrder.Total.ShouldBe(68.97m); // 57.00 + 11.97
+        createdOrder.Items.Count.ShouldBe(3);
+        
+        // Verify individual item calculations
+        var burgerItem = createdOrder.Items.FirstOrDefault(i => i.MenuItemId == menuItem1Id);
+        burgerItem.ShouldNotBeNull();
+        burgerItem!.Quantity.ShouldBe(3);
+        burgerItem.UnitPrice.ShouldBe(12.50m);
+        burgerItem.Subtotal.ShouldBe(37.50m);
+        
+        var friesItem = createdOrder.Items.FirstOrDefault(i => i.MenuItemId == menuItem2Id);
+        friesItem.ShouldNotBeNull();
+        friesItem!.Subtotal.ShouldBe(9.50m);
+        
+        var sodaItem = createdOrder.Items.FirstOrDefault(i => i.MenuItemId == menuItem3Id);
+        sodaItem.ShouldNotBeNull();
+        sodaItem!.Subtotal.ShouldBe(10.00m);
+    }
+
+    [Fact]
+    public async Task GivenEmptyOrderItems_WhenCreating_ThenValidationFails()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "user123";
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId);
+        var handler = new CreateOrderHandler(context, httpContextAccessor);
+        var request = new CreateOrderRequest
+        {
+            UserId = userId,
+            OrderType = "Pickup",
+            Items = new List<CreateOrderItemRequest>() // Empty list
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.GetType().GetGenericTypeDefinition().ShouldBe(typeof(BadRequest<>));
+        
+        // Verify no order was created
+        var orderCount = await context.Orders.CountAsync();
+        orderCount.ShouldBe(0);
+    }
 }

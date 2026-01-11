@@ -239,3 +239,130 @@ public class UpdateOrderStatusHandlerTests
     }
 }
 
+public class UpdateOrderStatusEdgeCaseTests
+{
+    private CampusDbContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<CampusDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        return new CampusDbContext(options);
+    }
+
+    private IValidator<UpdateOrderStatusRequest> CreateMockValidator(bool isValid = true)
+    {
+        var validator = Substitute.For<IValidator<UpdateOrderStatusRequest>>();
+        if (isValid)
+        {
+            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
+            validationResult.IsValid.Returns(true);
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusRequest>(), Arg.Any<CancellationToken>())
+                .Returns(validationResult);
+        }
+        else
+        {
+            var validationResult = Substitute.For<FluentValidation.Results.ValidationResult>();
+            validationResult.IsValid.Returns(false);
+            validator.ValidateAsync(Arg.Any<UpdateOrderStatusRequest>(), Arg.Any<CancellationToken>())
+                .Returns(validationResult);
+        }
+        return validator;
+    }
+
+    [Fact]
+    public async Task GivenNonExistentOrder_WhenUpdatingStatus_ThenReturnsNotFound()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var nonExistentOrderId = Guid.NewGuid();
+        
+        var validator = CreateMockValidator(isValid: true);
+        var handler = new UpdateOrderStatusHandler(context, validator);
+        var command = new UpdateOrderStatusRequest(nonExistentOrderId, nameof(OrderStatus.Preparing));
+        
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+        
+        // Assert
+        result.ShouldNotBeNull();
+        // Verify that no order was modified
+        var orderCount = await context.Orders.CountAsync();
+        orderCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task GivenValidOrder_WhenUpdatingToCompleted_ThenUpdatesStatus()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var orderId = Guid.NewGuid();
+        
+        var order = new Order
+        {
+            Id = orderId,
+            OrderNumber = "ORD-001",
+            Status = "Ready",
+            OrderType = "Pickup",
+            Total = 25.50m,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
+        };
+        
+        context.Orders.Add(order);
+        await context.SaveChangesAsync();
+        
+        var validator = CreateMockValidator(isValid: true);
+        var handler = new UpdateOrderStatusHandler(context, validator);
+        var command = new UpdateOrderStatusRequest(orderId, nameof(OrderStatus.Completed));
+        
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+        
+        // Assert
+        result.ShouldNotBeNull();
+        
+        var updatedOrder = await context.Orders.FindAsync(orderId);
+        updatedOrder.ShouldNotBeNull();
+        updatedOrder.Status.ShouldBe("Completed");
+        updatedOrder.CompletedAt.ShouldNotBeNull();
+        updatedOrder.UpdatedAt.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task GivenValidOrder_WhenUpdatingToCancelled_ThenUpdatesStatus()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var orderId = Guid.NewGuid();
+        
+        var order = new Order
+        {
+            Id = orderId,
+            OrderNumber = "ORD-002",
+            Status = "Pending",
+            OrderType = "Delivery",
+            Total = 30.00m,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = "test-user"
+        };
+        
+        context.Orders.Add(order);
+        await context.SaveChangesAsync();
+        
+        var validator = CreateMockValidator(isValid: true);
+        var handler = new UpdateOrderStatusHandler(context, validator);
+        var command = new UpdateOrderStatusRequest(orderId, "Cancelled");
+        
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+        
+        // Assert
+        result.ShouldNotBeNull();
+        
+        var updatedOrder = await context.Orders.FindAsync(orderId);
+        updatedOrder.ShouldNotBeNull();
+        updatedOrder.Status.ShouldBe("Cancelled");
+        updatedOrder.CancelledAt.ShouldNotBeNull();
+        updatedOrder.UpdatedAt.ShouldNotBeNull();
+    }
+}

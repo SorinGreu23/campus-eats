@@ -6,4 +6,5 @@ public enum OrderStatus
     Preparing,
     Ready,
     Completed,
+    Cancelled
 }

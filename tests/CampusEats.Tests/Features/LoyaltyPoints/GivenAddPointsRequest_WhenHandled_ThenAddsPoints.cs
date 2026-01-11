@@ -205,4 +205,111 @@ public class AddPointsHandlerTests
         okResult.Value.Tier.ShouldBe("Platinum");
         okResult.Value.LifetimePoints.ShouldBe(10100);
     }
+
+    [Fact]
+    public async Task GivenUserWithNoAccount_WhenAddingPoints_ThenCreatesAccount()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "brandnewuser";
+        
+        // Verify no account exists
+        var existingAccount = await context.LoyaltyAccounts
+            .FirstOrDefaultAsync(a => a.UserId == userId);
+        existingAccount.ShouldBeNull();
+
+        var handler = new AddPointsHandler(context);
+        var request = new AddPointsRequest { UserId = userId, Points = 250 };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeOfType<Ok<AddPointsResponse>>();
+        var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.PointsAdded.ShouldBe(250);
+        okResult.Value.NewPointsBalance.ShouldBe(250);
+        okResult.Value.LifetimePoints.ShouldBe(250);
+        okResult.Value.Tier.ShouldBe("Bronze");
+
+        // Verify account was created in database
+        var newAccount = await context.LoyaltyAccounts
+            .FirstOrDefaultAsync(a => a.UserId == userId);
+        newAccount.ShouldNotBeNull();
+        newAccount!.UserId.ShouldBe(userId);
+        newAccount.PointsBalance.ShouldBe(250);
+        newAccount.LifetimePoints.ShouldBe(250);
+        newAccount.Tier.ShouldBe("Bronze");
+    }
+
+    [Fact]
+    public async Task GivenPointsAddition_WhenTierThresholdMet_ThenUpgradesTier()
+    {
+        // Arrange - User at 1950 points (just below Silver threshold of 2000)
+        await using var context = CreateContext();
+        var userId = "user-at-threshold";
+        var existingAccount = new LoyaltyAccount
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            PointsBalance = 1950,
+            LifetimePoints = 1950,
+            Tier = "Bronze"
+        };
+        context.LoyaltyAccounts.Add(existingAccount);
+        await context.SaveChangesAsync();
+
+        var handler = new AddPointsHandler(context);
+        var request = new AddPointsRequest { UserId = userId, Points = 100 }; // Should cross to 2050
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeOfType<Ok<AddPointsResponse>>();
+        var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.PointsAdded.ShouldBe(100);
+        okResult.Value.NewPointsBalance.ShouldBe(2050);
+        okResult.Value.LifetimePoints.ShouldBe(2050);
+        okResult.Value.Tier.ShouldBe("Silver"); // Upgraded!
+
+        // Verify tier upgrade persisted
+        var updatedAccount = await context.LoyaltyAccounts
+            .FirstOrDefaultAsync(a => a.UserId == userId);
+        updatedAccount.ShouldNotBeNull();
+        updatedAccount!.Tier.ShouldBe("Silver");
+    }
+
+    [Fact]
+    public async Task GivenMultipleTierThresholds_WhenAddingLargePoints_ThenUpgradesToCorrectTier()
+    {
+        // Arrange - User at 100 points, adding 10000 should jump to Platinum
+        await using var context = CreateContext();
+        var userId = "big-spender";
+        var existingAccount = new LoyaltyAccount
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            PointsBalance = 100,
+            LifetimePoints = 100,
+            Tier = "Bronze"
+        };
+        context.LoyaltyAccounts.Add(existingAccount);
+        await context.SaveChangesAsync();
+
+        var handler = new AddPointsHandler(context);
+        var request = new AddPointsRequest { UserId = userId, Points = 10000 };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeOfType<Ok<AddPointsResponse>>();
+        var okResult = (Ok<AddPointsResponse>)result;
+        okResult.Value.ShouldNotBeNull();
+        okResult.Value.LifetimePoints.ShouldBe(10100);
+        okResult.Value.Tier.ShouldBe("Platinum"); // Should skip Silver and Gold directly to Platinum
+    }
 }

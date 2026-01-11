@@ -338,12 +338,12 @@ public class RedeemRewardHandlerTests
         var okResult = (Ok<RedeemRewardResponse>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.AccountId.ShouldBe(accountId);
-        okResult.Value.NewPointsBalance.ShouldBe(400);
+        okResult.Value.NewPointsBalance.ShouldBe(500); // Points NOT deducted yet - deducted at order placement
         okResult.Value.Message.ShouldContain("Successfully redeemed");
 
         var updatedAccount = await context.LoyaltyAccounts.FindAsync(accountId);
         updatedAccount.ShouldNotBeNull();
-        updatedAccount.PointsBalance.ShouldBe(400);
+        updatedAccount.PointsBalance.ShouldBe(500); // Points NOT deducted yet
 
         var claim = await context.LoyaltyClaims.FirstOrDefaultAsync(c => c.RewardId == rewardId);
         claim.ShouldNotBeNull();
@@ -393,6 +393,94 @@ public class RedeemRewardHandlerTests
         result.ShouldBeOfType<Ok<RedeemRewardResponse>>();
         var okResult = (Ok<RedeemRewardResponse>)result;
         okResult.Value.ShouldNotBeNull();
-        okResult.Value.NewPointsBalance.ShouldBe(300);
+        okResult.Value.NewPointsBalance.ShouldBe(500); // Points NOT deducted yet - deducted at order placement
+    }
+
+    [Fact]
+    public async Task GivenUserBelowMinimumTier_WhenRedeemingReward_ThenReturnsBadRequest()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "bronze-user";
+        var account = new LoyaltyAccount
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            PointsBalance = 5000, // Plenty of points
+            LifetimePoints = 5000,
+            Tier = "Bronze" // But wrong tier
+        };
+        var reward = new LoyaltyReward
+        {
+            Id = Guid.NewGuid(),
+            Name = "Platinum Exclusive",
+            Description = "Only for Platinum members",
+            PointsCost = 1000,
+            DiscountValue = 50.00m,
+            IsActive = true,
+            MinimumTier = "Platinum" // Requires Platinum
+        };
+        context.LoyaltyAccounts.Add(account);
+        context.LoyaltyRewards.Add(reward);
+        await context.SaveChangesAsync();
+
+        var handler = new RedeemRewardHandler(context);
+        var request = new RedeemRewardRequest
+        {
+            UserId = userId,
+            RewardId = reward.Id
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeOfType<BadRequest<string>>();
+        var badRequest = (BadRequest<string>)result;
+        badRequest.Value.ShouldNotBeNull();
+        badRequest.Value.ShouldContain("requires Platinum tier");
+        
+        // Verify no claim was created
+        var claimCount = await context.LoyaltyClaims.CountAsync();
+        claimCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task GivenNonExistentReward_WhenRedeeming_ThenReturnsNotFound()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var userId = "valid-user";
+        var account = new LoyaltyAccount
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            PointsBalance = 1000,
+            LifetimePoints = 1000,
+            Tier = "Silver"
+        };
+        context.LoyaltyAccounts.Add(account);
+        await context.SaveChangesAsync();
+
+        var nonExistentRewardId = Guid.NewGuid();
+        var handler = new RedeemRewardHandler(context);
+        var request = new RedeemRewardRequest
+        {
+            UserId = userId,
+            RewardId = nonExistentRewardId
+        };
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeOfType<NotFound<string>>();
+        var notFound = (NotFound<string>)result;
+        notFound.Value.ShouldBe("Reward not found.");
+        
+        // Verify account points unchanged
+        var unchangedAccount = await context.LoyaltyAccounts.FindAsync(account.Id);
+        unchangedAccount.ShouldNotBeNull();
+        unchangedAccount!.PointsBalance.ShouldBe(1000);
     }
 }
