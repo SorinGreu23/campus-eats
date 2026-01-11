@@ -1,6 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { 
   LoyaltyAccount, 
   LoyaltyTransaction, 
@@ -20,6 +22,8 @@ const API_BASE_URL = 'http://localhost:5001/api';
 export class LoyaltyService {
   private http = inject(HttpClient);
   private authState = inject(AuthStateService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
 
   private loyaltyAccount = signal<LoyaltyAccount | null>(null);
   private transactions = signal<LoyaltyTransaction[]>([]);
@@ -49,12 +53,10 @@ export class LoyaltyService {
 
   private loadLoyaltyData(): void {
     const userId = this.authState.userId();
-    console.log('Loading loyalty data for user:', userId);
     
     // Always fetch available rewards (doesn't require user login)
     this.fetchRewards().subscribe({
       next: (rewards) => {
-        console.log('Raw rewards from API:', rewards);
         // Map API response to frontend Reward model
         const mappedRewards = rewards.map(r => ({
           id: r.id,
@@ -75,7 +77,6 @@ export class LoyaltyService {
           ))
         );
         
-        console.log('Mapped rewards (duplicates removed):', uniqueRewards);
         this.availableRewards.set(uniqueRewards);
       },
       error: (err) => {
@@ -92,7 +93,6 @@ export class LoyaltyService {
     // Fetch loyalty account
     this.fetchLoyaltyAccount(userId).subscribe({
       next: (account) => {
-        console.log('Loyalty account loaded:', account);
         this.loyaltyAccount.set(account);
       },
       error: (err) => {
@@ -103,7 +103,6 @@ export class LoyaltyService {
     // Fetch user's claimed rewards
     this.fetchClaimedRewards(userId).subscribe({
       next: (claims) => {
-        console.log('Claimed rewards loaded:', claims);
         this.userRewards.set(claims);
       },
       error: (err) => {
@@ -135,18 +134,26 @@ export class LoyaltyService {
     const account = this.loyaltyAccount();
     
     if (!reward || !account) {
-      alert('Unable to redeem reward. Please try again.');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Redemption Failed',
+        detail: 'Unable to redeem reward. Please try again.'
+      });
       return;
     }
     
     if (account.pointsBalance < reward.pointsCost) {
-      alert(`Insufficient points. You need ${reward.pointsCost} points but have ${account.pointsBalance}.`);
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Insufficient Points',
+        detail: `You need ${reward.pointsCost} points but have ${account.pointsBalance}.`
+      });
       return;
     }
 
     const token = this.authState.token();
     if (!token) {
-      alert('Please sign in to redeem rewards.');
+      this.router.navigate(['/login']);
       return;
     }
 
@@ -166,23 +173,39 @@ export class LoyaltyService {
             this.fetchClaimedRewards(account.userId).subscribe({
               next: (claims) => {
                 this.userRewards.set(claims);
-                alert(`Successfully redeemed ${reward.name}!`);
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Reward Redeemed!',
+                  detail: `Successfully redeemed ${reward.name}!`
+                });
               },
               error: (err) => {
                 console.error('Failed to refresh claimed rewards:', err);
-                alert(`Successfully redeemed ${reward.name}!`);
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Reward Redeemed!',
+                  detail: `Successfully redeemed ${reward.name}!`
+                });
               }
             });
           },
           error: (err) => {
             console.error('Failed to refresh account:', err);
-            alert('Reward redeemed but failed to refresh account. Please refresh the page.');
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Refresh Required',
+              detail: 'Reward redeemed but failed to refresh account. Please refresh the page.'
+            });
           }
         });
       },
       error: (err) => {
         console.error('Failed to redeem reward:', err);
-        alert('Failed to redeem reward. Please try again.');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Redemption Failed',
+          detail: 'Failed to redeem reward. Please try again.'
+        });
       }
     });
   }
