@@ -1,4 +1,4 @@
-<article class="menu-item-card" [class.unavailable]="!menuItem().isAvailable" [class.adding]="isAdding()" (click)="onCardClick()">
+<article class="menu-item-card" [class.unavailable]="!menuItem().isAvailable" [class.adding]="isAdding()" (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="onCardClick()">
   <div class="card-image-container">
     <img
       [src]="menuItem().imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'"

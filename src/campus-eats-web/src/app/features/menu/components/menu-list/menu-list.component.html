@@ -24,12 +24,16 @@
         label="All" 
         [styleClass]="selectedCategoryId() === null ? 'category-chip active' : 'category-chip'"
         (click)="selectCategory(null)"
+        (keydown.enter)="selectCategory(null)"
+        (keydown.space)="selectCategory(null)"
       />
       @for (category of categories(); track category.id) {
         <p-chip 
           [label]="category.name" 
           [styleClass]="selectedCategoryId() === category.id ? 'category-chip active' : 'category-chip'"
           (click)="selectCategory(category.id)"
+          (keydown.enter)="selectCategory(category.id)"
+          (keydown.space)="selectCategory(category.id)"
         />
       }
     </div>

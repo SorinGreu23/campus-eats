@@ -127,10 +127,10 @@ export class CheckoutPageComponent implements OnInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http.post<any>(`${API_BASE_URL}/orders`, orderRequest, { headers }).subscribe({
-      next: async (response) => {
+      next: (response) => {
         const createdOrderId = response.orderId || response.id;
         this.orderId.set(createdOrderId);
-        await this.initializePayment(createdOrderId);
+        void this.initializePayment(createdOrderId);
       },
       error: (err) => {
         const message = err?.error?.error || err?.error?.title || 'Failed to place order';
@@ -152,12 +152,12 @@ export class CheckoutPageComponent implements OnInit {
       }
 
       this.paymentService.createPaymentIntent({ orderId }).subscribe({
-        next: async (paymentResponse) => {
+        next: (paymentResponse) => {
           this.paymentId.set(paymentResponse.paymentId);
           this.showPayment.set(true);
           this.isSubmitting.set(false);
 
-          setTimeout(async () => {
+          setTimeout(() => {
             if (!this.paymentElementRef?.nativeElement) {
               console.error('Payment element ref not found');
               this.messageService.add({
