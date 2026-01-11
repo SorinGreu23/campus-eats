@@ -137,7 +137,7 @@ public class TestConfirmPaymentHandlerTests
         savedPayment.TransactionId.Should().Be(txId);
 
         var savedOrder = await db.Orders.Include(o => o.Items).FirstAsync(o => o.Id == order.Id);
-        savedOrder.Status.Should().Be("Paid");
+        savedOrder.Status.Should().Be("Pending");
 
         var savedInv = await db.InventoryItems.FirstAsync(i => i.Id == invTomato.Id);
         savedInv.CurrentQuantity.Should().Be(10m - (0.5m * 2));

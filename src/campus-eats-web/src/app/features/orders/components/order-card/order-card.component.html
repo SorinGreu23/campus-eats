@@ -12,7 +12,7 @@
 
   <button class="card-body" (click)="onViewDetails()" type="button">
     <div class="order-items">
-      @for (item of order().items; track item.id) {
+      @for (item of order().items.slice(0, 3); track item.id) {
         <div class="order-item">
           <img 
             [src]="item.menuItemImage || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=60&h=60&fit=crop'" 
@@ -26,14 +26,12 @@
           <span class="item-price">{{ item.subtotal.toFixed(2) }} RON</span>
         </div>
       }
+      @if (order().items.length > 3) {
+        <div class="more-items">
+          +{{ order().items.length - 3 }} more item{{ order().items.length - 3 > 1 ? 's' : '' }}
+        </div>
+      }
     </div>
-
-    @if (order().deliveryInstructions) {
-      <div class="special-instructions">
-        <i class="pi pi-info-circle"></i>
-        <span>{{ order().deliveryInstructions }}</span>
-      </div>
-    }
 
     <div class="order-details">
       <div class="detail-row">
@@ -82,13 +80,6 @@
         <button class="cancel-order-btn" (click)="onCancel()">
           <i class="pi pi-times"></i>
           Cancel Order
-        </button>
-      }
-      
-      @if (order().status === OrderStatus.Completed) {
-        <button class="reorder-btn" (click)="onReorder()">
-          <i class="pi pi-refresh"></i>
-          Reorder
         </button>
       }
     </div>

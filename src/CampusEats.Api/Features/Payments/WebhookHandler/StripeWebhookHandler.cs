@@ -96,7 +96,7 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
             await DeductInventoryForOrderItemAsync(orderItem, cancellationToken);
         }
 
-        order.Status = "Paid";
+        order.Status = "Pending";
         order.UpdatedAt = DateTimeOffset.UtcNow;
     }
 

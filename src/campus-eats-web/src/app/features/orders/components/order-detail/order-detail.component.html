@@ -177,18 +177,6 @@
             Cancel Order
           </button>
         }
-        @if (currentOrder.status === OrderStatus.Completed) {
-          <button class="action-btn reorder-btn" (click)="onReorder()">
-            <i class="pi pi-refresh"></i>
-            Reorder
-          </button>
-        }
-        @if (currentOrder.status !== OrderStatus.Completed && currentOrder.status !== OrderStatus.Cancelled) {
-          <button class="action-btn track-btn">
-            <i class="pi pi-map-marker"></i>
-            Track Order
-          </button>
-        }
         <button class="action-btn close-btn" (click)="onClose()">
           <i class="pi pi-times-circle"></i>
           Close

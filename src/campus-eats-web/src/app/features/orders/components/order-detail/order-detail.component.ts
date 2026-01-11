@@ -13,7 +13,7 @@ import { Order, OrderStatus, PaymentStatus, DeliveryMethod } from '../../models/
 export class OrderDetailComponent {
   visible = input.required<boolean>();
   order = input<Order | null>(null);
-  close = output<void>();
+  closeModal = output<void>();
   cancelOrder = output<string>();
   reorderOrder = output<Order>();
 
@@ -21,12 +21,18 @@ export class OrderDetailComponent {
   
   // Writable signal for two-way binding with dialog
   isVisible = signal(false);
+  
+  // Track if we're closing to avoid effect re-opening
+  private isClosing = false;
 
   constructor() {
-    // Sync visible input with isVisible signal
+    // Sync visible input with isVisible signal (only when opening)
     effect(() => {
-      this.isVisible.set(this.visible());
-    });
+      const visible = this.visible();
+      if (visible && !this.isClosing) {
+        this.isVisible.set(true);
+      }
+    }, { allowSignalWrites: true });
     
     effect(() => {
       if (this.visible() && this.scrollContent()) {
@@ -95,12 +101,24 @@ export class OrderDetailComponent {
   });
 
   onDialogHide(): void {
-    // Called when dialog closes (Esc, mask click, or programmatically)
-    this.close.emit();
+    // Mark as closing to prevent effect from re-opening
+    this.isClosing = true;
+    this.isVisible.set(false);
+    // Notify parent to sync its state
+    this.closeModal.emit();
+    // Reset closing flag after parent has time to update
+    setTimeout(() => {
+      this.isClosing = false;
+    }, 100);
   }
 
   onClose(): void {
+    this.isClosing = true;
     this.isVisible.set(false);
+    this.closeModal.emit();
+    setTimeout(() => {
+      this.isClosing = false;
+    }, 100);
   }
 
   onCancel(): void {

@@ -41,16 +41,7 @@
               />
             </div>
             
-            <select 
-              [(ngModel)]="selectedStatus"
-              class="status-filter"
-            >
-              @for (option of statusOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-            
-            @if (searchQuery() || selectedStatus() !== 'all') {
+            @if (searchQuery()) {
               <button class="clear-filters-btn" (click)="clearFilters()">
                 <i class="pi pi-times"></i>
                 Clear
@@ -64,8 +55,8 @@
             <i class="pi pi-shopping-bag empty-icon"></i>
             <p class="empty-message">No active orders</p>
             <p class="empty-submessage">
-              @if (searchQuery() || selectedStatus() !== 'all') {
-                No orders match your filters. Try clearing filters.
+              @if (searchQuery()) {
+                No orders match your search. Try clearing filters.
               } @else {
                 Your current orders will appear here
               }
@@ -88,7 +79,7 @@
       <section class="orders-section">
         <h2 class="section-title">Order History</h2>
         
-        @if (completedOrders().length === 0) {
+        @if (sortedCompletedOrders().length === 0) {
           <div class="empty-state">
             <i class="pi pi-history empty-icon"></i>
             <p class="empty-message">No order history</p>
@@ -96,7 +87,7 @@
           </div>
         } @else {
           <div class="orders-grid">
-            @for (order of completedOrders(); track order.id) {
+            @for (order of sortedCompletedOrders(); track order.id) {
               <app-order-card 
                 [order]="order"
                 (cancelOrder)="handleCancelOrder($event)"

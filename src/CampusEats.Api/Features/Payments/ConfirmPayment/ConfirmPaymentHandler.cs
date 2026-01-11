@@ -87,7 +87,7 @@ public class ConfirmPaymentHandler : IRequestHandler<ConfirmPaymentRequest, IRes
         if (order != null && order.Status == "Pending")
         {
             Console.WriteLine($"[ConfirmPayment] Processing order {order.Id} - confirming payment");
-            order.Status = "Paid";
+            order.Status = "Pending";
             order.UpdatedAt = DateTimeOffset.UtcNow;
 
             await DeductInventoryForOrderAsync(order, cancellationToken);
