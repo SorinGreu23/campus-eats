@@ -62,7 +62,13 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
         menuItem.Description = command.Request.Description;
         menuItem.Price = command.Request.Price;
         menuItem.CategoryId = resolvedCategoryId;
-        menuItem.ImageUrl = command.Request.ImageUrl;
+        
+        // Only update ImageUrl if a new value is provided
+        if (command.Request.ImageUrl != null)
+        {
+            menuItem.ImageUrl = command.Request.ImageUrl;
+        }
+        
         menuItem.PreparationTimeMinutes = command.Request.PreparationTimeMinutes;
         menuItem.IsAvailable = command.Request.IsAvailable;
         menuItem.Calories = command.Request.Calories;

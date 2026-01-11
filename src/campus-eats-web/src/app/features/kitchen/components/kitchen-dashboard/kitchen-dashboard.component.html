@@ -95,8 +95,7 @@
                     {{ order.orderNumber || order.id }}
                   </div>
                   <div class="order-total">
-                    <i class="pi pi-dollar"></i>
-                    {{ order.total | number:'1.2-2' }}
+                    {{ order.total | number:'1.2-2' }} ron
                   </div>
                 </div>
                 <button class="complete-btn" type="button" (click)="markOrderComplete(order.id)">
@@ -113,7 +112,7 @@
                     </div>
                     <div class="item-meta">
                       <span class="quantity">x{{ item.quantity }}</span>
-                      <span class="price">${{ item.subtotal | number:'1.2-2' }}</span>
+                      <span class="price">{{ item.subtotal | number:'1.2-2' }} ron</span>
                     </div>
                     @if (item.specialInstructions) {
                       <div class="item-notes">
@@ -196,8 +195,7 @@
               <p class="description">{{ item.description || 'No description' }}</p>
               <div class="meta">
                 <span class="price">
-                  <i class="pi pi-dollar"></i>
-                  {{ item.price | number:'1.2-2' }}
+                  {{ item.price | number:'1.2-2' }} ron
                 </span>
                 @if (item.preparationTimeMinutes) {
                   <span class="prep-time">
