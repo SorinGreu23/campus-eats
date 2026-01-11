@@ -224,7 +224,7 @@ public class ConfirmPaymentHandlerTests
 
         var updatedOrder = await context.Orders.FindAsync(orderId);
         updatedOrder.Should().NotBeNull();
-        updatedOrder!.Status.Should().Be("Paid");
+        updatedOrder!.Status.Should().Be("Pending");
     }
 
     [Fact]

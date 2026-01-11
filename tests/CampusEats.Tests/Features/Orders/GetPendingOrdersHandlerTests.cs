@@ -49,7 +49,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             UserId = "user1",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Pickup",
             Subtotal = 100m,
             Tax = 21m,
@@ -63,7 +63,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-002",
             UserId = "user2",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Delivery",
             Subtotal = 50m,
             Tax = 10.5m,
@@ -124,7 +124,7 @@ public class GetPendingOrdersHandlerTests
         valueProperty.Should().NotBeNull();
         var value = valueProperty!.GetValue(result) as IEnumerable<object>;
         value.Should().NotBeNull();
-        value!.Should().HaveCount(2); // Only the two "Paid" orders
+        value!.Should().HaveCount(2); // Only the two "Pending" orders
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             UserId = "user1",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Pickup",
             Subtotal = 25m,
             Tax = 5.25m,
@@ -235,7 +235,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-003",
             UserId = "user1",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Pickup",
             Subtotal = 100m,
             Tax = 21m,
@@ -249,7 +249,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-001",
             UserId = "user2",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Delivery",
             Subtotal = 50m,
             Tax = 10.5m,
@@ -263,7 +263,7 @@ public class GetPendingOrdersHandlerTests
             Id = Guid.NewGuid(),
             OrderNumber = "ORD-002",
             UserId = "user3",
-            Status = "Paid",
+            Status = "Pending",
             OrderType = "Pickup",
             Subtotal = 75m,
             Tax = 15.75m,
