@@ -14,10 +14,10 @@ import { MessageService } from 'primeng/api';
 export class MenuItemDetailComponent {
   visible = input.required<boolean>();
   menuItem = input<MenuItem | null>(null);
-  close = output<void>();
+  closeModal = output<void>();
   addToCart = output<MenuItem>();
 
-  private messageService = inject(MessageService);
+  private readonly messageService = inject(MessageService);
 
   isVisible = signal(false);
   quantity = signal(1);
@@ -32,7 +32,7 @@ export class MenuItemDetailComponent {
   }
 
   onDialogHide(): void {
-    this.close.emit();
+    this.closeModal.emit();
   }
 
   onClose(): void {
@@ -50,7 +50,7 @@ export class MenuItemDetailComponent {
   onAddToCart(): void {
     const item = this.menuItem();
     const qty = this.quantity();
-    if (item && item.isAvailable) {
+    if (item?.isAvailable) {
       for (let i = 0; i < qty; i++) {
         this.addToCart.emit(item);
       }

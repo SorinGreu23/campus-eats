@@ -15,18 +15,18 @@ import { MenuService } from '../../../menu/services/menu.service';
 export class MenuItemFormModalComponent {
   visible = input.required<boolean>();
   menuItem = input<MenuItem | null>(null);
-  close = output<void>();
+  closeModal = output<void>();
 
-  private fb = inject(FormBuilder);
-  private menuService = inject(MenuService);
+  private readonly fb = inject(FormBuilder);
+  private readonly menuService = inject(MenuService);
 
   isVisible = signal(false);
   categories = this.menuService.categories;
   menuLoading = this.menuService.loading;
   menuError = this.menuService.error;
   
-  private isSubmitting = signal(false);
-  private previousLoadingState = signal(false);
+  private readonly isSubmitting = signal(false);
+  private readonly previousLoadingState = signal(false);
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -80,7 +80,7 @@ export class MenuItemFormModalComponent {
 
   onDialogHide(): void {
     this.resetForm();
-    this.close.emit();
+    this.closeModal.emit();
   }
 
   onClose(): void {
