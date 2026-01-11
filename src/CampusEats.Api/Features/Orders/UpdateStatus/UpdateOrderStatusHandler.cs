@@ -60,6 +60,67 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
             order.CompletedAt = DateTimeOffset.UtcNow;
         }
 
+        // Deduct inventory when order transitions to Paid, Preparing, Ready, or Completed
+        // Only deduct if transitioning from Pending (to prevent double deduction)
+        var shouldDeductInventory = (request.Status == "Paid" || 
+                                     request.Status == "Preparing" || 
+                                     request.Status == "Ready" || 
+                                     request.Status == "Completed") && 
+                                    currentStatus == OrderStatus.Pending;
+
+        if (shouldDeductInventory)
+        {
+            Console.WriteLine($"[UpdateStatus] Processing order {request.OrderId} - transitioning from {currentStatus} to {request.Status}");
+            
+            var orderWithItems = await _context.Orders
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == request.OrderId, cancellationToken);
+
+            if (orderWithItems != null)
+            {
+                Console.WriteLine($"[UpdateStatus] Found order with {orderWithItems.Items.Count} items");
+                
+                foreach (var orderItem in orderWithItems.Items)
+                {
+                    Console.WriteLine($"[UpdateStatus] Processing order item: MenuItemId={orderItem.MenuItemId}, Quantity={orderItem.Quantity}");
+                    
+                    // Get the ingredients needed for this menu item
+                    var ingredients = await _context.MenuItemIngredients
+                        .Where(mii => mii.MenuItemId == orderItem.MenuItemId)
+                        .ToListAsync(cancellationToken);
+
+                    Console.WriteLine($"[UpdateStatus] Found {ingredients.Count} ingredients for menu item {orderItem.MenuItemId}");
+
+                    foreach (var ingredient in ingredients)
+                    {
+                        var inventoryItem = await _context.InventoryItems
+                            .FirstOrDefaultAsync(i => i.Id == ingredient.InventoryItemId, cancellationToken);
+
+                        if (inventoryItem != null)
+                        {
+                            var quantityToDeduct = ingredient.QuantityRequired * orderItem.Quantity;
+                            Console.WriteLine($"[UpdateStatus] Deducting {quantityToDeduct} {inventoryItem.Unit} of {inventoryItem.Name} (was {inventoryItem.CurrentQuantity})");
+                            inventoryItem.CurrentQuantity -= quantityToDeduct;
+                            inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
+                            Console.WriteLine($"[UpdateStatus] New quantity: {inventoryItem.CurrentQuantity}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[UpdateStatus] WARNING: Inventory item {ingredient.InventoryItemId} not found!");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[UpdateStatus] WARNING: Order {request.OrderId} not found with items!");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[UpdateStatus] Skipping inventory deduction for order {request.OrderId} - current status: {currentStatus}, new status: {request.Status}");
+        }
+
         order.Status = request.Status;
         order.UpdatedAt = DateTimeOffset.UtcNow;
 

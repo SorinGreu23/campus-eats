@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using CampusEats.Api.Features.Menu.Categories;
+using CampusEats.Api.Features.Menu.Ingredients;
 
 namespace CampusEats.Api.Features.Menu;
 
@@ -110,6 +111,85 @@ public static class MenuEndpoints
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden);
 
+        // Menu Item Ingredients endpoints
+        group
+            .MapGet(
+                "/{id:guid}/ingredients",
+                async (Guid id, [FromServices] IMediator mediator) =>
+                {
+                    return await mediator.Send(new GetMenuItemIngredientsRequest(id));
+                }
+            )
+            .WithName("GetMenuItemIngredients")
+            .Produces(StatusCodes.Status200OK);
+
+        group
+            .MapPost(
+                "/{menuItemId:guid}/ingredients",
+                async (
+                    Guid menuItemId,
+                    [FromBody] AddIngredientBody body,
+                    [FromServices] IMediator mediator
+                ) =>
+                {
+                    return await mediator.Send(new AddMenuItemIngredientRequest(
+                        menuItemId,
+                        body.InventoryItemId,
+                        body.QuantityRequired
+                    ));
+                }
+            )
+            .WithName("AddMenuItemIngredient")
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound);
+
+        group
+            .MapPut(
+                "/{menuItemId:guid}/ingredients/{inventoryItemId:guid}",
+                async (
+                    Guid menuItemId,
+                    Guid inventoryItemId,
+                    [FromBody] UpdateIngredientBody body,
+                    [FromServices] IMediator mediator
+                ) =>
+                {
+                    return await mediator.Send(new UpdateMenuItemIngredientRequest(
+                        menuItemId,
+                        inventoryItemId,
+                        body.QuantityRequired
+                    ));
+                }
+            )
+            .WithName("UpdateMenuItemIngredient")
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
+        group
+            .MapDelete(
+                "/{menuItemId:guid}/ingredients/{inventoryItemId:guid}",
+                async (
+                    Guid menuItemId,
+                    Guid inventoryItemId,
+                    [FromServices] IMediator mediator
+                ) =>
+                {
+                    return await mediator.Send(new DeleteMenuItemIngredientRequest(
+                        menuItemId,
+                        inventoryItemId
+                    ));
+                }
+            )
+            .WithName("DeleteMenuItemIngredient")
+            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
+
         return app;
     }
+
+    private record AddIngredientBody(Guid InventoryItemId, decimal QuantityRequired);
+    private record UpdateIngredientBody(decimal QuantityRequired);
 }

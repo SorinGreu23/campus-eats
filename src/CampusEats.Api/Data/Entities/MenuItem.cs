@@ -21,4 +21,6 @@ public class MenuItem
         new List<MenuItemAllergen>();
     public ICollection<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; } =
         new List<MenuItemDietaryRestriction>();
+    public ICollection<MenuItemIngredient> Ingredients { get; set; } =
+        new List<MenuItemIngredient>();
 }

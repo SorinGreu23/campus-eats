@@ -9,6 +9,59 @@
   font-family: 'Fredoka', sans-serif;
 }
 
+.tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  overflow-x: auto;
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 0.25rem;
+    }
+
+    &:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      color: #fbbf24;
+      border-bottom-color: #fbbf24;
+
+      .badge {
+        background: #fbbf24;
+        color: #dc2626;
+      }
+    }
+  }
+}
+
 .page-header {
   margin-bottom: 1rem;
 
