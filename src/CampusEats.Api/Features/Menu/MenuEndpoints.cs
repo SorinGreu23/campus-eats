@@ -7,7 +7,10 @@ namespace CampusEats.Api.Features.Menu;
 
 public static class MenuEndpoints
 {
-    public static IEndpointRouteBuilder MapMenuEndpoints(this IEndpointRouteBuilder app)
+  private const string AdminRole = "Admin";
+  private const string KitchenRole = "Kitchen";
+
+  public static IEndpointRouteBuilder MapMenuEndpoints(this IEndpointRouteBuilder app)
     {
         // Categories endpoint
         app.MapGet("/api/categories", async ([FromServices] IMediator mediator) =>
@@ -70,7 +73,7 @@ public static class MenuEndpoints
                 }
             )
             .WithName("CreateMenuItem")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces<CreateItemResponse>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -89,7 +92,7 @@ public static class MenuEndpoints
                 }
             )
             .WithName("UpdateMenuItem")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
@@ -105,7 +108,7 @@ public static class MenuEndpoints
                 }
             )
             .WithName("DeleteMenuItem")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -140,7 +143,7 @@ public static class MenuEndpoints
                 }
             )
             .WithName("AddMenuItemIngredient")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound);
@@ -163,7 +166,7 @@ public static class MenuEndpoints
                 }
             )
             .WithName("UpdateMenuItemIngredient")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -183,13 +186,13 @@ public static class MenuEndpoints
                 }
             )
             .WithName("DeleteMenuItemIngredient")
-            .RequireAuthorization(policy => policy.RequireRole("Admin", "Kitchen"))
+            .RequireAuthorization(policy => policy.RequireRole(AdminRole, KitchenRole))
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
         return app;
     }
 
-    private record AddIngredientBody(Guid InventoryItemId, decimal QuantityRequired);
-    private record UpdateIngredientBody(decimal QuantityRequired);
+    private sealed record AddIngredientBody(Guid InventoryItemId, decimal QuantityRequired);
+    private sealed record UpdateIngredientBody(decimal QuantityRequired);
 }

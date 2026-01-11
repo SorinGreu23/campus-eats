@@ -53,37 +53,42 @@ public class CampusDbContext : DbContext
 
     private void SetTimestamps()
     {
+        var now = DateTimeOffset.UtcNow;
         var entries = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
         foreach (var entry in entries)
         {
-            var entity = entry.Entity;
-            var now = DateTimeOffset.UtcNow;
-
             if (entry.State == EntityState.Added)
             {
-                // Set CreatedAt for new entities
-                var createdAtProp = entity.GetType().GetProperty("CreatedAt");
-                if (createdAtProp != null && createdAtProp.PropertyType == typeof(DateTimeOffset))
-                {
-                    var currentValue = (DateTimeOffset?)createdAtProp.GetValue(entity);
-                    if (currentValue == null || currentValue == default(DateTimeOffset))
-                    {
-                        createdAtProp.SetValue(entity, now);
-                    }
-                }
+                TrySetCreatedAt(entry.Entity, now);
             }
 
-            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-            {
-                // Set UpdatedAt for new or modified entities
-                var updatedAtProp = entity.GetType().GetProperty("UpdatedAt");
-                if (updatedAtProp != null && updatedAtProp.PropertyType == typeof(DateTimeOffset))
-                {
-                    updatedAtProp.SetValue(entity, now);
-                }
-            }
+            TrySetUpdatedAt(entry.Entity, now);
+        }
+    }
+
+    private static void TrySetCreatedAt(object entity, DateTimeOffset timestamp)
+    {
+        var createdAtProp = entity.GetType().GetProperty("CreatedAt");
+        if (createdAtProp == null || createdAtProp.PropertyType != typeof(DateTimeOffset))
+        {
+            return;
+        }
+
+        var currentValue = (DateTimeOffset?)createdAtProp.GetValue(entity);
+        if (currentValue == null || currentValue == default(DateTimeOffset))
+        {
+            createdAtProp.SetValue(entity, timestamp);
+        }
+    }
+
+    private static void TrySetUpdatedAt(object entity, DateTimeOffset timestamp)
+    {
+        var updatedAtProp = entity.GetType().GetProperty("UpdatedAt");
+        if (updatedAtProp != null && updatedAtProp.PropertyType == typeof(DateTimeOffset))
+        {
+            updatedAtProp.SetValue(entity, timestamp);
         }
     }
 }

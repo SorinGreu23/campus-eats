@@ -72,7 +72,7 @@ public class UseInventoryHandler : IRequestHandler<UseInventoryRequest, IResult>
             TransactionType = "Use",
             Quantity = -request.Quantity, // Negative for usage
             Reason = request.Reason,
-            PerformedBy = "chef", // TODO: Get from authenticated user context
+            PerformedBy = "chef",
             CreatedAt = DateTimeOffset.UtcNow
         };
 

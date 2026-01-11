@@ -22,304 +22,90 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
         CancellationToken cancellationToken
     )
     {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext is null || httpContext.User?.Identity?.IsAuthenticated != true)
-            return Results.Unauthorized();
+        var validationResult = await ValidateOrderRequestAsync(request, cancellationToken);
+        if (validationResult.Error != null)
+            return validationResult.Error;
 
-        if (request.Items == null || request.Items.Count == 0)
-            return Results.BadRequest(new { error = "Order must contain at least one item." });
+        var order = CreateOrder(request);
+        var subtotal = AddOrderItems(order, request.Items!, validationResult.MenuItems!);
+        CalculateOrderTotals(order, subtotal, validationResult.RewardDiscount);
 
-        // Collect menu item ids
-        var menuItemIds = request
-            .Items.Where(i => i.MenuItemId.HasValue)
+        await SaveOrderAndAwardPointsAsync(order, request.UserId!, cancellationToken);
+
+        return CreateOrderResponse(order);
+    }
+
+    private async Task<(IResult? Error, List<MenuItem>? MenuItems, decimal RewardDiscount)> ValidateOrderRequestAsync(
+        CreateOrderRequest request, CancellationToken cancellationToken)
+    {
+        var authResult = ValidateAuthentication(request);
+        if (authResult != null)
+            return (authResult, null, 0m);
+
+        var itemsValidation = ValidateRequestItems(request);
+        if (itemsValidation != null)
+            return (itemsValidation, null, 0m);
+
+        var menuItemIds = request.Items!
+            .Where(i => i.MenuItemId.HasValue)
             .Select(i => i.MenuItemId!.Value)
             .ToList();
-        if (menuItemIds.Count == 0)
-            return Results.BadRequest(
-                new { error = "Invalid items. Each item must reference a MenuItemId." }
-            );
 
-        // Load menu items from DB with ingredients
-        var menuItems = await _db
-            .MenuItems
-            .Include(m => m.Ingredients)
-                .ThenInclude(mi => mi.InventoryItem)
-            .Where(m => menuItemIds.Contains(m.Id))
-            .ToListAsync(cancellationToken);
+        var menuItems = await LoadMenuItemsAsync(menuItemIds, cancellationToken);
         if (menuItems.Count != menuItemIds.Count)
-            return Results.BadRequest(new { error = "One or more menu items were not found." });
+            return (Results.BadRequest(new { error = "One or more menu items were not found." }), null, 0m);
 
-        if (string.IsNullOrWhiteSpace(request.UserId))
-            return Results.BadRequest(new { error = "userId is required." });
+        var stockValidation = ValidateStockAvailability(request.Items!, menuItems);
+        if (stockValidation != null)
+            return (stockValidation, null, 0m);
 
-        // Validate stock availability for all items before creating the order
-        var stockErrors = new List<string>();
-        foreach (var itemReq in request.Items)
-        {
-            if (!itemReq.MenuItemId.HasValue)
-                continue;
-            
-            var menuItem = menuItems.First(m => m.Id == itemReq.MenuItemId.Value);
-            var requestedQuantity = Math.Max(1, itemReq.Quantity);
-            
-            // Check if menu item has ingredients
-            if (menuItem.Ingredients.Any())
+        var (rewardResult, rewardDiscount, appliedReward) = await ValidateAndApplyLoyaltyRewardAsync(
+            request, cancellationToken);
+        if (rewardResult != null)
+            return (rewardResult, null, 0m);
+
+        var subtotalForValidation = CalculateSubtotal(request.Items!, menuItems);
+        var minOrderValidation = ValidateMinimumOrderAmount(appliedReward, subtotalForValidation);
+        if (minOrderValidation != null)
+            return (minOrderValidation, null, 0m);
+
+        return (null, menuItems, rewardDiscount);
+    }
+
+    private static decimal CalculateSubtotal(ICollection<CreateOrderItemRequest> items, List<MenuItem> menuItems)
+    {
+        return items
+            .Where(i => i.MenuItemId.HasValue)
+            .Sum(i =>
             {
-                foreach (var ingredient in menuItem.Ingredients)
-                {
-                    var requiredQuantity = ingredient.QuantityRequired * requestedQuantity;
-                    var availableQuantity = ingredient.InventoryItem.CurrentQuantity;
-                    
-                    if (availableQuantity < requiredQuantity)
-                    {
-                        stockErrors.Add(
-                            $"Insufficient stock for '{menuItem.Name}': " +
-                            $"requires {requiredQuantity} {ingredient.InventoryItem.Unit} of {ingredient.InventoryItem.Name}, " +
-                            $"but only {availableQuantity} {ingredient.InventoryItem.Unit} available."
-                        );
-                    }
-                }
-            }
-        }
-        
-        if (stockErrors.Any())
+                var menuItem = menuItems.First(m => m.Id == i.MenuItemId!.Value);
+                var quantity = Math.Max(1, i.Quantity);
+                return menuItem.Price * quantity;
+            });
+    }
+
+    private static IResult? ValidateMinimumOrderAmount(LoyaltyReward? reward, decimal subtotal)
+    {
+        if (reward?.MinimumOrderAmount.HasValue == true && subtotal < reward.MinimumOrderAmount.Value)
         {
-            return Results.BadRequest(new 
-            { 
-                error = "Insufficient stock for one or more items.",
-                details = stockErrors
+            return Results.BadRequest(new
+            {
+                error = $"This reward requires a minimum order of {reward.MinimumOrderAmount.Value:F2} RON (before tax). Your current subtotal is {subtotal:F2} RON."
             });
         }
+        return null;
+    }
 
-        // Only the owner (authenticated user) can create an order for their account
-        var currentUserId = httpContext
-            .User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
-            ?.Value;
-        if (string.IsNullOrEmpty(currentUserId))
-            return Results.Unauthorized();
-        if (!string.Equals(currentUserId, request.UserId, StringComparison.Ordinal))
-            return Results.Forbid();
-
-        // Validate and apply loyalty reward if provided
-        decimal rewardDiscount = 0m;
-        LoyaltyReward? appliedReward = null;
-
-        if (request.LoyaltyRewardId.HasValue)
-        {
-            var reward = await _db
-                .LoyaltyRewards.FirstOrDefaultAsync(
-                    r => r.Id == request.LoyaltyRewardId.Value,
-                    cancellationToken
-                );
-
-            if (reward == null)
-                return Results.BadRequest(new { error = "Loyalty reward not found." });
-
-            if (!reward.IsActive)
-                return Results.BadRequest(new { error = "This reward is not currently active." });
-
-            // Check validity dates
-            var now = DateTimeOffset.UtcNow;
-            if (reward.ValidFrom.HasValue && reward.ValidFrom > now)
-                return Results.BadRequest(new { error = "This reward is not yet valid." });
-
-            if (reward.ValidUntil.HasValue && reward.ValidUntil < now)
-                return Results.BadRequest(new { error = "This reward has expired." });
-
-            // Get user's loyalty account and verify they have claimed this reward
-            var loyaltyAccount = await _db
-                .LoyaltyAccounts.FirstOrDefaultAsync(
-                    la => la.UserId == request.UserId,
-                    cancellationToken
-                );
-
-            if (loyaltyAccount == null)
-                return Results.BadRequest(new { error = "Loyalty account not found." });
-
-            // Check tier requirement
-            if (!string.IsNullOrEmpty(reward.MinimumTier))
-            {
-                var userTierRank = GetTierRank(loyaltyAccount.Tier ?? "Bronze");
-                var requiredTierRank = GetTierRank(reward.MinimumTier);
-
-                if (userTierRank < requiredTierRank)
-                {
-                    return Results.BadRequest(
-                        new
-                        {
-                            error =
-                                $"This reward requires {reward.MinimumTier} tier or higher. Your current tier is {loyaltyAccount.Tier ?? "Bronze"}."
-                        }
-                    );
-                }
-            }
-
-            // Verify user has claimed this reward (has enough points and hasn't used it yet)
-            var existingClaim = await _db
-                .LoyaltyClaims.FirstOrDefaultAsync(
-                    c =>
-                        c.LoyaltyAccountId == loyaltyAccount.Id
-                        && c.RewardId == reward.Id
-                        && c.Notes != "Used",
-                    cancellationToken
-                );
-
-            if (existingClaim == null)
-            {
-                // User hasn't claimed this reward yet, check if they have enough points
-                if (loyaltyAccount.PointsBalance < reward.PointsCost)
-                {
-                    return Results.BadRequest(
-                        new
-                        {
-                            error =
-                                $"Insufficient points. You need {reward.PointsCost} points but only have {loyaltyAccount.PointsBalance}."
-                        }
-                    );
-                }
-
-                // Auto-claim the reward and deduct points
-                loyaltyAccount.PointsBalance -= reward.PointsCost;
-                var newClaim = new LoyaltyClaim
-                {
-                    Id = Guid.NewGuid(),
-                    LoyaltyAccountId = loyaltyAccount.Id,
-                    RewardId = reward.Id,
-                    ClaimedAt = DateTimeOffset.UtcNow,
-                    Notes = "Auto-claimed at checkout",
-                };
-                _db.LoyaltyClaims.Add(newClaim);
-                existingClaim = newClaim;
-            }
-            else
-            {
-                // User has already claimed this reward, now deduct points when using it
-                if (loyaltyAccount.PointsBalance < reward.PointsCost)
-                {
-                    return Results.BadRequest(
-                        new
-                        {
-                            error =
-                                $"Insufficient points. You need {reward.PointsCost} points but only have {loyaltyAccount.PointsBalance}."
-                        }
-                    );
-                }
-                loyaltyAccount.PointsBalance -= reward.PointsCost;
-            }
-
-            // Mark claim as used
-            existingClaim.Notes = "Used";
-
-            appliedReward = reward;
-            rewardDiscount = reward.DiscountValue ?? 0m;
-        }
-
-        // Create order and compute totals
-        var order = new Order
-        {
-            Id = Guid.NewGuid(),
-            OrderNumber = GenerateOrderNumber(),
-            UserId = request.UserId,
-            Status = "Pending",
-            DeliveryInstructions = request.DeliveryInstructions,
-            OrderType = request.OrderType ?? "Pickup",
-            LoyaltyRewardId = request.LoyaltyRewardId,
-            CreatedAt = DateTimeOffset.UtcNow,
-        };
-
-        // If the client specified Delivery, ensure PickupTime is null
-        if (
-            !string.IsNullOrWhiteSpace(order.OrderType)
-            && order.OrderType.Equals("Delivery", StringComparison.OrdinalIgnoreCase)
-        )
-        {
-            order.PickupTime = null;
-        }
-
-        decimal subtotal = 0m;
-
-        foreach (var itemReq in request.Items)
-        {
-            if (!itemReq.MenuItemId.HasValue)
-                continue;
-            var menuItem = menuItems.First(m => m.Id == itemReq.MenuItemId.Value);
-            var unitPrice = menuItem.Price;
-            var quantity = Math.Max(1, itemReq.Quantity);
-            var lineSubtotal = unitPrice * quantity;
-
-            var orderItem = new OrderItem
-            {
-                Id = Guid.NewGuid(),
-                OrderId = order.Id,
-                MenuItemId = menuItem.Id,
-                Quantity = quantity,
-                UnitPrice = unitPrice,
-                Subtotal = lineSubtotal,
-                SpecialInstructions = itemReq.SpecialInstructions,
-            };
-
-            order.Items.Add(orderItem);
-            _db.OrderItems.Add(orderItem);
-
-            subtotal += lineSubtotal;
-        }
-
-        // Validate minimum order amount for reward
-        if (appliedReward != null && appliedReward.MinimumOrderAmount.HasValue)
-        {
-            if (subtotal < appliedReward.MinimumOrderAmount.Value)
-            {
-                return Results.BadRequest(
-                    new
-                    {
-                        error = $"This reward requires a minimum order of {appliedReward.MinimumOrderAmount.Value:F2} RON (before tax). Your current subtotal is {subtotal:F2} RON."
-                    }
-                );
-            }
-        }
-
-        var tax = Math.Round(subtotal * TaxRate, 2);
-        var discount = rewardDiscount;
-        var total = Math.Max(0, subtotal + tax - discount);
-
-        order.Subtotal = subtotal;
-        order.Tax = tax;
-        order.Discount = discount;
-        order.Total = total;
-
+    private async Task SaveOrderAndAwardPointsAsync(Order order, string userId, CancellationToken cancellationToken)
+    {
         _db.Orders.Add(order);
         await _db.SaveChangesAsync(cancellationToken);
+        await AwardLoyaltyPointsAsync(userId, order.Total, cancellationToken);
+    }
 
-        // Award loyalty points: 1 RON spent = 1 point
-        var userLoyaltyAccount = await _db
-            .LoyaltyAccounts.FirstOrDefaultAsync(
-                la => la.UserId == request.UserId,
-                cancellationToken
-            );
-
-        if (userLoyaltyAccount != null)
-        {
-            var pointsEarned = (int)Math.Floor(total); // 1 RON = 1 point
-            userLoyaltyAccount.PointsBalance += pointsEarned;
-            userLoyaltyAccount.LifetimePoints += pointsEarned;
-
-            // Update tier based on lifetime points
-            if (userLoyaltyAccount.LifetimePoints >= 10000)
-                userLoyaltyAccount.Tier = "Platinum";
-            else if (userLoyaltyAccount.LifetimePoints >= 5000)
-                userLoyaltyAccount.Tier = "Gold";
-            else if (userLoyaltyAccount.LifetimePoints >= 2000)
-                userLoyaltyAccount.Tier = "Silver";
-            else
-                userLoyaltyAccount.Tier = "Bronze";
-
-            // Note: LoyaltyTransactions table doesn't exist yet, skipping transaction record
-            // TODO: Add transaction tracking when table is created
-
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-
-        var response = new
+    private static IResult CreateOrderResponse(Order order)
+    {
+        return Results.Created($"/orders/{order.Id}", new
         {
             order.Id,
             order.OrderNumber,
@@ -328,9 +114,280 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, IResult>
             order.Tax,
             order.Discount,
             order.Total,
+        });
+    }
+
+    private IResult? ValidateAuthentication(CreateOrderRequest request)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext?.User?.Identity?.IsAuthenticated != true)
+            return Results.Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(request.UserId))
+            return Results.BadRequest(new { error = "userId is required." });
+
+        var currentUserId = httpContext.User
+            .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        if (string.IsNullOrEmpty(currentUserId))
+            return Results.Unauthorized();
+        
+        if (!string.Equals(currentUserId, request.UserId, StringComparison.Ordinal))
+            return Results.Forbid();
+
+        return null;
+    }
+
+    private static IResult? ValidateRequestItems(CreateOrderRequest request)
+    {
+        if (request.Items == null || request.Items.Count == 0)
+            return Results.BadRequest(new { error = "Order must contain at least one item." });
+
+        var hasValidItems = request.Items.Any(i => i.MenuItemId.HasValue);
+        if (!hasValidItems)
+            return Results.BadRequest(new { error = "Invalid items. Each item must reference a MenuItemId." });
+
+        return null;
+    }
+
+    private async Task<List<MenuItem>> LoadMenuItemsAsync(List<Guid> menuItemIds, CancellationToken cancellationToken)
+    {
+        return await _db.MenuItems
+            .Include(m => m.Ingredients)
+                .ThenInclude(mi => mi.InventoryItem)
+            .Where(m => menuItemIds.Contains(m.Id))
+            .ToListAsync(cancellationToken);
+    }
+
+    private static IResult? ValidateStockAvailability(ICollection<CreateOrderItemRequest> items, List<MenuItem> menuItems)
+    {
+        var stockErrors = new List<string>();
+        
+        foreach (var itemReq in items.Where(i => i.MenuItemId.HasValue))
+        {
+            var menuItem = menuItems.First(m => m.Id == itemReq.MenuItemId!.Value);
+            var requestedQuantity = Math.Max(1, itemReq.Quantity);
+
+            foreach (var ingredient in menuItem.Ingredients)
+            {
+                var requiredQuantity = ingredient.QuantityRequired * requestedQuantity;
+                var availableQuantity = ingredient.InventoryItem.CurrentQuantity;
+
+                if (availableQuantity < requiredQuantity)
+                {
+                    stockErrors.Add(
+                        $"Insufficient stock for '{menuItem.Name}': " +
+                        $"requires {requiredQuantity} {ingredient.InventoryItem.Unit} of {ingredient.InventoryItem.Name}, " +
+                        $"but only {availableQuantity} {ingredient.InventoryItem.Unit} available."
+                    );
+                }
+            }
+        }
+
+        if (stockErrors.Count > 0)
+        {
+            return Results.BadRequest(new
+            {
+                error = "Insufficient stock for one or more items.",
+                details = stockErrors
+            });
+        }
+
+        return null;
+    }
+
+    private async Task<(IResult? Result, decimal Discount, LoyaltyReward? Reward)> ValidateAndApplyLoyaltyRewardAsync(
+        CreateOrderRequest request, CancellationToken cancellationToken)
+    {
+        if (!request.LoyaltyRewardId.HasValue)
+            return (null, 0m, null);
+
+        var reward = await _db.LoyaltyRewards
+            .FirstOrDefaultAsync(r => r.Id == request.LoyaltyRewardId.Value, cancellationToken);
+
+        if (reward == null)
+            return (Results.BadRequest(new { error = "Loyalty reward not found." }), 0m, null);
+
+        var rewardValidation = ValidateRewardAvailability(reward);
+        if (rewardValidation != null)
+            return (rewardValidation, 0m, null);
+
+        var loyaltyAccount = await _db.LoyaltyAccounts
+            .FirstOrDefaultAsync(la => la.UserId == request.UserId, cancellationToken);
+
+        if (loyaltyAccount == null)
+            return (Results.BadRequest(new { error = "Loyalty account not found." }), 0m, null);
+
+        var tierValidation = ValidateTierRequirement(reward, loyaltyAccount);
+        if (tierValidation != null)
+            return (tierValidation, 0m, null);
+
+        var claimResult = await ProcessRewardClaimAsync(reward, loyaltyAccount, cancellationToken);
+        if (claimResult != null)
+            return (claimResult, 0m, null);
+
+        return (null, reward.DiscountValue ?? 0m, reward);
+    }
+
+    private static IResult? ValidateRewardAvailability(LoyaltyReward reward)
+    {
+        if (!reward.IsActive)
+            return Results.BadRequest(new { error = "This reward is not currently active." });
+
+        var now = DateTimeOffset.UtcNow;
+        if (reward.ValidFrom.HasValue && reward.ValidFrom > now)
+            return Results.BadRequest(new { error = "This reward is not yet valid." });
+
+        if (reward.ValidUntil.HasValue && reward.ValidUntil < now)
+            return Results.BadRequest(new { error = "This reward has expired." });
+
+        return null;
+    }
+
+    private static IResult? ValidateTierRequirement(LoyaltyReward reward, LoyaltyAccount account)
+    {
+        if (string.IsNullOrEmpty(reward.MinimumTier))
+            return null;
+
+        var userTierRank = GetTierRank(account.Tier ?? "Bronze");
+        var requiredTierRank = GetTierRank(reward.MinimumTier);
+
+        if (userTierRank < requiredTierRank)
+        {
+            return Results.BadRequest(new
+            {
+                error = $"This reward requires {reward.MinimumTier} tier or higher. Your current tier is {account.Tier ?? "Bronze"}."
+            });
+        }
+
+        return null;
+    }
+
+    private async Task<IResult?> ProcessRewardClaimAsync(
+        LoyaltyReward reward, LoyaltyAccount account, CancellationToken cancellationToken)
+    {
+        var existingClaim = await _db.LoyaltyClaims
+            .FirstOrDefaultAsync(c =>
+                c.LoyaltyAccountId == account.Id &&
+                c.RewardId == reward.Id &&
+                c.Notes != "Used",
+                cancellationToken);
+
+        if (account.PointsBalance < reward.PointsCost)
+        {
+            return Results.BadRequest(new
+            {
+                error = $"Insufficient points. You need {reward.PointsCost} points but only have {account.PointsBalance}."
+            });
+        }
+
+        account.PointsBalance -= reward.PointsCost;
+
+        if (existingClaim == null)
+        {
+            existingClaim = new LoyaltyClaim
+            {
+                Id = Guid.NewGuid(),
+                LoyaltyAccountId = account.Id,
+                RewardId = reward.Id,
+                ClaimedAt = DateTimeOffset.UtcNow,
+                Notes = "Used",
+            };
+            _db.LoyaltyClaims.Add(existingClaim);
+        }
+        else
+        {
+            existingClaim.Notes = "Used";
+        }
+
+        return null;
+    }
+
+    private static Order CreateOrder(CreateOrderRequest request)
+    {
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            OrderNumber = GenerateOrderNumber(),
+            UserId = request.UserId!,
+            Status = "Pending",
+            DeliveryInstructions = request.DeliveryInstructions,
+            OrderType = request.OrderType ?? "Pickup",
+            LoyaltyRewardId = request.LoyaltyRewardId,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
-        return Results.Created($"/orders/{order.Id}", response);
+        if (order.OrderType.Equals("Delivery", StringComparison.OrdinalIgnoreCase))
+        {
+            order.PickupTime = null;
+        }
+
+        return order;
+    }
+
+    private decimal AddOrderItems(Order order, ICollection<CreateOrderItemRequest> items, List<MenuItem> menuItems)
+    {
+        decimal subtotal = 0m;
+
+        foreach (var itemReq in items.Where(i => i.MenuItemId.HasValue))
+        {
+            var menuItem = menuItems.First(m => m.Id == itemReq.MenuItemId!.Value);
+            var quantity = Math.Max(1, itemReq.Quantity);
+            var lineSubtotal = menuItem.Price * quantity;
+
+            var orderItem = new OrderItem
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                MenuItemId = menuItem.Id,
+                Quantity = quantity,
+                UnitPrice = menuItem.Price,
+                Subtotal = lineSubtotal,
+                SpecialInstructions = itemReq.SpecialInstructions,
+            };
+
+            order.Items.Add(orderItem);
+            _db.OrderItems.Add(orderItem);
+            subtotal += lineSubtotal;
+        }
+
+        return subtotal;
+    }
+
+    private static void CalculateOrderTotals(Order order, decimal subtotal, decimal discount)
+    {
+        var tax = Math.Round(subtotal * TaxRate, 2);
+        order.Subtotal = subtotal;
+        order.Tax = tax;
+        order.Discount = discount;
+        order.Total = Math.Max(0, subtotal + tax - discount);
+    }
+
+    private async Task AwardLoyaltyPointsAsync(string userId, decimal orderTotal, CancellationToken cancellationToken)
+    {
+        var account = await _db.LoyaltyAccounts
+            .FirstOrDefaultAsync(la => la.UserId == userId, cancellationToken);
+
+        if (account == null)
+            return;
+
+        var pointsEarned = (int)Math.Floor(orderTotal);
+        account.PointsBalance += pointsEarned;
+        account.LifetimePoints += pointsEarned;
+        account.Tier = CalculateTier(account.LifetimePoints);
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static string CalculateTier(int lifetimePoints)
+    {
+        return lifetimePoints switch
+        {
+            >= 10000 => "Platinum",
+            >= 5000 => "Gold",
+            >= 2000 => "Silver",
+            _ => "Bronze"
+        };
     }
 
     private static string GenerateOrderNumber()

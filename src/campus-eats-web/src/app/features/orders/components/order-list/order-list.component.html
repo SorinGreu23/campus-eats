@@ -113,7 +113,7 @@
     <app-order-detail
       [visible]="showDetailModal()"
       [order]="selectedOrder()"
-      (close)="handleCloseDetail()"
+      (closeModal)="handleCloseDetail()"
       (cancelOrder)="handleCancelOrder($event)"
       (reorderOrder)="handleReorder($event)">
     </app-order-detail>

@@ -38,18 +38,17 @@ type ApiOrder = {
   items: ApiOrderItem[];
 };
 
-// TODO: move to environment configuration when available
 const API_BASE_URL = 'http://localhost:5001/api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private http = inject(HttpClient);
-  private authState = inject(AuthStateService);
-
-  private orders = signal<Order[]>([]);
-  private kitchenOrders = signal<Order[]>([]);
+  private readonly http = inject(HttpClient);
+  private readonly authState = inject(AuthStateService);
+  private readonly orders = signal<Order[]>([]);
+  private readonly kitchenOrders = signal<Order[]>([]);
+  
   loading = signal(false);
   kitchenLoading = signal(false);
   error = signal<string | null>(null);
@@ -178,28 +177,39 @@ export class OrderService {
     this.orders.update(list => [newOrder, ...list]);
   }
 
-  private mapOrderFromApi = (api: ApiOrder): Order => ({
-    id: api.id,
-    orderNumber: api.orderNumber ?? api.id,
-    userId: undefined,
-    status: (api.status as OrderStatus) ?? OrderStatus.Pending,
-    orderType: (api.orderType as DeliveryMethod) ?? DeliveryMethod.Pickup,
-    paymentStatus: PaymentStatus.Paid,
-    subtotal: Number(api.subtotal),
-    tax: Number(api.tax),
-    discount: Number(api.discount ?? 0),
-    total: Number(api.total),
-    deliveryInstructions: api.deliveryInstructions,
-    pickupTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
-    estimatedDeliveryTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
-    placedAt: api.createdAt ? new Date(api.createdAt) : (api.completedAt ? new Date(api.completedAt) : new Date()),
-    completedAt: api.completedAt ? new Date(api.completedAt) : undefined,
-    cancelledAt: api.cancelledAt ? new Date(api.cancelledAt) : undefined,
-    cancellationReason: api.cancellationReason,
-    items: (api.items || []).map(this.mapOrderItemFromApi),
-  });
+  private readonly mapOrderFromApi = (api: ApiOrder): Order => {
+    let placedAt: Date;
+    if (api.createdAt) {
+      placedAt = new Date(api.createdAt);
+    } else if (api.completedAt) {
+      placedAt = new Date(api.completedAt);
+    } else {
+      placedAt = new Date();
+    }
 
-  private mapOrderItemFromApi = (api: ApiOrderItem): OrderItem => ({
+    return {
+      id: api.id,
+      orderNumber: api.orderNumber ?? api.id,
+      userId: undefined,
+      status: (api.status as OrderStatus) ?? OrderStatus.Pending,
+      orderType: (api.orderType as DeliveryMethod) ?? DeliveryMethod.Pickup,
+      paymentStatus: PaymentStatus.Paid,
+      subtotal: Number(api.subtotal),
+      tax: Number(api.tax),
+      discount: Number(api.discount ?? 0),
+      total: Number(api.total),
+      deliveryInstructions: api.deliveryInstructions,
+      pickupTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
+      estimatedDeliveryTime: api.pickupTime ? new Date(api.pickupTime) : undefined,
+      placedAt,
+      completedAt: api.completedAt ? new Date(api.completedAt) : undefined,
+      cancelledAt: api.cancelledAt ? new Date(api.cancelledAt) : undefined,
+      cancellationReason: api.cancellationReason,
+      items: (api.items || []).map(this.mapOrderItemFromApi),
+    };
+  };
+
+  private readonly mapOrderItemFromApi = (api: ApiOrderItem): OrderItem => ({
     id: api.id,
     orderId: undefined,
     menuItemId: api.menuItemId ?? api.menuItem?.id,

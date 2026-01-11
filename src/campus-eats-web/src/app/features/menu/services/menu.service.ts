@@ -53,15 +53,14 @@ type ApiUpsertMenuItemDto = {
   dietaryRestrictionIds?: string[];
 };
 
-// TODO: move to environment configuration when available
 const API_BASE_URL = 'http://localhost:5001/api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-  private http = inject(HttpClient);
-  private authState = inject(AuthStateService);
+  private readonly http = inject(HttpClient);
+  private readonly authState = inject(AuthStateService);
 
   menuItems = signal<MenuItem[]>([]);
   loading = signal(false);
@@ -192,7 +191,7 @@ export class MenuService {
     });
   }
 
-  private mapMenuItemFromApi = (apiItem: ApiMenuItemDto): MenuItem => ({
+  private readonly mapMenuItemFromApi = (apiItem: ApiMenuItemDto): MenuItem => ({
     id: apiItem.id,
     name: apiItem.name,
     description: apiItem.description ?? '',

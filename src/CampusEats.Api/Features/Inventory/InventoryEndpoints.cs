@@ -46,6 +46,6 @@ public static class InventoryEndpoints
         .WithOpenApi();
     }
 
-    private record RestockRequest(decimal Quantity, string? Reason);
-    private record UseRequest(decimal Quantity, string? Reason);
+    private sealed record RestockRequest(decimal Quantity, string? Reason);
+    private sealed record UseRequest(decimal Quantity, string? Reason);
 }

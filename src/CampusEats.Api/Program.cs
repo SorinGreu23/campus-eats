@@ -134,29 +134,6 @@ using (var scope = app.Services.CreateScope())
 {
     var campusDb = scope.ServiceProvider.GetRequiredService<CampusDbContext>();
 
-    // Mark existing migrations as applied to avoid recreating tables
-    var appliedMigrations = new[]
-    {
-        "20251110081448_InitialCreate",
-        "20251123104037_InitialCampus",
-        "20251123110224_RemoveOrderUserNavigation",
-        "20251123202731_AddAllergensAndDietaryRestrictions",
-        "20251123215748_AddMinimumTierToLoyaltyReward",
-        "20251123221117_AddLoyaltyClaim",
-        "20251126093741_AddOrderTypeToOrder",
-        "20251126204226_AddDescriptionToAllergensAndDietaryRestrictions",
-        "20260107134457_AddStripePaymentIntegration",
-        "20260107140402_MakeOrderTypeNullable",
-        "20260108194543_AddUpdatedAtColumn"
-    };
-
-    foreach (var migration in appliedMigrations)
-    {
-        await campusDb.Database.ExecuteSqlRawAsync(
-            $"INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") " +
-            $"VALUES ('{migration}', '9.0.10') ON CONFLICT DO NOTHING");
-    }
-
     // Apply new migrations
     await campusDb.Database.MigrateAsync();
 
@@ -164,10 +141,6 @@ using (var scope = app.Services.CreateScope())
     {
         // Ensure database is migrated first
         await campusDb.Database.MigrateAsync();
-        
-        // FORCE delete all rewards to reseed (use raw SQL to bypass EF tracking)
-        await campusDb.Database.ExecuteSqlRawAsync("TRUNCATE TABLE loyalty_rewards CASCADE");
-        Console.WriteLine("Deleted all old rewards. Reseeding with RON-based names...");
         
         await LoyaltyRewardsSeeder.SeedLoyaltyRewards(campusDb);
         await AllergensAndDietaryRestrictionsSeeder.SeedAllergensAndDietaryRestrictions(campusDb);

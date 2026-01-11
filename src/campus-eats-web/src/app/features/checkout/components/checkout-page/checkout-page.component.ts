@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -40,17 +40,17 @@ interface CreateOrderRequest {
   styleUrl: './checkout-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CheckoutPageComponent implements OnInit, AfterViewInit {
+export class CheckoutPageComponent implements OnInit {
   @ViewChild('paymentElement') paymentElementRef!: ElementRef;
 
-  private cartService = inject(CartService);
-  private authState = inject(AuthStateService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private http = inject(HttpClient);
-  private messageService = inject(MessageService);
-  private paymentService = inject(PaymentService);
-  private loyaltyService = inject(LoyaltyService);
+  private readonly cartService = inject(CartService);
+  private readonly authState = inject(AuthStateService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly messageService = inject(MessageService);
+  private readonly paymentService = inject(PaymentService);
+  private readonly loyaltyService = inject(LoyaltyService);
 
   cartItems = this.cartService.items;
   subtotal = this.cartService.subtotal;
@@ -95,10 +95,6 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    // Stripe elements initialized after order creation
-  }
-
   async submitOrder(): Promise<void> {
     if (this.checkoutForm.invalid || this.isSubmitting()) return;
     
@@ -131,10 +127,10 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http.post<any>(`${API_BASE_URL}/orders`, orderRequest, { headers }).subscribe({
-      next: async (response) => {
+      next: (response) => {
         const createdOrderId = response.orderId || response.id;
         this.orderId.set(createdOrderId);
-        await this.initializePayment(createdOrderId);
+        void this.initializePayment(createdOrderId);
       },
       error: (err) => {
         const message = err?.error?.error || err?.error?.title || 'Failed to place order';
@@ -156,13 +152,13 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
       }
 
       this.paymentService.createPaymentIntent({ orderId }).subscribe({
-        next: async (paymentResponse) => {
+        next: (paymentResponse) => {
           this.paymentId.set(paymentResponse.paymentId);
           this.showPayment.set(true);
           this.isSubmitting.set(false);
 
-          setTimeout(async () => {
-            if (!this.paymentElementRef || !this.paymentElementRef.nativeElement) {
+          setTimeout(() => {
+            if (!this.paymentElementRef?.nativeElement) {
               console.error('Payment element ref not found');
               this.messageService.add({
                 severity: 'error',
@@ -216,7 +212,7 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
         this.stripeElements
       );
 
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
+      if (paymentIntent?.status === 'succeeded') {
         this.paymentService.confirmPayment({
           paymentId: this.paymentId()!,
           paymentIntentId: paymentIntent.id
