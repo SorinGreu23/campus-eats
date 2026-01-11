@@ -65,9 +65,9 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         };
 
         // Add allergens
-        if (request.AllergenIds?.Any() == true)
+        if (request.AllergenIds?.Count > 0)
         {
-            foreach (var allergenId in request.AllergenIds)
+            foreach (var allergenId in request.AllergenIds!)
             {
                 menuItem.MenuItemAllergens.Add(
                     new MenuItemAllergen { MenuItemId = menuItem.Id, AllergenId = allergenId }
@@ -76,9 +76,9 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         }
 
         // Add dietary restrictions
-        if (request.DietaryRestrictionIds?.Any() == true)
+        if (request.DietaryRestrictionIds?.Count > 0)
         {
-            foreach (var restrictionId in request.DietaryRestrictionIds)
+            foreach (var restrictionId in request.DietaryRestrictionIds!)
             {
                 menuItem.MenuItemDietaryRestrictions.Add(
                     new MenuItemDietaryRestriction

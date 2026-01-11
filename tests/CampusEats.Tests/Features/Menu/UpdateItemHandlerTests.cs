@@ -3,7 +3,6 @@ using CampusEats.Api.Data.Entities;
 using CampusEats.Api.Features.Menu;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
@@ -13,7 +12,7 @@ namespace CampusEats.Tests.Features.Menu;
 
 public class UpdateItemHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())

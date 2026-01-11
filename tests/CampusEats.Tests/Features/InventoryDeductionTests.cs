@@ -92,14 +92,7 @@ public class InventoryDeductionTests
         context.Payments.Add(payment);
         await context.SaveChangesAsync();
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "Stripe:WebhookSecret", "whsec_test" }
-            })
-            .Build();
-
-        var handler = new StripeWebhookHandler(context, configuration);
+        var handler = new StripeWebhookHandler(context);
 
         // Create mock payment intent
         var paymentIntent = new PaymentIntent

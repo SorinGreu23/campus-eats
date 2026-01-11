@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using Shouldly;
-using Xunit;
 
 namespace CampusEats.Tests.Features.Users;
 
@@ -544,7 +543,7 @@ public class UpdateUserHandlerTests
         await userManager.DidNotReceive().ChangePasswordAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>(), Arg.Any<string>());
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -553,7 +552,7 @@ public class UpdateUserHandlerTests
         return userManager;
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(
         string? currentUserId, 
         string routeId, 
         bool isAdmin, 
@@ -597,7 +596,7 @@ public class UpdateUserHandlerTests
         return httpContextAccessor;
     }
 
-    private IValidator<UpdateUserRequest> CreateMockValidator(bool isValid = true)
+    private static IValidator<UpdateUserRequest> CreateMockValidator(bool isValid = true)
     {
         var validator = Substitute.For<IValidator<UpdateUserRequest>>();
         var validationResult = new ValidationResult();

@@ -22,10 +22,10 @@ function matchPassword(group: AbstractControl): ValidationErrors | null {
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private authState = inject(AuthStateService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
 
   form: FormGroup = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],

@@ -10,12 +10,14 @@ public class ClaimResponse
     public Guid Id { get; set; }
     public string UserId { get; set; } = null!;
     public Guid RewardId { get; set; }
+    public string? RewardName { get; set; }
     public RewardDto? Reward { get; set; }
     public DateTimeOffset RedeemedAt { get; set; }
     public DateTimeOffset? ExpiresAt { get; set; }
     public bool IsUsed { get; set; }
     public DateTimeOffset? UsedAt { get; set; }
     public Guid? OrderId { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class RewardDto

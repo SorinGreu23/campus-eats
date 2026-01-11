@@ -33,6 +33,7 @@ public class GetClaimsHandler : IRequestHandler<GetClaimsRequest, IResult>
                 Id = c.Id,
                 UserId = request.UserId,
                 RewardId = c.RewardId,
+                RewardName = c.LoyaltyReward == null ? null : c.LoyaltyReward.Name,
                 Reward = c.LoyaltyReward == null ? null : new RewardDto
                 {
                     Id = c.LoyaltyReward.Id,
@@ -46,7 +47,8 @@ public class GetClaimsHandler : IRequestHandler<GetClaimsRequest, IResult>
                 ExpiresAt = null,
                 IsUsed = c.Notes == "Used",
                 UsedAt = c.Notes == "Used" ? c.ClaimedAt : null,
-                OrderId = null
+                OrderId = null,
+                Notes = c.Notes
             })
             .ToListAsync(cancellationToken);
 

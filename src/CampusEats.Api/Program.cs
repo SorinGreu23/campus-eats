@@ -16,23 +16,37 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-// Load .env file - check local directory first, then solution root
-var localEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
-if (File.Exists(localEnvPath))
+// Load .env file - search current directory and parent directories up to solution root
+var currentDir = Directory.GetCurrentDirectory();
+string? envFilePath = null;
+
+while (envFilePath == null && currentDir != null)
 {
-    Env.Load(localEnvPath);
-}
-else
-{
-    var solutionEnvPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
-    if (File.Exists(solutionEnvPath))
+    var envPath = Path.Combine(currentDir, ".env");
+    if (File.Exists(envPath))
     {
-        Env.Load(solutionEnvPath);
+        envFilePath = envPath;
+        // Load into environment variables for other parts of the app
+        Env.Load(envPath, new LoadOptions(setEnvVars: true));
+        Console.WriteLine($"Loaded .env from: {envPath}");
+    }
+    else
+    {
+        currentDir = Directory.GetParent(currentDir)?.FullName;
     }
 }
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add .env file to configuration if found
+if (envFilePath != null)
+{
+    builder.Configuration.AddInMemoryCollection(
+        Env.Load(envFilePath).ToDictionary(kv => kv.Key, kv => kv.Value)!
+    );
+}
+
+builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -193,4 +207,4 @@ app.MapInventoryEndpoints();
 app.MapOrdersEndpoints();
 app.MapPaymentsEndpoints();
 
-app.Run();
+await app.RunAsync();

@@ -12,7 +12,7 @@ namespace CampusEats.Tests.Features.Orders;
 
 public class GetOrdersByUserHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -21,7 +21,7 @@ public class GetOrdersByUserHandlerTests
         return new CampusDbContext(options);
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(string userId, string[] roles, bool isAuthenticated = true)
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(string userId, string[] roles, bool isAuthenticated = true)
     {
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var httpContext = Substitute.For<HttpContext>();
@@ -69,7 +69,7 @@ public class GetOrdersByUserHandlerTests
         // Arrange
         await using var context = CreateContext();
         var userId = "user123";
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = userId };
 
@@ -102,7 +102,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = userId };
 
@@ -136,7 +136,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = otherUserId };
 
@@ -171,7 +171,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(adminUserId, new[] { "Admin" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(adminUserId, ["Admin"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = targetUserId };
 
@@ -205,7 +205,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(kitchenUserId, new[] { "Kitchen" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(kitchenUserId, ["Kitchen"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = targetUserId };
 
@@ -257,7 +257,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order2);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = userId };
 
@@ -323,7 +323,7 @@ public class GetOrdersByUserHandlerTests
         context.OrderItems.Add(orderItem);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = userId };
 
@@ -365,7 +365,7 @@ public class GetOrdersByUserHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new GetOrdersByUserHandler(context, httpContextAccessor);
         var request = new GetOrdersByUserRequest { UserId = string.Empty };
 

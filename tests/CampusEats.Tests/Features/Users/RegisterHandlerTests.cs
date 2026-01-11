@@ -3,11 +3,9 @@ using CampusEats.Api.Features.Users.Create;
 using CampusEats.Api.Features.Users.Register;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Shouldly;
-using Xunit;
 
 namespace CampusEats.Tests.Features.Users;
 
@@ -227,7 +225,7 @@ public class RegisterHandlerTests
         await userManager.Received(1).DeleteAsync(Arg.Any<ApplicationUser>());
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -236,7 +234,7 @@ public class RegisterHandlerTests
         return userManager;
     }
 
-    private RoleManager<IdentityRole> CreateMockRoleManager()
+    private static RoleManager<IdentityRole> CreateMockRoleManager()
     {
         var store = Substitute.For<IRoleStore<IdentityRole>>();
         var roleManager = Substitute.For<RoleManager<IdentityRole>>(
@@ -245,7 +243,7 @@ public class RegisterHandlerTests
         return roleManager;
     }
 
-    private IValidator<RegisterRequest> CreateMockValidator(bool isValid = true)
+    private static IValidator<RegisterRequest> CreateMockValidator(bool isValid = true)
     {
         var validator = Substitute.For<IValidator<RegisterRequest>>();
         var validationResult = new ValidationResult();

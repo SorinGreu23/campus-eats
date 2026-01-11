@@ -26,6 +26,17 @@ public static class IdentityServiceExtensions
         // Clear default claim type mappings so JWT claims are read as-is
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+        // Read JWT settings from configuration (supports env vars, appsettings, .env via DotNetEnv)
+        var jwtKey = config["JWT_SECRET_KEY"] 
+            ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+            ?? throw new InvalidOperationException(
+                "JWT secret key is missing. Set the JWT_SECRET_KEY in appsettings.json or as an environment variable."
+            );
+        
+        var jwtIssuer = config["JWT_ISSUER"] 
+            ?? Environment.GetEnvironmentVariable("JWT_ISSUER") 
+            ?? "CampusEats.Api";
+
         services
             .AddAuthentication(options =>
             {
@@ -39,9 +50,9 @@ public static class IdentityServiceExtensions
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["Token:Key"]!)
+                        Encoding.UTF8.GetBytes(jwtKey)
                     ),
-                    ValidIssuer = config["Token:Issuer"],
+                    ValidIssuer = jwtIssuer,
                     ValidateIssuer = true,
                     ValidateAudience = false,
                     NameClaimType = JwtRegisteredClaimNames.GivenName,

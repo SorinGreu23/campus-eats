@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Shouldly;
-using Xunit;
 
 namespace CampusEats.Tests.Features.Users;
 
@@ -153,7 +152,7 @@ public class DeleteUserHandlerTests
         await userManager.Received(1).DeleteAsync(user);
     }
 
-    private UserManager<ApplicationUser> CreateMockUserManager()
+    private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
         var userManager = Substitute.For<UserManager<ApplicationUser>>(
@@ -162,7 +161,7 @@ public class DeleteUserHandlerTests
         return userManager;
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(string? userId, bool isAdmin, bool isAuthenticated = true)
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(string? userId, bool isAdmin, bool isAuthenticated = true)
     {
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var httpContext = Substitute.For<HttpContext>();

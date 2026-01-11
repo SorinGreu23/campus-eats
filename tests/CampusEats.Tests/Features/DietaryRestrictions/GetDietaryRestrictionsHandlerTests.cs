@@ -10,7 +10,7 @@ namespace CampusEats.Tests.Features.DietaryRestrictions;
 
 public class GetDietaryRestrictionsHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -114,7 +114,7 @@ public class GetDietaryRestrictionsHandlerTests
         var okResult = (Ok<List<DietaryRestrictionDto>>)result;
         okResult.Value.ShouldNotBeNull();
         okResult.Value.Count.ShouldBe(1);
-        var dto = okResult.Value.First();
+        var dto = okResult.Value[0];
         dto.Name.ShouldBe("Kosher");
         dto.Description.ShouldBeNull();
         dto.Icon.ShouldBeNull();

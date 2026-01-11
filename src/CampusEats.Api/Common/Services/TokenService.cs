@@ -9,17 +9,23 @@ namespace CampusEats.Api.Common.Services;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _config;
     private readonly SymmetricSecurityKey _key;
 
     public TokenService(IConfiguration config)
     {
-        _config = config;
         var tokenKey =
-            _config["Token:Key"]
+            Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
             ?? throw new InvalidOperationException(
-                "Token:Key configuration is missing. Please add it to appsettings.json or appsettings.Development.json"
+                "JWT secret key is missing. Set the JWT_SECRET_KEY environment variable."
             );
+        
+        if (tokenKey.Length < 32)
+        {
+            throw new InvalidOperationException(
+                "JWT secret key must be at least 32 characters long."
+            );
+        }
+        
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
     }
 
@@ -27,9 +33,9 @@ public class TokenService : ITokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!),
-            new Claim(ClaimTypes.GivenName, user.UserName!),
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.GivenName, user.UserName!),
         };
 
         foreach (var role in roles)
@@ -44,7 +50,7 @@ public class TokenService : ITokenService
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(7),
             SigningCredentials = creds,
-            Issuer = _config["Token:Issuer"],
+            Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "CampusEats.Api",
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

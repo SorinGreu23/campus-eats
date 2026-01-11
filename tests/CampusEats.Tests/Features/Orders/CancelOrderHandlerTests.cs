@@ -12,7 +12,7 @@ namespace CampusEats.Tests.Features.Orders;
 
 public class CancelOrderHandlerTests
 {
-    private CampusDbContext CreateContext()
+    private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -21,7 +21,7 @@ public class CancelOrderHandlerTests
         return new CampusDbContext(options);
     }
 
-    private IHttpContextAccessor CreateMockHttpContextAccessor(string userId, string[] roles, bool isAuthenticated = true)
+    private static IHttpContextAccessor CreateMockHttpContextAccessor(string userId, string[] roles, bool isAuthenticated = true)
     {
         var httpContextAccessor = Substitute.For<IHttpContextAccessor>();
         var httpContext = Substitute.For<HttpContext>();
@@ -72,7 +72,7 @@ public class CancelOrderHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
-        var httpContextAccessor = CreateMockHttpContextAccessor("user123", new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor("user123", ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -92,7 +92,7 @@ public class CancelOrderHandlerTests
     {
         // Arrange
         await using var context = CreateContext();
-        var httpContextAccessor = CreateMockHttpContextAccessor("user123", new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor("user123", ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -171,7 +171,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -210,7 +210,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(adminUserId, new[] { "Admin" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(adminUserId, ["Admin"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -255,7 +255,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(kitchenUserId, new[] { "Kitchen" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(kitchenUserId, ["Kitchen"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -298,7 +298,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -343,7 +343,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {
@@ -381,7 +381,7 @@ public class CancelOrderHandlerTests
         context.Orders.Add(order);
         await context.SaveChangesAsync();
 
-        var httpContextAccessor = CreateMockHttpContextAccessor(userId, new[] { "Customer" });
+        var httpContextAccessor = CreateMockHttpContextAccessor(userId, ["Customer"]);
         var handler = new CancelOrderHandler(context, httpContextAccessor);
         var request = new CancelOrderRequest
         {

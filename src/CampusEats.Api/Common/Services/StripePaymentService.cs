@@ -1,20 +1,17 @@
 using CampusEats.Api.Common.Interfaces;
-using Microsoft.Extensions.Configuration;
 using Stripe;
 
 namespace CampusEats.Api.Common.Services;
 
 public class StripePaymentService : IStripePaymentService
 {
-    private readonly string _secretKey;
-
-    public StripePaymentService(IConfiguration configuration)
+    public StripePaymentService()
     {
-        // Try to get from environment variable first (from .env file), then from appsettings
-        _secretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY") 
-            ?? configuration["Stripe:SecretKey"] 
-            ?? throw new InvalidOperationException("Stripe SecretKey is not configured");
-        StripeConfiguration.ApiKey = _secretKey;
+        var secretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
+            ?? throw new InvalidOperationException(
+                "Stripe secret key is missing. Set the STRIPE_SECRET_KEY environment variable."
+            );
+        StripeConfiguration.ApiKey = secretKey;
     }
 
     public async Task<string> CreatePaymentIntentAsync(

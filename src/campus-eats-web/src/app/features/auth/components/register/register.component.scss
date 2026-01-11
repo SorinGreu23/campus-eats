@@ -74,13 +74,12 @@
 
 .auth-btn {
   width: 100%;
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-  border: none;
+  background: linear-gradient(135deg, #0f5132 0%, #0b3d22 100%);
   padding: 1rem 1.25rem;
   font-weight: 800;
   border-radius: 18px;
   border: 3px solid #ffffff;
-  box-shadow: 0 5px 0 #14532d, 0 10px 22px rgba(22,163,74,.35);
+  box-shadow: 0 5px 0 #072814, 0 10px 22px rgba(12,61,34,.35);
   text-transform: uppercase;
   color: #ffffff;
 
@@ -90,7 +89,7 @@
   &.p-button:hover,
   &.p-button:focus,
   &.p-button:active {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    background: linear-gradient(135deg, #0f5132 0%, #0b3d22 100%) !important;
     color: #ffffff !important;
   }
 

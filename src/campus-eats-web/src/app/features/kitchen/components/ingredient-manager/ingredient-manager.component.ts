@@ -13,9 +13,9 @@ import { InventoryService } from '../../../../shared/services/inventory.service'
   styleUrl: './ingredient-manager.component.scss'
 })
 export class IngredientManagerComponent implements OnInit {
-  private menuService = inject(MenuService);
-  private ingredientService = inject(MenuItemIngredientService);
-  private inventoryService = inject(InventoryService);
+  private readonly menuService = inject(MenuService);
+  private readonly ingredientService = inject(MenuItemIngredientService);
+  private readonly inventoryService = inject(InventoryService);
 
   menuItems = this.menuService.menuItems;
   ingredients = this.ingredientService.ingredients;
