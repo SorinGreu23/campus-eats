@@ -18,8 +18,8 @@ import { AuthStateService } from '../../../../shared/services/auth-state.service
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  private authService = inject(AuthService);
-  private authState = inject(AuthStateService);
+  private readonly authService = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

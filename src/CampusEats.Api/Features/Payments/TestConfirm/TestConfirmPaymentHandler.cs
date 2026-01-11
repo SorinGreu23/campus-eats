@@ -47,42 +47,7 @@ public class TestConfirmPaymentHandler : IRequestHandler<TestConfirmPaymentReque
         // Update order status to Paid
         if (payment.OrderId.HasValue)
         {
-            var order = await _db.Orders
-                .Include(o => o.Items)
-                .FirstOrDefaultAsync(o => o.Id == payment.OrderId.Value, cancellationToken);
-                
-            if (order != null && order.Status == "Pending")
-            {
-                Console.WriteLine($"[TestConfirm] Processing order {order.Id} - confirming test payment");
-                order.Status = "Paid";
-                order.UpdatedAt = DateTimeOffset.UtcNow;
-
-                // Deduct inventory
-                Console.WriteLine($"[TestConfirm] Deducting inventory for {order.Items.Count} items");
-                foreach (var orderItem in order.Items)
-                {
-                    var ingredients = await _db.MenuItemIngredients
-                        .Where(mii => mii.MenuItemId == orderItem.MenuItemId)
-                        .ToListAsync(cancellationToken);
-
-                    Console.WriteLine($"[TestConfirm] Found {ingredients.Count} ingredients for menu item {orderItem.MenuItemId}");
-
-                    foreach (var ingredient in ingredients)
-                    {
-                        var inventoryItem = await _db.InventoryItems
-                            .FirstOrDefaultAsync(i => i.Id == ingredient.InventoryItemId, cancellationToken);
-
-                        if (inventoryItem != null)
-                        {
-                            var quantityToDeduct = ingredient.QuantityRequired * orderItem.Quantity;
-                            Console.WriteLine($"[TestConfirm] Deducting {quantityToDeduct} {inventoryItem.Unit} of {inventoryItem.Name} (was {inventoryItem.CurrentQuantity})");
-                            inventoryItem.CurrentQuantity -= quantityToDeduct;
-                            inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
-                            Console.WriteLine($"[TestConfirm] New quantity: {inventoryItem.CurrentQuantity}");
-                        }
-                    }
-                }
-            }
+            await UpdateOrderAndInventoryAsync(payment.OrderId.Value, cancellationToken);
         }
 
         await _db.SaveChangesAsync(cancellationToken);
@@ -93,5 +58,50 @@ public class TestConfirmPaymentHandler : IRequestHandler<TestConfirmPaymentReque
             status = "succeeded",
             transactionId = payment.TransactionId
         });
+    }
+
+    private async Task UpdateOrderAndInventoryAsync(int orderId, CancellationToken cancellationToken)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+            
+        if (order == null || order.Status != "Pending")
+            return;
+
+        Console.WriteLine($"[TestConfirm] Processing order {order.Id} - confirming test payment");
+        order.Status = "Paid";
+        order.UpdatedAt = DateTimeOffset.UtcNow;
+
+        // Deduct inventory
+        Console.WriteLine($"[TestConfirm] Deducting inventory for {order.Items.Count} items");
+        foreach (var orderItem in order.Items)
+        {
+            await DeductInventoryForOrderItemAsync(orderItem, cancellationToken);
+        }
+    }
+
+    private async Task DeductInventoryForOrderItemAsync(Data.Entities.OrderItem orderItem, CancellationToken cancellationToken)
+    {
+        var ingredients = await _db.MenuItemIngredients
+            .Where(mii => mii.MenuItemId == orderItem.MenuItemId)
+            .ToListAsync(cancellationToken);
+
+        Console.WriteLine($"[TestConfirm] Found {ingredients.Count} ingredients for menu item {orderItem.MenuItemId}");
+
+        foreach (var ingredient in ingredients)
+        {
+            var inventoryItem = await _db.InventoryItems
+                .FirstOrDefaultAsync(i => i.Id == ingredient.InventoryItemId, cancellationToken);
+
+            if (inventoryItem != null)
+            {
+                var quantityToDeduct = ingredient.QuantityRequired * orderItem.Quantity;
+                Console.WriteLine($"[TestConfirm] Deducting {quantityToDeduct} {inventoryItem.Unit} of {inventoryItem.Name} (was {inventoryItem.CurrentQuantity})");
+                inventoryItem.CurrentQuantity -= quantityToDeduct;
+                inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
+                Console.WriteLine($"[TestConfirm] New quantity: {inventoryItem.CurrentQuantity}");
+            }
+        }
     }
 }

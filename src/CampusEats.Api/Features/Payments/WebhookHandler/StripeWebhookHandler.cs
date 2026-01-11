@@ -81,36 +81,7 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
             
             if (order != null)
             {
-                Console.WriteLine($"[Webhook] Processing order {order.Id} with {order.Items.Count} items");
-                
-                // Deduct inventory for each order item
-                foreach (var orderItem in order.Items)
-                {
-                    Console.WriteLine($"[Webhook] Processing order item: MenuItemId={orderItem.MenuItemId}, Quantity={orderItem.Quantity}");
-                    
-                    // Get the ingredients needed for this menu item
-                    var ingredients = await _db.MenuItemIngredients
-                        .Where(mii => mii.MenuItemId == orderItem.MenuItemId)
-                        .ToListAsync(cancellationToken);
-
-                    Console.WriteLine($"[Webhook] Found {ingredients.Count} ingredients for menu item {orderItem.MenuItemId}");
-
-                    foreach (var ingredient in ingredients)
-                    {
-                        var inventoryItem = await _db.InventoryItems
-                            .FirstOrDefaultAsync(i => i.Id == ingredient.InventoryItemId, cancellationToken);
-
-                        if (inventoryItem != null)
-                        {
-                            var quantityToDeduct = ingredient.QuantityRequired * orderItem.Quantity;
-                            Console.WriteLine($"[Webhook] Deducting {quantityToDeduct} {inventoryItem.Unit} of {inventoryItem.Name} (was {inventoryItem.CurrentQuantity})");
-                            inventoryItem.CurrentQuantity -= quantityToDeduct;
-                            inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
-                            Console.WriteLine($"[Webhook] New quantity: {inventoryItem.CurrentQuantity}");
-                        }
-                    }
-                }
-
+                await ProcessOrderInventoryDeduction(order, cancellationToken);
                 order.Status = "Paid";
                 order.UpdatedAt = DateTimeOffset.UtcNow;
             }
@@ -119,24 +90,32 @@ public class StripeWebhookHandler : IRequestHandler<StripeWebhookRequest, IResul
         }
     }
 
-    private async Task HandlePaymentIntentFailed(PaymentIntent paymentIntent, CancellationToken cancellationToken)
+    private async Task ProcessOrderInventoryDeduction(Domain.Entities.Order order, CancellationToken cancellationToken)
     {
-        var orderId = paymentIntent.Metadata.ContainsKey(Key) 
-            ? Guid.Parse(paymentIntent.Metadata[Key]) 
-            : (Guid?)null;
-
-        if (!orderId.HasValue)
-            return;
-
-        var payment = await _db.Payments
-            .FirstOrDefaultAsync(p => p.OrderId == orderId.Value && p.Status == "pending", cancellationToken);
-
-        if (payment != null)
+        Console.WriteLine($"[Webhook] Processing order {order.Id} with {order.Items.Count} items");
+        
+        foreach (var orderItem in order.Items)
         {
-            payment.Status = "failed";
-            payment.TransactionId = paymentIntent.Id;
-            payment.UpdatedAt = DateTimeOffset.UtcNow;
-            await _db.SaveChangesAsync(cancellationToken);
+            Console.WriteLine($"[Webhook] Processing order item: MenuItemId={orderItem.MenuItemId}, Quantity={orderItem.Quantity}");
+            
+            var ingredients = await _db.MenuItemIngredients
+                .Where(mii => mii.MenuItemId == orderItem.MenuItemId)
+                .ToListAsync(cancellationToken);
+
+            Console.WriteLine($"[Webhook] Found {ingredients.Count} ingredients for menu item {orderItem.MenuItemId}");
+
+                    foreach (var ingredient in ingredients)
+                    {
+                        var inventoryItem = await _db.InventoryItems
+                            .FirstOrDefaultAsync(i => i.Id == ingredient.InventoryItemId, cancellationToken);
+
+        if (inventoryItem != null)
+        {
+            var quantityToDeduct = ingredient.QuantityRequired * orderQuantity;
+            Console.WriteLine($"[Webhook] Deducting {quantityToDeduct} {inventoryItem.Unit} of {inventoryItem.Name} (was {inventoryItem.CurrentQuantity})");
+            inventoryItem.CurrentQuantity -= quantityToDeduct;
+            inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
+            Console.WriteLine($"[Webhook] New quantity: {inventoryItem.CurrentQuantity}");
         }
     }
 }

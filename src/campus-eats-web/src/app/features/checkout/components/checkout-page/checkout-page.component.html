@@ -70,7 +70,7 @@
         
         <form [formGroup]="checkoutForm" (ngSubmit)="submitOrder()" class="checkout-form">
           <div class="form-group">
-            <label class="form-label">Order Type</label>
+            <span class="form-label">Order Type</span>
             <div class="radio-group">
               @for (type of orderTypes; track type.value) {
                 <div
