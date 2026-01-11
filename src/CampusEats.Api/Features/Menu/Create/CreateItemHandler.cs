@@ -65,7 +65,7 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         };
 
         // Add allergens
-        if (request.AllergenIds?.Count != 0)
+        if (request.AllergenIds?.Count > 0)
         {
             foreach (var allergenId in request.AllergenIds!)
             {
@@ -76,7 +76,7 @@ public class CreateItemHandler : IRequestHandler<CreateItemRequest, IResult>
         }
 
         // Add dietary restrictions
-        if (request.DietaryRestrictionIds?.Count != 0)
+        if (request.DietaryRestrictionIds?.Count > 0)
         {
             foreach (var restrictionId in request.DietaryRestrictionIds!)
             {

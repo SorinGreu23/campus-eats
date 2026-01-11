@@ -70,7 +70,7 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
 
         // Update allergens
         menuItem.MenuItemAllergens.Clear();
-        if (command.Request.AllergenIds?.Count != 0)
+        if (command.Request.AllergenIds?.Count > 0)
         {
             foreach (var allergenId in command.Request.AllergenIds!)
             {
@@ -82,7 +82,7 @@ public class UpdateItemHandler : IRequestHandler<UpdateItemCommand, IResult>
 
         // Update dietary restrictions
         menuItem.MenuItemDietaryRestrictions.Clear();
-        if (command.Request.DietaryRestrictionIds?.Count != 0)
+        if (command.Request.DietaryRestrictionIds?.Count > 0)
         {
             foreach (var restrictionId in command.Request.DietaryRestrictionIds!)
             {
