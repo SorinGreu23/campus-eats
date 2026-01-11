@@ -39,11 +39,11 @@
       </div>
 
       @if (authState.isLoggedIn()) {
-        <div class="user-pill" (click)="toggleUserMenu()">
+        <button class="user-pill" (click)="toggleUserMenu()">
           <span class="pill-greeting">Hello</span>
           <span class="pill-name">{{ authState.displayName() || 'User' }}</span>
           <i class="pi pi-chevron-down"></i>
-        </div>
+        </button>
         @if (showUserMenu()) {
           <div class="user-menu">
             @if (!authState.isKitchen()) {

@@ -56,7 +56,7 @@ public static class MenuItemImageUpdater
             }
         }
 
-        if (menuItems.Any())
+        if (menuItems.Count > 0)
         {
             await context.SaveChangesAsync();
         }

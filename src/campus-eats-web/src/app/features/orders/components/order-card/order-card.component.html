@@ -1,5 +1,5 @@
 <article class="order-card" [class]="'status-' + ((order().status || 'unknown').toString().toLowerCase())">
-  <div class="card-header" (click)="onViewDetails()">
+  <button class="card-header" (click)="onViewDetails()" type="button">
     <div class="order-info">
       <h3 class="order-number">{{ order().orderNumber || 'Order' }}</h3>
       <span class="order-date">{{ formattedDate() || '—' }}</span>
@@ -8,9 +8,9 @@
       <i [class]="'pi ' + statusConfig().icon"></i>
       <span>{{ statusConfig().label }}</span>
     </div>
-  </div>
+  </button>
 
-  <div class="card-body" (click)="onViewDetails()">
+  <button class="card-body" (click)="onViewDetails()" type="button">
     <div class="order-items">
       @for (item of order().items; track item.id) {
         <div class="order-item">
@@ -55,7 +55,7 @@
         </div>
       }
     </div>
-  </div>
+  </button>
 
   <div class="card-footer">
     <div class="total-section">

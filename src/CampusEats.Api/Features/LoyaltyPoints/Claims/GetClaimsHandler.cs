@@ -38,7 +38,7 @@ public class GetClaimsHandler : IRequestHandler<GetClaimsRequest, IResult>
                 {
                     Id = c.LoyaltyReward.Id,
                     Name = c.LoyaltyReward.Name,
-                    Description = c.LoyaltyReward.Description,
+                    Description = c.LoyaltyReward.Description!,
                     PointsCost = c.LoyaltyReward.PointsCost,
                     DiscountValue = c.LoyaltyReward.DiscountValue,
                     IsActive = c.LoyaltyReward.IsActive
