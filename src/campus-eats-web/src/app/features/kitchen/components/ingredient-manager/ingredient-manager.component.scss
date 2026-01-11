@@ -148,8 +148,8 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.75rem 1.5rem;
-      background: #10b981;
       color: white;
+      background: #047a55;
       border: none;
       border-radius: 8px;
       font-weight: 500;
@@ -157,7 +157,7 @@
       transition: background 0.2s;
 
       &:hover {
-        background: #059669;
+        background: #024b36;
       }
 
       i {
@@ -271,7 +271,7 @@
 
         &.edit-btn {
           background: #eff6ff;
-          color: #3b82f6;
+          color: #2860bb;
 
           &:hover {
             background: #dbeafe;
@@ -280,7 +280,7 @@
 
         &.delete-btn {
           background: #fef2f2;
-          color: #dc2626;
+          color: #b42121;
 
           &:hover {
             background: #fee2e2;

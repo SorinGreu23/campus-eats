@@ -36,7 +36,7 @@
     }
 
     .badge {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(116, 115, 115, 0.432);
       color: white;
       padding: 0.125rem 0.5rem;
       border-radius: 1rem;
@@ -47,7 +47,7 @@
 
     &:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(99, 99, 99, 0.1);
     }
 
     &.active {
@@ -56,7 +56,7 @@
 
       .badge {
         background: #fbbf24;
-        color: #dc2626;
+        color: #a31a1a;
       }
     }
   }
