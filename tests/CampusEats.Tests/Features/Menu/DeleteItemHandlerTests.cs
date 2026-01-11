@@ -186,4 +186,55 @@ public class DeleteItemHandlerTests
         var restrictionStillExists = await context.DietaryRestrictions.FindAsync(restrictionId);
         restrictionStillExists.ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task GivenItemWithCategory_WhenDeleting_ThenRemovesSuccessfully()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var categoryId = Guid.NewGuid();
+        var menuItemId = Guid.NewGuid();
+        
+        var category = new Category 
+        { 
+            Id = categoryId, 
+            Name = "Test Category", 
+            DisplayOrder = 1,
+            IsActive = true
+        };
+        
+        var menuItem = new MenuItem
+        {
+            Id = menuItemId,
+            Name = "Item with Category",
+            Description = "Item to be deleted",
+            Price = 10.99m,
+            CategoryId = categoryId,
+            IsAvailable = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        
+        context.Categories.Add(category);
+        context.MenuItems.Add(menuItem);
+        await context.SaveChangesAsync();
+        
+        var handler = new DeleteItemHandler(context);
+        var request = new DeleteItemRequest(menuItemId);
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<NoContent>();
+        
+        // Verify item is deleted
+        var deletedItem = await context.MenuItems.FindAsync(menuItemId);
+        deletedItem.ShouldBeNull();
+        
+        // Verify category still exists
+        var categoryStillExists = await context.Categories.FindAsync(categoryId);
+        categoryStillExists.ShouldNotBeNull();
+        categoryStillExists.Name.ShouldBe("Test Category");
+    }
 }

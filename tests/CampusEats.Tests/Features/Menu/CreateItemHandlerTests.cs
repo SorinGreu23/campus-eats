@@ -245,4 +245,163 @@ public class CreateItemHandlerTests
         savedItem.ShouldNotBeNull();
         savedItem.CategoryId.ShouldBe(categoryId);
     }
+
+    [Fact]
+    public async Task GivenItemWithAllergens_WhenCreating_ThenAssociatesAllergens()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        
+        // Add a category for the menu item
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", IsActive = true };
+        context.Categories.Add(category);
+        
+        var allergenId1 = Guid.NewGuid();
+        var allergenId2 = Guid.NewGuid();
+        var allergenId3 = Guid.NewGuid();
+        
+        var allergen1 = new Allergen { Id = allergenId1, Name = "Peanuts", Description = "Peanut allergen" };
+        var allergen2 = new Allergen { Id = allergenId2, Name = "Tree Nuts", Description = "Tree nut allergen" };
+        var allergen3 = new Allergen { Id = allergenId3, Name = "Soy", Description = "Soy allergen" };
+        context.Allergens.AddRange(allergen1, allergen2, allergen3);
+        await context.SaveChangesAsync();
+        
+        var validator = Substitute.For<IValidator<CreateItemRequest>>();
+        validator.ValidateAsync(Arg.Any<CreateItemRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult());
+        
+        var handler = new CreateItemHandler(context, validator);
+        var request = new CreateItemRequest(
+            Name: "Peanut Butter Cookie",
+            Description: "Cookie with peanuts",
+            Price: 3.99m,
+            CategoryId: null,
+            ImageUrl: null,
+            PreparationTimeMinutes: 5,
+            IsAvailable: true,
+            Calories: 350,
+            AllergenIds: new List<Guid> { allergenId1, allergenId2, allergenId3 },
+            DietaryRestrictionIds: null
+        );
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<Created<CreateItemResponse>>();
+        var createdResult = (Created<CreateItemResponse>)result;
+        createdResult.Value.ShouldNotBeNull();
+        createdResult.Value.AllergenIds.ShouldNotBeNull();
+        createdResult.Value.AllergenIds.Count.ShouldBe(3);
+        createdResult.Value.AllergenIds.ShouldContain(allergenId1);
+        createdResult.Value.AllergenIds.ShouldContain(allergenId2);
+        createdResult.Value.AllergenIds.ShouldContain(allergenId3);
+        
+        var savedItem = await context.MenuItems
+            .Include(m => m.MenuItemAllergens)
+            .ThenInclude(mia => mia.Allergen)
+            .FirstOrDefaultAsync();
+        savedItem.ShouldNotBeNull();
+        savedItem.MenuItemAllergens.Count.ShouldBe(3);
+        savedItem.MenuItemAllergens.ShouldContain(mia => mia.AllergenId == allergenId1);
+        savedItem.MenuItemAllergens.ShouldContain(mia => mia.AllergenId == allergenId2);
+        savedItem.MenuItemAllergens.ShouldContain(mia => mia.AllergenId == allergenId3);
+    }
+
+    [Fact]
+    public async Task GivenItemWithDietaryRestrictions_WhenCreating_ThenAssociatesDietaryRestrictions()
+    {
+        // Arrange
+        await using var context = CreateContext();
+                // Add a category for the menu item
+        var category = new Category { Id = Guid.NewGuid(), Name = "Test Category", IsActive = true };
+        context.Categories.Add(category);
+                var restrictionId1 = Guid.NewGuid();
+        var restrictionId2 = Guid.NewGuid();
+        
+        var restriction1 = new DietaryRestriction { Id = restrictionId1, Name = "Vegetarian", Description = "No meat" };
+        var restriction2 = new DietaryRestriction { Id = restrictionId2, Name = "Gluten-Free", Description = "No gluten" };
+        context.DietaryRestrictions.AddRange(restriction1, restriction2);
+        await context.SaveChangesAsync();
+        
+        var validator = Substitute.For<IValidator<CreateItemRequest>>();
+        validator.ValidateAsync(Arg.Any<CreateItemRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult());
+        
+        var handler = new CreateItemHandler(context, validator);
+        var request = new CreateItemRequest(
+            Name: "Quinoa Bowl",
+            Description: "Healthy quinoa bowl",
+            Price: 12.99m,
+            CategoryId: null,
+            ImageUrl: null,
+            PreparationTimeMinutes: 15,
+            IsAvailable: true,
+            Calories: 450,
+            AllergenIds: null,
+            DietaryRestrictionIds: new List<Guid> { restrictionId1, restrictionId2 }
+        );
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldBeOfType<Created<CreateItemResponse>>();
+        var createdResult = (Created<CreateItemResponse>)result;
+        createdResult.Value.ShouldNotBeNull();
+        createdResult.Value.DietaryRestrictionIds.ShouldNotBeNull();
+        createdResult.Value.DietaryRestrictionIds.Count.ShouldBe(2);
+        createdResult.Value.DietaryRestrictionIds.ShouldContain(restrictionId1);
+        createdResult.Value.DietaryRestrictionIds.ShouldContain(restrictionId2);
+        
+        var savedItem = await context.MenuItems
+            .Include(m => m.MenuItemDietaryRestrictions)
+            .ThenInclude(midr => midr.DietaryRestriction)
+            .FirstOrDefaultAsync();
+        savedItem.ShouldNotBeNull();
+        savedItem.MenuItemDietaryRestrictions.Count.ShouldBe(2);
+        savedItem.MenuItemDietaryRestrictions.ShouldContain(midr => midr.DietaryRestrictionId == restrictionId1);
+        savedItem.MenuItemDietaryRestrictions.ShouldContain(midr => midr.DietaryRestrictionId == restrictionId2);
+    }
+
+    [Fact]
+    public async Task GivenInvalidCategoryId_WhenCreating_ThenValidationFails()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        var nonExistentCategoryId = Guid.NewGuid();
+        
+        var validator = Substitute.For<IValidator<CreateItemRequest>>();
+        
+        var validationFailures = new List<ValidationFailure>
+        {
+            new ValidationFailure("CategoryId", "Category does not exist")
+        };
+        
+        validator.ValidateAsync(Arg.Any<CreateItemRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ValidationResult(validationFailures));
+        
+        var handler = new CreateItemHandler(context, validator);
+        var request = new CreateItemRequest(
+            Name: "Test Item",
+            Description: "Item with invalid category",
+            Price: 9.99m,
+            CategoryId: nonExistentCategoryId,
+            ImageUrl: null,
+            PreparationTimeMinutes: 10,
+            IsAvailable: true,
+            Calories: 300,
+            AllergenIds: null,
+            DietaryRestrictionIds: null
+        );
+        
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+        
+        // Assert
+        result.ShouldNotBeOfType<Created<CreateItemResponse>>();
+        
+        var itemCount = await context.MenuItems.CountAsync();
+        itemCount.ShouldBe(0);
+    }
 }

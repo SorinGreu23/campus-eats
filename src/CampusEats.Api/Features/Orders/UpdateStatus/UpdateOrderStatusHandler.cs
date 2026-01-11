@@ -60,6 +60,11 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
             order.CompletedAt = DateTimeOffset.UtcNow;
         }
 
+        if (newStatus == OrderStatus.Cancelled)
+        {
+            order.CancelledAt = DateTimeOffset.UtcNow;
+        }
+
         // Deduct inventory when order transitions to Paid, Preparing, Ready, or Completed
         // Only deduct if transitioning from Pending (to prevent double deduction)
         var shouldDeductInventory = (request.Status == "Paid" || 
@@ -131,12 +136,19 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusRequest
 
     private static bool IsValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus)
     {
+        // Allow cancellation from Pending, Preparing, or Ready states
+        if (newStatus == OrderStatus.Cancelled)
+        {
+            return currentStatus is OrderStatus.Pending or OrderStatus.Preparing or OrderStatus.Ready;
+        }
+
+        // Standard forward progression
         return currentStatus switch
         {
             OrderStatus.Pending => newStatus == OrderStatus.Preparing,
             OrderStatus.Preparing => newStatus == OrderStatus.Ready,
             OrderStatus.Ready => newStatus == OrderStatus.Completed,
-            _ => false,
+            _ => false
         };
     }
 }
