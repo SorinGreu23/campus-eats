@@ -258,6 +258,10 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: none;
+  padding: 0;
+  margin: auto;
+  position: relative;
 }
 
 .modal-header {
