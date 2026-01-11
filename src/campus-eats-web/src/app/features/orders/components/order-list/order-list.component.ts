@@ -24,21 +24,12 @@ export class OrderListComponent implements OnInit {
   
   // Filter signals
   searchQuery = signal('');
-  selectedStatus = signal<OrderStatus | 'all'>('all');
 
   // Detail modal
   showDetailModal = signal(false);
   selectedOrder = signal<Order | null>(null);
   
   OrderStatus = OrderStatus;
-  statusOptions = [
-    { value: 'all', label: 'All Statuses' },
-    { value: OrderStatus.Pending, label: 'Pending' },
-    { value: OrderStatus.Confirmed, label: 'Confirmed' },
-    { value: OrderStatus.Preparing, label: 'Preparing' },
-    { value: OrderStatus.Ready, label: 'Ready' },
-    { value: OrderStatus.InDelivery, label: 'In Delivery' },
-  ];
 
   // Filtered active orders
   filteredActiveOrders = computed(() => {
@@ -53,13 +44,21 @@ export class OrderListComponent implements OnInit {
       );
     }
     
-    // Filter by status
-    const status = this.selectedStatus();
-    if (status !== 'all') {
-      orders = orders.filter(order => order.status === status);
-    }
-    
-    return orders;
+    // Sort by creation time, newest first
+    return [...orders].sort((a, b) => {
+      const dateA = a.placedAt?.getTime() ?? 0;
+      const dateB = b.placedAt?.getTime() ?? 0;
+      return dateB - dateA;
+    });
+  });
+
+  // Sorted completed orders
+  sortedCompletedOrders = computed(() => {
+    return [...this.completedOrders()].sort((a, b) => {
+      const dateA = a.placedAt?.getTime() ?? 0;
+      const dateB = b.placedAt?.getTime() ?? 0;
+      return dateB - dateA;
+    });
   });
 
   ngOnInit(): void {
@@ -80,7 +79,6 @@ export class OrderListComponent implements OnInit {
 
   clearFilters(): void {
     this.searchQuery.set('');
-    this.selectedStatus.set('all');
   }
 
   handleViewDetails(order: Order): void {

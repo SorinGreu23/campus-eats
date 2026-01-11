@@ -27,8 +27,7 @@ export class OrderCardComponent {
       [OrderStatus.Ready]: { color: 'success', icon: 'pi-check-circle', label: 'Ready' },
       [OrderStatus.InDelivery]: { color: 'info', icon: 'pi-truck', label: 'On the Way' },
       [OrderStatus.Completed]: { color: 'success', icon: 'pi-check', label: 'Completed' },
-      [OrderStatus.Cancelled]: { color: 'danger', icon: 'pi-times-circle', label: 'Cancelled' },
-      'Paid': { color: 'success', icon: 'pi-check', label: 'Paid' }
+      [OrderStatus.Cancelled]: { color: 'danger', icon: 'pi-times-circle', label: 'Cancelled' }
     };
     return configs[status] || { color: 'info', icon: 'pi-info-circle', label: status };
   });

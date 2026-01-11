@@ -70,7 +70,7 @@ public class TestConfirmPaymentHandler : IRequestHandler<TestConfirmPaymentReque
             return;
 
         Console.WriteLine($"[TestConfirm] Processing order {order.Id} - confirming test payment");
-        order.Status = "Paid";
+        order.Status = "Pending";
         order.UpdatedAt = DateTimeOffset.UtcNow;
 
         // Deduct inventory

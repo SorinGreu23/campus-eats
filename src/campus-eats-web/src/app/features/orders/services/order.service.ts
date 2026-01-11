@@ -152,14 +152,31 @@ export class OrderService {
   }
 
   cancelOrder(orderId: string, reason?: string): void {
-    // Backend endpoint currently does not accept orderId correctly; perform optimistic local update.
-    this.orders.update(list =>
-      list.map(order =>
-        order.id === orderId
-          ? { ...order, status: OrderStatus.Cancelled, cancellationReason: reason, cancelledAt: new Date() }
-          : order
-      )
-    );
+    const token = this.authState.token();
+    if (!token) {
+      this.error.set('Please log in to cancel orders.');
+      return;
+    }
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const body = reason ? { reason } : {};
+
+    this.http.patch(`${API_BASE_URL}/orders/${orderId}/cancel`, body, { headers }).subscribe({
+      next: () => {
+        // Update local state after successful backend call
+        this.orders.update(list =>
+          list.map(order =>
+            order.id === orderId
+              ? { ...order, status: OrderStatus.Cancelled, cancellationReason: reason, cancelledAt: new Date() }
+              : order
+          )
+        );
+      },
+      error: (err) => {
+        const message = err?.error?.error || 'Unable to cancel order';
+        this.error.set(message);
+      }
+    });
   }
 
   reorder(order: Order): void {
