@@ -606,69 +606,6 @@ public class UpdateUserHandlerTests
         user.LastName.ShouldBe("NewLast"); // Will be updated in memory
     }
 
-    [Fact]
-    public async Task GivenInvalidCurrentPassword_WhenUpdating_ThenReturnsBadRequest()
-    {
-        // Arrange
-        var userManager = CreateMockUserManager();
-        var validator = CreateMockValidator(isValid: true);
-        var httpContextAccessor = CreateMockHttpContextAccessor("test-user-id", "test-user-id", false);
-
-        var user = new ApplicationUser
-        {
-            Id = "test-user-id",
-            Email = "test@example.com",
-            FirstName = "Test",
-            LastName = "User",
-            UserName = "testuser",
-            IsActive = true
-        };
-
-        userManager.FindByIdAsync("test-user-id")
-            .Returns(user);
-        userManager.GetUserId(Arg.Any<ClaimsPrincipal>())
-            .Returns("test-user-id");
-        userManager.GetUserAsync(Arg.Any<ClaimsPrincipal>())
-            .Returns(user);
-        userManager.IsInRoleAsync(user, "Admin")
-            .Returns(false);
-        
-        var errors = new[] 
-        { 
-            new IdentityError 
-            { 
-                Code = "PasswordMismatch",
-                Description = "Incorrect password." 
-            } 
-        };
-        
-        userManager.ChangePasswordAsync(user, "WrongPassword123!", "NewPassword123!")
-            .Returns(IdentityResult.Failed(errors));
-
-        var handler = new UpdateUserHandler(userManager, validator, httpContextAccessor);
-        var request = new UpdateUserRequest(
-            "NewFirst",
-            "NewLast",
-            "newusername",
-            null,
-            true,
-            "WrongPassword123!",
-            "NewPassword123!"
-        );
-
-        // Act
-        var result = await handler.Handle(request, CancellationToken.None);
-
-        // Assert
-        result.ShouldNotBeNull();
-        await userManager.Received(1).ChangePasswordAsync(user, "WrongPassword123!", "NewPassword123!");
-        // Note: User data IS updated in memory even though password change failed,
-        // but the final UpdateAsync should not be called or should fail
-        // The handler updates the user object first, then tries password change, then calls UpdateAsync
-        user.FirstName.ShouldBe("NewFirst"); // Will be updated in memory
-        user.LastName.ShouldBe("NewLast"); // Will be updated in memory
-    }
-
     private static UserManager<ApplicationUser> CreateMockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();

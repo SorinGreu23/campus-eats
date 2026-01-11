@@ -17,7 +17,7 @@ public class GetStripeConfigHandlerTests
         // Mock Environment.GetEnvironmentVariable to return null
         Environment.SetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY", null);
 
-        var handler = new GetStripeConfigHandler(configurationMock.Object);
+        var handler = new GetStripeConfigHandler();
         var request = new GetStripeConfigRequest();
 
         // Act
@@ -38,7 +38,7 @@ public class GetStripeConfigHandlerTests
 
         var configurationMock = new Mock<IConfiguration>();
         
-        var handler = new GetStripeConfigHandler(configurationMock.Object);
+        var handler = new GetStripeConfigHandler();
         var request = new GetStripeConfigRequest();
 
         // Act
@@ -63,7 +63,7 @@ public class GetStripeConfigHandlerTests
         var configurationMock = new Mock<IConfiguration>();
         configurationMock.Setup(x => x["Stripe:PublishableKey"]).Returns(publishableKey);
         
-        var handler = new GetStripeConfigHandler(configurationMock.Object);
+        var handler = new GetStripeConfigHandler();
         var request = new GetStripeConfigRequest();
 
         // Act

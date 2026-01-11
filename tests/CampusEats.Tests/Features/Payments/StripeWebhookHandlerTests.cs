@@ -14,8 +14,20 @@ using Stripe;
 
 namespace CampusEats.Tests.Features.Payments;
 
-public class StripeWebhookHandlerTests
+public class StripeWebhookHandlerTests : IDisposable
 {
+    private readonly string? _originalWebhookSecret;
+
+    public StripeWebhookHandlerTests()
+    {
+        _originalWebhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
+    }
+
+    public void Dispose()
+    {
+        Environment.SetEnvironmentVariable("STRIPE_WEBHOOK_SECRET", _originalWebhookSecret);
+    }
+
     private static CampusDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<CampusDbContext>()
@@ -54,8 +66,8 @@ public class StripeWebhookHandlerTests
     public async Task GivenMissingWebhookSecret_WhenHandlingWebhook_ThenReturnsProblem()
     {
         await using var context = CreateContext();
-        var config = CreateConfig(null);
-        var handler = new StripeWebhookHandler(context, config);
+        Environment.SetEnvironmentVariable("STRIPE_WEBHOOK_SECRET", null);
+        var handler = new StripeWebhookHandler(context);
 
         var result = await handler.Handle(new StripeWebhookRequest
         {
@@ -70,8 +82,8 @@ public class StripeWebhookHandlerTests
     public async Task GivenInvalidSignature_WhenHandlingWebhook_ThenReturnsBadRequest()
     {
         await using var context = CreateContext();
-        var config = CreateConfig("whsec_test");
-        var handler = new StripeWebhookHandler(context, config);
+        Environment.SetEnvironmentVariable("STRIPE_WEBHOOK_SECRET", "whsec_test");
+        var handler = new StripeWebhookHandler(context);
 
         var result = await handler.Handle(new StripeWebhookRequest
         {
@@ -88,8 +100,8 @@ public class StripeWebhookHandlerTests
     {
         await using var context = CreateContext();
         var secret = "whsec_test";
-        var config = CreateConfig(secret);
-        var handler = new StripeWebhookHandler(context, config);
+        Environment.SetEnvironmentVariable("STRIPE_WEBHOOK_SECRET", secret);
+        var handler = new StripeWebhookHandler(context);
 
         var orderId = Guid.NewGuid();
         var menuItemId = Guid.NewGuid();
@@ -204,8 +216,8 @@ public class StripeWebhookHandlerTests
     {
         await using var context = CreateContext();
         var secret = "whsec_test";
-        var config = CreateConfig(secret);
-        var handler = new StripeWebhookHandler(context, config);
+        Environment.SetEnvironmentVariable("STRIPE_WEBHOOK_SECRET", secret);
+        var handler = new StripeWebhookHandler(context);
 
         var orderId = Guid.NewGuid();
         var payment = new Payment

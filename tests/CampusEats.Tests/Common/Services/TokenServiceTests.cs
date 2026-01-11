@@ -8,21 +8,37 @@ using System.Security.Claims;
 
 namespace CampusEats.Tests.Common.Services;
 
-public class TokenServiceTests
+public class TokenServiceTests : IDisposable
 {
+    private readonly string? _originalJwtSecretKey;
+    private readonly string? _originalJwtIssuer;
+
+    public TokenServiceTests()
+    {
+        _originalJwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+        _originalJwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+    }
+
+    public void Dispose()
+    {
+        // Restore original environment variables
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", _originalJwtSecretKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", _originalJwtIssuer);
+    }
+
     [Fact]
     public void GivenMissingTokenKey_WhenConstructing_ThenThrowsInvalidOperationException()
     {
         // Arrange
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns((string?)null);
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", null);
 
         // Act
         Action act = () => new TokenService(configurationMock.Object);
 
         // Assert
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Token:Key*");
+            .WithMessage("*JWT*");
     }
 
     [Fact]
@@ -30,11 +46,10 @@ public class TokenServiceTests
     {
         // Arrange
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-123456789-ABCDEFGHIJKLMNOP";
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.Test");
+        
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns(tokenKey);
-        configurationMock.Setup(x => x["Token:Issuer"]).Returns("CampusEats.Test");
-        configurationMock.Setup(x => x["Token:Audience"]).Returns("CampusEats.Client");
-
         var tokenService = new TokenService(configurationMock.Object);
         var user = new ApplicationUser
         {
@@ -63,11 +78,10 @@ public class TokenServiceTests
     {
         // Arrange
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-123456789-ABCDEFGHIJKLMNOP";
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.Test");
+        
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns(tokenKey);
-        configurationMock.Setup(x => x["Token:Issuer"]).Returns("CampusEats.Test");
-        configurationMock.Setup(x => x["Token:Audience"]).Returns("CampusEats.Client");
-
         var tokenService = new TokenService(configurationMock.Object);
         var user = new ApplicationUser
         {
@@ -98,11 +112,10 @@ public class TokenServiceTests
     {
         // Arrange
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-123456789-ABCDEFGHIJKLMNOP";
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.Test");
+        
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns(tokenKey);
-        configurationMock.Setup(x => x["Token:Issuer"]).Returns("CampusEats.Test");
-        configurationMock.Setup(x => x["Token:Audience"]).Returns("CampusEats.Client");
-
         var tokenService = new TokenService(configurationMock.Object);
         var user = new ApplicationUser
         {
@@ -155,11 +168,10 @@ public class TokenServiceTests
     {
         // Arrange
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-123456789-ABCDEFGHIJKLMNOP";
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.Test");
+        
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns(tokenKey);
-        configurationMock.Setup(x => x["Token:Issuer"]).Returns("CampusEats.Test");
-        configurationMock.Setup(x => x["Token:Audience"]).Returns("CampusEats.Client");
-
         var tokenService = new TokenService(configurationMock.Object);
         var user = new ApplicationUser
         {
@@ -190,12 +202,10 @@ public class TokenServiceTests
         // Arrange
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-123456789-ABCDEFGHIJKLMNOP";
         var expectedIssuer = "CampusEats.TestIssuer";
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", expectedIssuer);
         
         var configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Token:Key"]).Returns(tokenKey);
-        configurationMock.Setup(x => x["Token:Issuer"]).Returns(expectedIssuer);
-        configurationMock.Setup(x => x["Token:Audience"]).Returns("CampusEats.Client");
-
         var tokenService = new TokenService(configurationMock.Object);
         var user = new ApplicationUser
         {

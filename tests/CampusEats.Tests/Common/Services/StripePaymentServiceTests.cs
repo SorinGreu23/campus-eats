@@ -19,7 +19,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", null);
 
         // Act
-        Action act = () => new StripePaymentService(configurationMock.Object);
+        Action act = () => new StripePaymentService();
 
         // Assert
         act.Should().Throw<InvalidOperationException>()
@@ -35,7 +35,7 @@ public class StripePaymentServiceTests
         
         var configurationMock = new Mock<IConfiguration>();
         
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
         
         // Note: This test would need to be modified to work with actual Stripe API
         // or require dependency injection of PaymentIntentService for mocking
@@ -63,7 +63,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", secretKey);
         
         var configurationMock = new Mock<IConfiguration>();
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
 
         // Note: Testing Stripe confirmation requires mocking or test mode
         // This test validates the service structure
@@ -81,7 +81,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", secretKey);
         
         var configurationMock = new Mock<IConfiguration>();
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
 
         // Note: Testing different Stripe statuses requires mocking
         // This test validates the service can handle different outcomes
@@ -99,7 +99,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", secretKey);
         
         var configurationMock = new Mock<IConfiguration>();
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
 
         // Note: Testing cancellation requires actual Stripe integration
         // This validates the service structure
@@ -117,7 +117,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", secretKey);
         
         var configurationMock = new Mock<IConfiguration>();
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
 
         // Note: Testing exception handling requires mocking Stripe SDK
         // This validates error scenarios are considered
@@ -135,7 +135,7 @@ public class StripePaymentServiceTests
         Environment.SetEnvironmentVariable("STRIPE_SECRET_KEY", secretKey);
         
         var configurationMock = new Mock<IConfiguration>();
-        var service = new StripePaymentService(configurationMock.Object);
+        var service = new StripePaymentService();
 
         // Note: Testing status retrieval requires Stripe integration
         // This validates the service provides the method

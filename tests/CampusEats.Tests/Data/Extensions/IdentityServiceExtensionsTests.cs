@@ -10,24 +10,34 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CampusEats.Tests.Data.Extensions;
 
-public class IdentityServiceExtensionsTests
+public class IdentityServiceExtensionsTests : IDisposable
 {
+    private readonly string? _originalJwtSecretKey;
+    private readonly string? _originalJwtIssuer;
+
+    public IdentityServiceExtensionsTests()
+    {
+        _originalJwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+        _originalJwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+    }
+
+    public void Dispose()
+    {
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", _originalJwtSecretKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", _originalJwtIssuer);
+    }
+
     [Fact]
     public async Task GivenValidConfiguration_WhenAddingIdentityServices_ThenConfiguresCorrectly()
     {
         // Arrange
         var services = new ServiceCollection();
         
-        // Create in-memory configuration
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" },
-            { "Token:Audience", "CampusEats.TestAudience" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         // Add required DbContext for Identity
@@ -65,14 +75,11 @@ public class IdentityServiceExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
@@ -93,14 +100,11 @@ public class IdentityServiceExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
@@ -128,14 +132,11 @@ public class IdentityServiceExtensionsTests
         var tokenKey = "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long";
         var issuer = "CampusEats.TestIssuer";
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", tokenKey },
-            { "Token:Issuer", issuer }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", tokenKey);
+        Environment.SetEnvironmentVariable("JWT_ISSUER", issuer);
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
@@ -160,14 +161,11 @@ public class IdentityServiceExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
@@ -191,14 +189,11 @@ public class IdentityServiceExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
@@ -235,14 +230,11 @@ public class IdentityServiceExtensionsTests
         // Arrange
         var services = new ServiceCollection();
         
-        var configurationData = new Dictionary<string, string?>
-        {
-            { "Token:Key", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long" },
-            { "Token:Issuer", "CampusEats.TestIssuer" }
-        };
+        Environment.SetEnvironmentVariable("JWT_SECRET_KEY", "this-is-a-very-secure-secret-key-for-testing-purposes-at-least-32-characters-long");
+        Environment.SetEnvironmentVariable("JWT_ISSUER", "CampusEats.TestIssuer");
         
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configurationData)
+            .AddInMemoryCollection(new Dictionary<string, string?>())
             .Build();
 
         services.AddDbContext<IdentityDbContext>(options =>
