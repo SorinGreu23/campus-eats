@@ -22,6 +22,8 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
                 .ThenInclude(mia => mia.Allergen)
             .Include(m => m.MenuItemDietaryRestrictions)
                 .ThenInclude(midr => midr.DietaryRestriction)
+            .Include(m => m.Ingredients)
+                .ThenInclude(mi => mi.InventoryItem)
             .AsQueryable();
 
         // Filter by category if specified
@@ -59,6 +61,15 @@ public class GetItemsHandler : IRequestHandler<GetItemsRequest, IResult>
                 (m.Description != null && m.Description.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase))
             );
         }
+
+        // Filter out items that don't have enough stock
+        // A menu item is in stock if:
+        // - It has no ingredients (no inventory tracking), OR
+        // - All its ingredients have sufficient quantity (CurrentQuantity >= QuantityRequired)
+        query = query.Where(m =>
+            !m.Ingredients.Any() ||
+            m.Ingredients.All(mi => mi.InventoryItem.CurrentQuantity >= mi.QuantityRequired)
+        );
 
         var items = await query
             .Select(m => new GetItemsResponse(

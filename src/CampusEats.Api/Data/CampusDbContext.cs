@@ -23,6 +23,7 @@ public class CampusDbContext : DbContext
     public DbSet<DietaryRestriction> DietaryRestrictions { get; set; }
     public DbSet<MenuItemAllergen> MenuItemAllergens { get; set; }
     public DbSet<MenuItemDietaryRestriction> MenuItemDietaryRestrictions { get; set; }
+    public DbSet<MenuItemIngredient> MenuItemIngredients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -64,6 +64,7 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserRequest, IR
             o.Total,
             o.DeliveryInstructions,
             o.PickupTime,
+            PlacedAt = o.CreatedAt,
             o.CompletedAt,
             o.CancelledAt,
             o.CancellationReason,

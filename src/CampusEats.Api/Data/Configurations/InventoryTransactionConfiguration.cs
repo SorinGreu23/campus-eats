@@ -17,8 +17,8 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
 
         builder
             .HasOne(x => x.InventoryItem)
-            .WithMany()
+            .WithMany(i => i.Transactions)
             .HasForeignKey(x => x.InventoryItemId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

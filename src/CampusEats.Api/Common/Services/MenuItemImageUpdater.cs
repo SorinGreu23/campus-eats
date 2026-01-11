@@ -38,19 +38,27 @@ public static class MenuItemImageUpdater
             { "Smoothie", "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&h=400&fit=crop" }
         };
 
-        foreach (var (itemName, imageUrl) in imageUpdates)
+        // Load all menu items once to avoid N+1 query problem
+        var itemNames = imageUpdates.Keys.ToList();
+        var menuItems = await context.MenuItems
+            .Where(m => itemNames.Contains(m.Name))
+            .ToListAsync();
+
+        // Update items in memory
+        foreach (var menuItem in menuItems)
         {
-            var menuItem = await context.MenuItems
-                .FirstOrDefaultAsync(m => m.Name == itemName);
-            
-            if (menuItem != null && string.IsNullOrEmpty(menuItem.ImageUrl))
+            if (imageUpdates.TryGetValue(menuItem.Name, out var imageUrl) && 
+                string.IsNullOrEmpty(menuItem.ImageUrl))
             {
                 menuItem.ImageUrl = imageUrl;
                 menuItem.UpdatedAt = DateTimeOffset.UtcNow;
-                Console.WriteLine($"Updated image for: {itemName}");
+                Console.WriteLine($"Updated image for: {menuItem.Name}");
             }
         }
 
-        await context.SaveChangesAsync();
+        if (menuItems.Any())
+        {
+            await context.SaveChangesAsync();
+        }
     }
 }
